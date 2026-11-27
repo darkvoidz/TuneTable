@@ -5,7 +5,6 @@ import kotlin.math.roundToInt
 import androidx.compose.ui.layout.layout
 import com.music.bitchord.ui.components.BAR_GUTTER
 import com.music.bitchord.ui.components.FLOATING_TAB_PILL_HEIGHT
-import com.music.bitchord.ui.components.MINI_PLAYER_COMPACT_WIDTH
 import com.music.bitchord.ui.screens.JumpBackIn
 import androidx.compose.ui.graphics.toArgb
 import com.music.bitchord.ui.theme.Accent
@@ -4519,14 +4518,21 @@ private fun BitChordApp(
                     // One value, 0 open to 1 folded, moves the tab bar and the
                     // mini player together on one spring: the tabs fold into the
                     // current one and glide to the bottom-left corner, and the
-                    // mini player drops into the same row on the right, down to
-                    // its cover and play/pause. Read only while laying out and
+                    // mini player drops into the same row, filling the rest of it at
+                    // the folded tab's height. Read only while laying out and
                     // drawing, so a fold recomposes neither.
+                    //
+                    // An unhurried ease with no overshoot, the same curve both
+                    // ways, so unfolding retraces the fold from wherever it stands.
                     val barFoldState = animateFloatAsState(
                         targetValue = if (navBarScroll.isInline) 1f else 0f,
-                        animationSpec = spring(dampingRatio = 0.82f, stiffness = 300f),
+                        animationSpec = tween(durationMillis = 460, easing = CubicBezierEasing(0.4f, 0f, 0.2f, 1f)),
                         label = "barFold",
                     )
+                    // The mini player's open height, kept so the bars report the
+                    // same height folded or not: a page's bottom padding is taken
+                    // from it, and one that changed mid-scroll would jolt the page.
+                    val miniOpenHeight = remember { intArrayOf(0) }
                     val barFold: () -> Float = { barFoldState.value }
                     player.song?.let { song ->
                         MiniPlayer(
@@ -4559,16 +4565,21 @@ private fun BitChordApp(
                                 .layout { measurable, constraints ->
                                     val f = barFold().coerceIn(0f, 1f)
                                     val full = constraints.maxWidth
-                                    val compactWidth = MINI_PLAYER_COMPACT_WIDTH.roundToPx().coerceAtMost(full)
-                                    val width = (full + (compactWidth - full) * f).roundToInt()
+                                    val gap = 8.dp.roundToPx()
+                                    // Folded, it takes the whole row beside the folded
+                                    // tab: the tab's width and a gap in from the left,
+                                    // its own gutter doubling as the bar's.
+                                    val inset = FLOATING_TAB_PILL_HEIGHT.roundToPx() + gap
+                                    val width = (full - inset * f).roundToInt()
                                     val placeable = measurable.measure(
-                                        constraints.copy(minWidth = width, maxWidth = width),
+                                        constraints.copy(minWidth = width, maxWidth = width, minHeight = 0),
                                     )
-                                    // Down into the tab pill's row, centred on it.
-                                    val pill = FLOATING_TAB_PILL_HEIGHT.roundToPx()
-                                    val drop = placeable.height + 8.dp.roundToPx() + (pill - placeable.height) / 2
-                                    layout(full, placeable.height) {
-                                        placeable.place(full - width, (drop * f).roundToInt())
+                                    if (f == 0f) miniOpenHeight[0] = placeable.height
+                                    val open = maxOf(miniOpenHeight[0], placeable.height)
+                                    // Down into the tab pill's row: open, it sits above
+                                    // the pill; folded, level with it, the same height.
+                                    layout(full, open) {
+                                        placeable.place(full - width, ((open + gap) * f).roundToInt())
                                     }
                                 },
                             autoMixArtwork = miniArtwork,

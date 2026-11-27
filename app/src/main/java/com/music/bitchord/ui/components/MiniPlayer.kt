@@ -1,5 +1,6 @@
 package com.music.bitchord.ui.components
 
+import androidx.compose.ui.unit.offset
 import kotlin.math.roundToInt
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.draw.clipToBounds
@@ -391,9 +392,10 @@ fun MiniPlayer(
      */
     progress: (() -> Float)? = null,
     /**
-     * How far the bar has folded into its compact form, 0 to 1: the title
-     * fades and skip folds away, leaving the cover and play/pause. Read while
-     * laying out and drawing, so a fold recomposes nothing.
+     * How far the bar has folded into its compact form, 0 to 1: skip folds
+     * away and the bar slims to the folded tab's height, keeping the cover,
+     * the title and play/pause. Read while laying out and drawing, so a fold
+     * recomposes nothing.
      */
     compact: () -> Float = { 0f },
     modifier: Modifier = Modifier,
@@ -451,10 +453,18 @@ fun MiniPlayer(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(
-                    horizontal = ROW_PADDING_HORIZONTAL,
-                    vertical = ROW_PADDING_VERTICAL,
-                ),
+                .padding(horizontal = ROW_PADDING_HORIZONTAL)
+                // Open, the row's own padding; folded, just enough to make the
+                // bar exactly as tall as the folded tab beside it.
+                .layout { measurable, constraints ->
+                    val c = compact().coerceIn(0f, 1f)
+                    val open = ROW_PADDING_VERTICAL.toPx()
+                    val folded = ((COMPACT_BAR_HEIGHT - ART_SIZE - (RING_GAP + RING_STROKE) * 2) / 2)
+                        .toPx().coerceAtLeast(0f)
+                    val pad = (open + (folded - open) * c).roundToInt()
+                    val placeable = measurable.measure(constraints.offset(vertical = -pad * 2))
+                    layout(placeable.width, placeable.height + pad * 2) { placeable.place(0, pad) }
+                },
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // A music video plays here at its own 16:9, as the web player's
@@ -503,12 +513,7 @@ fun MiniPlayer(
             }
             }
             Spacer(Modifier.width(10.dp))
-            Column(
-                Modifier
-                    .weight(1f)
-                    .clipToBounds()
-                    .graphicsLayer { alpha = 1f - compact().coerceIn(0f, 1f) },
-            ) {
+            Column(Modifier.weight(1f)) {
                 // The badge in the artist line's colour and a long line faded
                 // out at its end, as on the glass bar's mini player.
                 ExplicitSongTitle(
@@ -627,12 +632,8 @@ private fun Modifier.progressRing(progress: (() -> Float)?): Modifier =
 
 private val RING_STROKE = 2.5.dp
 
-/**
- * The compact bar's width: the ringed cover, the gap after it, play/pause and
- * the row's padding at either end, plus the gutter the bar keeps either side.
- */
-val MINI_PLAYER_COMPACT_WIDTH: Dp =
-    ART_SIZE + (RING_GAP + RING_STROKE) * 2 + 10.dp + GLYPH_SLOT + ROW_PADDING_HORIZONTAL * 2 + BAR_GUTTER * 2
+/** The folded bar's height: the folded tab pill's own, so the two match. */
+private val COMPACT_BAR_HEIGHT: Dp get() = FLOATING_TAB_PILL_HEIGHT
 
 @Composable
 internal fun MiniPlayerArtwork(song: Song, autoMixArtwork: (@Composable (String?, Modifier) -> Unit)?) {
