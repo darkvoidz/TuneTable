@@ -19,6 +19,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.runtime.SideEffect
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.CubicBezierEasing
@@ -3007,6 +3014,13 @@ private fun BitChordApp(
                 .snapshotBackdropSource(pageBackdrop, floor = MaterialTheme.colorScheme.background),
         ) {
             Box(Modifier.weight(1f).fillMaxHeight()) {
+                // How deep the stack is, against the last time it was looked at:
+                // shallower means back, which slides the other way.
+                val navDepth = navigator.entries.size + detailStack.size
+                val lastNavDepth = remember { mutableIntStateOf(navDepth) }
+                val goingBack = navDepth < lastNavDepth.intValue
+                SideEffect { lastNavDepth.intValue = navDepth }
+                val reduceMotion by AppSettings.reduceAnimation.collectAsStateWithLifecycle()
                 AnimatedContent(
                     // Whatever is on top of the back stack — see [AppNavigator].
                     targetState = when {
@@ -3047,8 +3061,24 @@ private fun BitChordApp(
                             (target.isShowAll() && initial == libraryTab)
                         if (tabSwap || libraryShowAllSwap) {
                             EnterTransition.None togetherWith ExitTransition.None
-                        } else {
+                        } else if (reduceMotion) {
                             fadeIn(tween(180)) togetherWith fadeOut(tween(180))
+                        } else {
+                            // A pushed page glides in from the right and the one
+                            // under it drifts left as it fades; back is the
+                            // mirror. Short travel, and the outgoing page gone
+                            // quickly, because pages paint no background of their
+                            // own and two full ones overlapping would show through
+                            // each other.
+                            val dir = if (goingBack) -1 else 1
+                            val ease = CubicBezierEasing(0.2f, 0f, 0f, 1f)
+                            (
+                                slideInHorizontally(tween(320, easing = ease)) { dir * it / 4 } +
+                                    fadeIn(tween(220, delayMillis = 60))
+                                ) togetherWith (
+                                slideOutHorizontally(tween(320, easing = ease)) { -dir * it / 8 } +
+                                    fadeOut(tween(120))
+                                )
                         }
                     },
                     modifier = Modifier
@@ -5863,9 +5893,23 @@ private fun BitChordApp(
             )
         }
 
-        if (showAccountSelector) {
-            BackHandler { showAccountSelector = false }
+        BackHandler(enabled = showAccountSelector) { showAccountSelector = false }
+        // The dim fades in; the card itself grows down from the top as it fades,
+        // and goes back the same way.
+        AnimatedVisibility(
+            visible = showAccountSelector,
+            enter = fadeIn(tween(200)),
+            exit = fadeOut(tween(160)),
+        ) {
             AccountProfileSelector(
+                cardModifier = Modifier.animateEnterExit(
+                    enter = scaleIn(
+                        tween(260, easing = CubicBezierEasing(0.2f, 0f, 0f, 1f)),
+                        initialScale = 0.9f,
+                        transformOrigin = TransformOrigin(0.5f, 0f),
+                    ) + slideInVertically(tween(260)) { -it / 12 },
+                    exit = scaleOut(tween(160), targetScale = 0.94f, transformOrigin = TransformOrigin(0.5f, 0f)),
+                ),
                 accounts = googleAccounts,
                 activeAccountId = activeAccountId,
                 activeProfileId = activeProfileId,

@@ -65,6 +65,8 @@ fun AccountProfileSelector(
     onOpenSettings: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    /** On the card alone, under the dim — where the caller hangs its entrance. */
+    cardModifier: Modifier = Modifier,
 ) {
     var managing by remember { mutableStateOf(false) }
     val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
@@ -97,6 +99,7 @@ fun AccountProfileSelector(
             shape = shape,
             modifier = Modifier
                 .padding(top = 56.dp, start = 20.dp, end = 20.dp)
+                .then(cardModifier)
                 .fillMaxWidth()
                 .clip(shape)
                 .then(
