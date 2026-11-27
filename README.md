@@ -39,8 +39,10 @@ TuneTable is a modified version of [**BitChord**](https://github.com/kushagrasin
 </div>
 
 - **Spotify-style now playing screen** — big cover art, bold title with a heart to like, shuffle and repeat beside a round play button, and the cover's colour fading down to black behind it.
-- **Your own accent colour** — the app icon's coral-to-purple gradient, your phone's system colours, a set of presets, or any colour you pick. Highlights, switches, the selected tab and the app's background all follow it.
-- **New mini player and tab bar** — a slim mini player with a progress ring round the cover, and a compact floating tab bar.
+- **Your own accent colour** — the app icon's coral-to-purple gradient, your phone's system colours, a set of presets, or any colour you pick. Highlights, switches, selected items and the app's background all follow it.
+- **A new Home** — a greeting for the time of day, filters for songs, videos and mixes, your playlists one tap away, a "Jump back in" card for the album or playlist you were last playing, and recently played as a grid.
+- **Folding bars** — scroll down and the tab bar folds into a single button at the bottom-left while the mini player slides in beside it; scroll up and both unfold.
+- **Redesigned Settings** — cards washed in your accent, round gradient icons and clearer section headings.
 - **A cleaner, solid look** — the frosted-glass effects are gone.
 - **Smaller touches** — a heart for Like everywhere, sliding page transitions, a tidier account menu, and a new icon.
 

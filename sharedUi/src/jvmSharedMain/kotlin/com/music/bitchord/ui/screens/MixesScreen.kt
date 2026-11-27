@@ -493,7 +493,7 @@ private const val TILE_VEIL_ALPHA = 0.18f
 /** The mark's width against the tile's. */
 private const val TILE_LOGO_FRACTION = 0.42f
 
-/** ic_logo's viewport, 730 x 484 — see HomeTitle. */
+/** ic_logo's viewport, 730 x 484. */
 private const val LOGO_ASPECT = 730f / 484f
 
 /** One fixed width on every screen; about one and a half Home cards. */

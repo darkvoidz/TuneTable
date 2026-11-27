@@ -118,10 +118,6 @@
     <string name="home_filter_songs">Songs</string>
     <string name="home_filter_videos">Videos</string>
     <string name="home_filter_mixes">Mixes</string>
-    <string name="home_liked">Liked</string>
-    <string name="home_downloads">Downloads</string>
-    <string name="home_radio">Radio</string>
-    <string name="continue_listening">Continue listening</string>
     <string name="jump_back_in">Jump back in</string>
     <string name="your_playlists">Your playlists</string>
     <string name="recently_played">Recently played</string>

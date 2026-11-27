@@ -3,7 +3,6 @@ package com.music.bitchord.ui.screens
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.graphics.luminance
 import com.music.bitchord.ui.components.trackArtSize
 import com.music.bitchord.ui.components.contextClick
 import com.music.bitchord.ui.AppUi
@@ -12,7 +11,6 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.DrawableResource
 import androidx.compose.foundation.Image
 import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -488,69 +486,6 @@ fun CompactTrackRow(
         }
     }
 }
-
-/**
- * Listen now's large heading, with the wordmark stacked above it.
- *
- * Only the home tab carries it — the top bar no longer shows the logo, so this
- * is where the app's mark lives. Its height is taken from the heading's own
- * font size rather than a fixed dp, so the two keep their proportion under the
- * system font scale.
- */
-@Composable
-private fun HomeTitle(
-    title: String,
-    replayYear: ReplayYearBadge? = null,
-    modifier: Modifier = Modifier,
-) {
-    val style = MaterialTheme.typography.displayLarge
-    val logoHeight = with(LocalDensity.current) { (style.fontSize * LOGO_TO_FONT).toDp() }
-    Column(modifier = modifier.padding(horizontal = PAGE_GUTTER, vertical = 8.dp)) {
-        // The wordmark, and the year story's button right after it when there
-        // is a year to tell. Sized off the wordmark so the two keep their
-        // proportion under the system font scale.
-        Row(
-            modifier = Modifier.padding(bottom = 14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            // On the dark theme the logo keeps its own white-to-grey shine;
-            // on the light one it takes the text colour so it stays visible.
-            val logoModifier = Modifier
-                .height(logoHeight)
-                .aspectRatio(LOGO_ASPECT)
-            if (MaterialTheme.colorScheme.background.luminance() < 0.5f) {
-                Image(
-                    painter = painterResource(Res.drawable.ic_logo),
-                    contentDescription = null,
-                    modifier = logoModifier,
-                )
-            } else {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_logo),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    modifier = logoModifier,
-                )
-            }
-            if (replayYear != null) {
-                Spacer(Modifier.width(14.dp))
-                ReplayYearButton(replayYear, height = logoHeight * 0.68f)
-            }
-        }
-        // "Listen now" is hidden for now; the wordmark above stays.
-        // Text(
-        //     text = title,
-        //     style = style,
-        //     color = MaterialTheme.colorScheme.onBackground,
-        // )
-    }
-}
-
-/** The wordmark's height against the heading's font size. */
-private const val LOGO_TO_FONT = 0.9f
-
-/** ic_logo's viewport, 730 x 484. */
-private const val LOGO_ASPECT = 730f / 484f
 
 /**
  * Shared by the home feed, Explore and Library so headings line up across tabs.

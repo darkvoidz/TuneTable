@@ -215,8 +215,6 @@ private val TRACK_FILL = Color(0xFF767680)
 private const val DARK_TRACK_ALPHA = 0.24f
 private const val LIGHT_TRACK_ALPHA = 0.12f
 
-/** The selected segment on dark, Apple's lifted grey; on light it is white. */
-private val DARK_PILL = Color(0xFF636366)
 
 private val TRACK_PADDING = 4.dp
 /** Air either side of a label: past this a segment reads as a word, not a cramped tab. */
