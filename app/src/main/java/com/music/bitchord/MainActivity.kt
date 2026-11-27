@@ -1,5 +1,7 @@
 package com.music.bitchord
 
+import com.music.bitchord.ui.theme.Accent
+import com.music.bitchord.ui.theme.rememberAccentColors
 import android.Manifest
 import android.content.Context
 import android.content.Intent
@@ -459,7 +461,10 @@ class MainActivity : AppCompatActivity() {
                 ThemeMode.LIGHT -> false
                 ThemeMode.DARK -> true
             }
-            BitChordTheme(darkTheme = darkTheme, font = appFont) {
+            // The accent chosen in Settings, handed to everything drawn in it.
+            val accent = rememberAccentColors()
+            SideEffect { Accent.colors = accent }
+            BitChordTheme(darkTheme = darkTheme, font = appFont, accent = accent.start) {
                 // The glass surfaces sample this layer, and a layer records only
                 // what is drawn into it — which, for BitChord, is a page that
                 // paints no background of its own. Everywhere a page is not

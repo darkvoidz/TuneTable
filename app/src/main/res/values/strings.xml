@@ -510,6 +510,13 @@
     <string name="discord_token_warning">Discord does not offer an API that lets apps set your presence, so this feature signs in as your account and uses Discord\'s protocol. Your token stays encrypted on this device and is sent only to Discord. It grants access to your full account, and account automation violates Discord\'s terms. Use it only if you accept that risk.</string>
     <string name="dislike">Dislike</string>
     <string name="done">Done</string>
+    <string name="accent_colour">Accent colour</string>
+    <string name="accent_colour_subtitle">Highlights, selected items and controls</string>
+    <string name="accent_app_icon">App icon</string>
+    <string name="accent_system_colours">System colours</string>
+    <string name="accent_presets">Presets</string>
+    <string name="accent_custom">Custom</string>
+    <string name="accent_use_this_colour">Use this colour</string>
     <string name="download">Download</string>
     <string name="download_quality_dialog_subtitle">For files kept on this device</string>
     <string name="downloaded">Downloaded</string>

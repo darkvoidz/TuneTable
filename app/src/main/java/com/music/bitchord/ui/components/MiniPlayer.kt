@@ -100,7 +100,7 @@ private val GLYPH_SLOT = 40.dp
  * taller, which is not what a bigger glyph is being asked for. At 32 there is
  * still 4dp of clearance to the slot's edge on every side.
  */
-private val GLYPH_SIZE = 24.dp
+private val GLYPH_SIZE = 30.dp
 
 /** The spinner that stands in for the play glyph, kept in proportion to it. */
 private val SPINNER_SIZE = 22.dp
@@ -123,7 +123,7 @@ private val TRANSPORT_GAP = 8.dp
  * Vertical padding, which with the 40dp artwork sets the bar's height at 56dp
  * and so its pill radius at 28.
  */
-private val ROW_PADDING_VERTICAL = 6.dp
+private val ROW_PADDING_VERTICAL = 9.dp
 
 /**
  * Horizontal padding, deliberately larger than the vertical.
@@ -145,8 +145,11 @@ private val ROW_PADDING_HORIZONTAL = 12.dp
  * height happens to be — so that constraint is gone and the artwork can go
  * back to matching [SongRow].
  */
-/** The cover: a circle, a little smaller than the old square one, for a slimmer bar. */
-private val ART_SIZE = 36.dp
+/** The cover: a circle, with the progress ring drawn round it. */
+private val ART_SIZE = 42.dp
+
+/** The space between the cover and the ring round it. */
+private val RING_GAP = 3.dp
 
 private val ART_CORNER = ART_SIZE / 2
 
@@ -380,7 +383,7 @@ fun MiniPlayer(
     animationsActive: Boolean = true,
     /**
      * How far through the song the player is, 0 to 1, drawn as the accent
-     * ring round the play button. Read only while drawing, so the playhead's
+     * ring round the cover. Read only while drawing, so the playhead's
      * tick redraws the ring and nothing else.
      */
     progress: (() -> Float)? = null,
@@ -452,6 +455,21 @@ fun MiniPlayer(
                 targetValue = if (showsPicture && !VideoThumbnails.square) VIDEO_ART_WIDTH else ART_SIZE,
                 label = "miniArtWidth",
             )
+            // The progress ring goes round the round cover; a music video's
+            // wide picture has no ring.
+            val ringed = !(showsPicture && !VideoThumbnails.square)
+            Box(
+                modifier = Modifier
+                    .then(
+                        if (ringed) {
+                            Modifier
+                                .progressRing(progress)
+                                .padding(RING_GAP + RING_STROKE)
+                        } else {
+                            Modifier
+                        },
+                    ),
+            ) {
             Box(
                 modifier = Modifier
                     .size(width = artWidth, height = ART_SIZE)
@@ -473,6 +491,7 @@ fun MiniPlayer(
                         priority = 0,
                     )
                 }
+            }
             }
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
@@ -506,9 +525,7 @@ fun MiniPlayer(
                         playPauseMotion.onTap()
                         onPlayPause()
                     },
-                    modifier = Modifier
-                        .size(GLYPH_SLOT)
-                        .progressRing(progress),
+                    modifier = Modifier.size(GLYPH_SLOT),
                 ) {
                     PlayerPlayPauseGlyph(
                         motion = playPauseMotion,
@@ -545,14 +562,14 @@ fun MiniPlayer(
 }
 
 /**
- * The accent ring round the play button: a faint full circle, and over it the
+ * The accent ring round the cover: a faint full circle, and over it the
  * part of the song already played, in the accent's coral-to-purple sweep,
  * starting from the top. Nothing is drawn without a [progress].
  */
 private fun Modifier.progressRing(progress: (() -> Float)?): Modifier =
     if (progress == null) this else drawBehind {
         val stroke = RING_STROKE.toPx()
-        val inset = stroke / 2 + RING_INSET.toPx()
+        val inset = stroke / 2
         val arcSize = Size(size.width - inset * 2, size.height - inset * 2)
         val topLeft = Offset(inset, inset)
         drawArc(
@@ -582,7 +599,6 @@ private fun Modifier.progressRing(progress: (() -> Float)?): Modifier =
     }
 
 private val RING_STROKE = 2.5.dp
-private val RING_INSET = 1.dp
 
 @Composable
 internal fun MiniPlayerArtwork(song: Song, autoMixArtwork: (@Composable (String?, Modifier) -> Unit)?) {

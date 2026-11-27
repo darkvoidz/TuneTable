@@ -128,6 +128,18 @@ enum class DownloadQuality(
     ),
 }
 
+/** Where the app's accent colour comes from. */
+enum class AccentMode {
+    /** The app icon's coral-to-purple gradient. */
+    ICON,
+
+    /** One of the phone's own system colours (Android 12 and later). */
+    SYSTEM,
+
+    /** A colour of the listener's own: a preset or one from the picker. */
+    COLOR,
+}
+
 enum class ThemeMode(val label: String) {
     SYSTEM("System"), LIGHT("Light"), DARK("Dark")
 }
@@ -530,6 +542,15 @@ object AppSettings {
 
     /** Analyzes audio waveform/envelope to align matching playback moment between versions. */
     val smartVersionAlignment = MutableStateFlow(true)
+
+    /** Where the accent colour comes from — see [AccentMode]. */
+    val accentMode = MutableStateFlow(AccentMode.ICON)
+
+    /** The chosen colour, as ARGB, while [accentMode] is [AccentMode.COLOR]. */
+    val accentColor = MutableStateFlow(DEFAULT_ACCENT_COLOR)
+
+    /** Which of the phone's system colours, while [accentMode] is [AccentMode.SYSTEM]. */
+    val accentSystemIndex = MutableStateFlow(0)
 
     /**
      * Frosted glass is removed from the app: haze blur (status bar, mini player,
@@ -1139,6 +1160,11 @@ object AppSettings {
         VideoThumbnails.square = squareVideoThumbnails.value
         smartVersionAlignment.value = prefs.getBoolean(KEY_SMART_VERSION_ALIGNMENT, true)
         disableBlendEffects.value = prefs.getBoolean(KEY_DISABLE_BLEND_EFFECTS, false)
+        accentMode.value = prefs.getString(KEY_ACCENT_MODE, null)
+            ?.let { saved -> AccentMode.entries.firstOrNull { it.name == saved } }
+            ?: AccentMode.ICON
+        accentColor.value = prefs.getInt(KEY_ACCENT_COLOR, DEFAULT_ACCENT_COLOR)
+        accentSystemIndex.value = prefs.getInt(KEY_ACCENT_SYSTEM_INDEX, 0)
         lyricsBlur.value = prefs.getBoolean(KEY_LYRICS_BLUR, true)
         lyricsOffsetMs.value = prefs.getInt(KEY_LYRICS_OFFSET_MS, 0)
             .coerceIn(MIN_LYRICS_OFFSET_MS, MAX_LYRICS_OFFSET_MS)
@@ -1647,6 +1673,32 @@ object AppSettings {
     fun setSmartVersionAlignment(value: Boolean) {
         smartVersionAlignment.value = value
         prefs.edit().putBoolean(KEY_SMART_VERSION_ALIGNMENT, value).apply()
+    }
+
+    /** The app icon's gradient. */
+    fun setAccentIcon() {
+        accentMode.value = AccentMode.ICON
+        prefs.edit().putString(KEY_ACCENT_MODE, AccentMode.ICON.name).apply()
+    }
+
+    /** One of the phone's own system colours, by its place in the list. */
+    fun setAccentSystem(index: Int) {
+        accentMode.value = AccentMode.SYSTEM
+        accentSystemIndex.value = index
+        prefs.edit()
+            .putString(KEY_ACCENT_MODE, AccentMode.SYSTEM.name)
+            .putInt(KEY_ACCENT_SYSTEM_INDEX, index)
+            .apply()
+    }
+
+    /** A colour of the listener's own, from the presets or the picker. */
+    fun setAccentColor(argb: Int) {
+        accentMode.value = AccentMode.COLOR
+        accentColor.value = argb
+        prefs.edit()
+            .putString(KEY_ACCENT_MODE, AccentMode.COLOR.name)
+            .putInt(KEY_ACCENT_COLOR, argb)
+            .apply()
     }
 
     fun setDisableBlendEffects(value: Boolean) {
@@ -2453,6 +2505,10 @@ object AppSettings {
     private const val KEY_HIDE_HOME_MOODS = "hide_home_moods"
     private const val KEY_SQUARE_VIDEO_THUMBNAILS = "square_video_thumbnails"
     private const val KEY_SMART_VERSION_ALIGNMENT = "smart_version_alignment"
+    private const val KEY_ACCENT_MODE = "accent_mode"
+    private const val KEY_ACCENT_COLOR = "accent_color"
+    private const val KEY_ACCENT_SYSTEM_INDEX = "accent_system_index"
+    private const val DEFAULT_ACCENT_COLOR = 0xFFFF7A59.toInt()
     private const val KEY_DISABLE_BLEND_EFFECTS = "disable_blend_effects"
     private const val KEY_LYRICS_BLUR = "lyrics_blur"
     private const val KEY_LYRICS_OFFSET_MS = "lyrics_offset_ms"

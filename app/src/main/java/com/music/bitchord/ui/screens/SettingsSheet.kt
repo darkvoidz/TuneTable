@@ -1,5 +1,8 @@
 package com.music.bitchord.ui.screens
 
+import com.music.bitchord.ui.theme.Accent
+import com.music.bitchord.ui.components.AccentColourDialog
+import androidx.compose.material.icons.rounded.Palette
 import com.music.bitchord.ui.icons.SfIcons
 import com.music.bitchord.wear.WatchInstaller
 import android.content.Context
@@ -1118,6 +1121,26 @@ fun SettingsScreen(
                     onSelect = { AppSettings.setThemeMode(ThemeMode.entries[it]) },
                     modifier = Modifier.padding(start = ROW_INSET, end = ROW_INSET, bottom = 14.dp),
                 )
+            }
+            val accentTitle = stringResource(R.string.accent_colour)
+            row(accentTitle, "accent", "colour", "color", "highlight") {
+                var showAccent by remember { mutableStateOf(false) }
+                SettingsRow(
+                    icon = Icons.Rounded.Palette,
+                    title = accentTitle,
+                    subtitle = stringResource(R.string.accent_colour_subtitle),
+                    onClick = { showAccent = true },
+                    trailing = {
+                        // The accent as it stands, gradient and all.
+                        Box(
+                            Modifier
+                                .size(26.dp)
+                                .clip(CircleShape)
+                                .background(Accent.brush),
+                        )
+                    },
+                )
+                if (showAccent) AccentColourDialog(onDismiss = { showAccent = false })
             }
             val fontTitle = stringResource(R.string.font)
             row(fontTitle, "typeface", "sf pro", "legacy") {
