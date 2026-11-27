@@ -49,6 +49,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -77,6 +78,7 @@ import androidx.compose.material.icons.rounded.CastConnected
 import androidx.compose.material.icons.rounded.DirectionsCar
 import androidx.compose.material.icons.rounded.Headphones
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.RepeatOne
 import androidx.compose.material.icons.rounded.Tv
 import androidx.compose.material.icons.rounded.Watch
 import androidx.compose.material3.CircularProgressIndicator
@@ -647,10 +649,22 @@ internal fun TransportRow(
     onNext: () -> Unit,
     compact: Boolean = false,
     animationsActive: Boolean = true,
+    /**
+     * Shuffle and repeat, drawn at the two ends of the row either side of the
+     * transport. Left out (null) where there is no room for them, such as the
+     * full-screen video controls.
+     */
+    shuffleEnabled: Boolean? = null,
+    repeatMode: Int = RepeatModes.OFF,
+    onToggleShuffle: (() -> Unit)? = null,
+    onCycleRepeat: (() -> Unit)? = null,
 ) {
-    val playSize = if (compact) 58.dp else 74.dp
-    val playTouch = if (compact) 76.dp else 92.dp
-    val skipSize = if (compact) 44.dp else PLAYER_SKIP_ICON_SIZE
+    // The play button is a solid white disc with a dark glyph on it.
+    val playDisc = if (compact) 54.dp else PLAY_DISC_SIZE
+    val playSize = if (compact) 24.dp else PLAY_DISC_GLYPH_SIZE
+    val playTouch = if (compact) 64.dp else PLAY_DISC_SIZE + 8.dp
+    val skipSize = if (compact) 30.dp else PLAYER_SKIP_ICON_SIZE
+    val showModes = shuffleEnabled != null && onToggleShuffle != null && onCycleRepeat != null
     val reduceAnimation by PlayerSettings.reduceAnimation.collectAsStateWithLifecycle()
     val previousMotion = rememberPlayerSkipMotion(active = animationsActive, reduceMotion = reduceAnimation)
     val nextMotion = rememberPlayerSkipMotion(active = animationsActive, reduceMotion = reduceAnimation)
@@ -663,11 +677,23 @@ internal fun TransportRow(
     )
     Row(
         modifier = Modifier.fillMaxWidth(),
-        // SpaceAround, not SpaceEvenly: the outer margins take half a gap, so
-        // the three buttons spread a little further apart from each other.
-        horizontalArrangement = Arrangement.SpaceAround,
+        // With shuffle and repeat the five controls span the full width, the
+        // modes pinned to the edges; without them the three spread around.
+        horizontalArrangement = if (showModes) Arrangement.SpaceBetween else Arrangement.SpaceAround,
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        if (showModes) {
+            ModeGlyph(
+                icon = BitChordIcons.Shuffle,
+                contentDescription = stringResource(
+                    if (shuffleEnabled == true) Res.string.shuffle_on else Res.string.shuffle_off,
+                ),
+                active = shuffleEnabled == true,
+                onClick = onToggleShuffle!!,
+                haptic = if (shuffleEnabled == true) Haptic.ToggleOff else Haptic.ToggleOn,
+                tapWindowMs = SHUFFLE_TAP_WINDOW_MS,
+            )
+        }
         TransportGlyph(
             icon = Res.drawable.ic_player_previous,
             contentDescription = stringResource(Res.string.widget_previous),
@@ -684,11 +710,16 @@ internal fun TransportRow(
             // Same footprint as the play/pause target — a smaller box here
             // would shunt everything below it on every load.
             Box(Modifier.size(playTouch), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(
-                    color = Color.White,
-                    strokeWidth = 3.dp,
-                    modifier = Modifier.size(if (compact) 30.dp else 38.dp),
-                )
+                Box(
+                    Modifier.size(playDisc).clip(CircleShape).background(Color.White),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator(
+                        color = Color.Black,
+                        strokeWidth = 3.dp,
+                        modifier = Modifier.size(if (compact) 22.dp else 28.dp),
+                    )
+                }
             }
         } else {
             TransportGlyph(
@@ -699,6 +730,7 @@ internal fun TransportRow(
                 onClick = onPlayPause,
                 haptic = if (isPlaying) Haptic.Pause else Haptic.Resume,
                 playPauseMotion = playPauseMotion,
+                disc = playDisc,
             )
         }
         TransportGlyph(
@@ -712,6 +744,86 @@ internal fun TransportRow(
             haptic = Haptic.SkipNext,
             skipMotion = nextMotion,
         )
+        if (showModes) {
+            ModeGlyph(
+                icon = if (repeatMode == RepeatModes.ONE) Icons.Rounded.RepeatOne else BitChordIcons.Repeat,
+                contentDescription = when (repeatMode) {
+                    RepeatModes.ONE -> stringResource(Res.string.repeat_one)
+                    RepeatModes.ALL -> stringResource(Res.string.repeat_all)
+                    else -> stringResource(Res.string.repeat_off)
+                },
+                active = repeatMode != RepeatModes.OFF,
+                onClick = onCycleRepeat!!,
+                haptic = when (repeatMode) {
+                    RepeatModes.OFF -> Haptic.ToggleOn
+                    RepeatModes.ONE -> Haptic.ToggleOff
+                    else -> Haptic.Select
+                },
+            )
+        }
+    }
+}
+
+/** The lit colour of shuffle, repeat and the liked heart. */
+internal val PlayerActiveGreen = Color(0xFF1ED760)
+
+/** The play/pause disc, and the glyph drawn on it. */
+private val PLAY_DISC_SIZE = 66.dp
+private val PLAY_DISC_GLYPH_SIZE = 30.dp
+
+/**
+ * Shuffle or repeat at an end of [TransportRow]: a plain glyph, white when
+ * off, green with a small dot under it when on.
+ */
+@Composable
+private fun ModeGlyph(
+    icon: ImageVector,
+    contentDescription: String,
+    active: Boolean,
+    onClick: () -> Unit,
+    haptic: Haptic,
+    tapWindowMs: Long = 0L,
+) {
+    val haptics = rememberHaptics()
+    var lastTap by remember { mutableLongStateOf(0L) }
+    val tint by androidx.compose.animation.animateColorAsState(
+        targetValue = if (active) PlayerActiveGreen else Color.White.copy(alpha = 0.85f),
+        label = "modeGlyphTint",
+    )
+    Box(
+        modifier = Modifier
+            .size(44.dp)
+            .clip(CircleShape)
+            .semantics { this.contentDescription = contentDescription }
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                role = Role.Button,
+            ) {
+                val now = System.currentTimeMillis()
+                if (tapWindowMs > 0L && now - lastTap < tapWindowMs) return@clickable
+                lastTap = now
+                haptics.play(haptic)
+                onClick()
+            },
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = tint,
+            modifier = Modifier.size(24.dp),
+        )
+        if (active) {
+            Box(
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 3.dp)
+                    .size(4.dp)
+                    .clip(CircleShape)
+                    .background(PlayerActiveGreen),
+            )
+        }
     }
 }
 
@@ -787,47 +899,14 @@ internal fun PlayerActionRow(
     /** Opens [ListenTogetherMembersSheet] rather than settings directly. */
     onOpenListenTogetherMembers: () -> Unit,
 ) {
-    val showPartyButton by PlayerSettings.showListenTogetherButton.collectAsStateWithLifecycle()
-    val inParty = rememberPartyBadge().inParty
-    // Just the output glyph in the middle.
-    val compact = !queueOpen && !showPartyButton && !inParty
-    BoxWithConstraints(Modifier.fillMaxWidth()) {
-        // Sized for the wider of the two capsules — the three-up one — whether
-        // that or the output/party one is up, so the lyrics and queue glyphs
-        // hold still as they swap. A lone output glyph is spaced as though the
-        // two-up capsule held it — closer in, without crowding — and they part
-        // again as the queue opens to make room.
-        val edgeInset = ((maxWidth - BOTTOM_ACTION_SIZE * 2 - pillWidth(3)) / 4).coerceAtLeast(0.dp)
-        val compactInset = ((maxWidth - BOTTOM_ACTION_SIZE * 2 - pillWidth(2)) / 4).coerceAtLeast(0.dp)
-        val closeIn = compactInset - edgeInset
-        // Held as State and read only in the glyphs' placement, so the slide
-        // re-places two glyphs a frame rather than recomposing and remeasuring
-        // the row — the capsule's own animation included — on every one.
-        val compactness = animateFloatAsState(
-            targetValue = if (compact) 1f else 0f,
-            // In step with the capsule's own width change.
-            animationSpec = tween(220),
-            label = "actionRowCompact",
-        )
-        Box(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = edgeInset),
-            contentAlignment = Alignment.Center,
-        ) {
-            Box(
-                Modifier
-                    .align(Alignment.CenterStart)
-                    .offset { IntOffset((closeIn.toPx() * compactness.value).roundToInt(), 0) },
-            ) {
-                BottomGlyph(
-                    icon = BitChordIcons.LyricsQuote,
-                    contentDescription = stringResource(if (lyricsOpen) Res.string.close_lyrics else Res.string.open_lyrics),
-                    // Lyrics and the queue are two things to show in one place, so
-                    // opening either closes the other; lit to say which is up.
-                    onClick = onToggleLyrics,
-                    highlighted = lyricsOpen,
-                    vibrant = true,
-                )
-            }
+    // Where the sound goes sits at the left, as a devices control does; lyrics
+    // and the queue sit together at the right.
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(contentAlignment = Alignment.CenterStart) {
             AnimatedContent(
                 targetState = queueOpen,
                 transitionSpec = {
@@ -894,20 +973,26 @@ internal fun PlayerActionRow(
                     )
                 }
             }
-            Box(
-                Modifier
-                    .align(Alignment.CenterEnd)
-                    .offset { IntOffset(-(closeIn.toPx() * compactness.value).roundToInt(), 0) },
-            ) {
-                BottomGlyph(
-                    icon = BitChordIcons.Queue,
-                    contentDescription = stringResource(Res.string.up_next),
-                    onClick = onToggleQueue,
-                    highlighted = queueOpen,
-                    haptic = if (queueOpen) Haptic.Tap else Haptic.Expand,
-                    vibrant = true,
-                )
-            }
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            BottomGlyph(
+                icon = BitChordIcons.LyricsQuote,
+                contentDescription = stringResource(if (lyricsOpen) Res.string.close_lyrics else Res.string.open_lyrics),
+                // Lyrics and the queue are two things to show in one place, so
+                // opening either closes the other; lit to say which is up.
+                onClick = onToggleLyrics,
+                highlighted = lyricsOpen,
+                vibrant = true,
+            )
+            Spacer(Modifier.width(8.dp))
+            BottomGlyph(
+                icon = BitChordIcons.Queue,
+                contentDescription = stringResource(Res.string.up_next),
+                onClick = onToggleQueue,
+                highlighted = queueOpen,
+                haptic = if (queueOpen) Haptic.Tap else Haptic.Expand,
+                vibrant = true,
+            )
         }
     }
 }
@@ -1167,6 +1252,8 @@ private fun TransportGlyph(
     skipMotion: PlayerSkipMotion? = null,
     skipPrevious: Boolean = false,
     playPauseMotion: ExpandedPlayPauseMotion? = null,
+    /** Draws the glyph dark on a solid white disc of this size. */
+    disc: Dp? = null,
 ) {
     val haptics = rememberHaptics()
     val interactionSource = remember { MutableInteractionSource() }
@@ -1174,6 +1261,13 @@ private fun TransportGlyph(
     val alpha by animateFloatAsState(
         targetValue = if (enabled) 1f else 0.3f,
         label = "transportAlpha",
+    )
+    val ink = if (disc != null) Color.Black else Color.White.copy(alpha = alpha)
+    // A press shrinks the disc a little, in place of the glyph's press circle.
+    val pressed by interactionSource.collectIsPressedAsState()
+    val discScale by animateFloatAsState(
+        targetValue = if (pressed) 0.94f else 1f,
+        label = "playDiscScale",
     )
     Box(
         modifier = Modifier
@@ -1186,7 +1280,7 @@ private fun TransportGlyph(
                     tint = Color.White.copy(alpha = alpha),
                     glyphSize = size,
                     diameter = PLAYER_PRESS_CIRCLE_DIAMETER,
-                ) else if (playPauseMotion != null) Modifier.expandedPlayPausePressCircle(
+                ) else if (playPauseMotion != null && disc == null) Modifier.expandedPlayPausePressCircle(
                     motion = playPauseMotion,
                     interactionSource = interactionSource,
                     tint = Color.White.copy(alpha = alpha),
@@ -1206,11 +1300,24 @@ private fun TransportGlyph(
             },
         contentAlignment = Alignment.Center,
     ) {
+        if (disc != null) {
+            Box(
+                Modifier
+                    .size(disc)
+                    .graphicsLayer {
+                        scaleX = discScale
+                        scaleY = discScale
+                        this.alpha = alpha
+                    }
+                    .clip(CircleShape)
+                    .background(Color.White),
+            )
+        }
         if (skipMotion != null) {
             PlayerSkipGlyph(
                 motion = skipMotion,
                 contentDescription = contentDescription,
-                tint = Color.White.copy(alpha = alpha),
+                tint = ink,
                 modifier = Modifier
                     .size(size)
                     .then(if (heightScale != 1f) Modifier.graphicsLayer { scaleY = heightScale } else Modifier),
@@ -1223,14 +1330,14 @@ private fun TransportGlyph(
                 playPainter = painterResource(Res.drawable.ic_player_play),
                 pausePainter = painterResource(Res.drawable.ic_player_pause),
                 contentDescription = contentDescription,
-                tint = Color.White.copy(alpha = alpha),
+                tint = ink,
                 modifier = Modifier.size(size),
             )
         } else {
             Icon(
                 painter = painterResource(icon),
                 contentDescription = contentDescription,
-                tint = Color.White.copy(alpha = alpha),
+                tint = ink,
                 modifier = Modifier
                     .size(size)
                     .then(if (heightScale != 1f) Modifier.graphicsLayer { scaleY = heightScale } else Modifier),
@@ -1240,8 +1347,8 @@ private fun TransportGlyph(
 }
 
 /** The skip glyphs' width, and their touch box, beside the larger play button. */
-private val PLAYER_SKIP_ICON_SIZE = 53.dp
-private val PLAYER_SKIP_TOUCH_SIZE = 53.dp
+private val PLAYER_SKIP_ICON_SIZE = 38.dp
+private val PLAYER_SKIP_TOUCH_SIZE = 56.dp
 
 /** Draw-only diameter shared by expanded playback controls; hit targets stay unchanged. */
 private val PLAYER_PRESS_CIRCLE_DIAMETER = 60.dp

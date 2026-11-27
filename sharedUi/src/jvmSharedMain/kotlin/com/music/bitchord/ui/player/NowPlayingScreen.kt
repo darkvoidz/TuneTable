@@ -64,6 +64,15 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.ui.graphics.lerp
+import com.music.bitchord.ui.theme.rememberArtworkPalette
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.material.icons.rounded.FavoriteBorder
+import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.automirrored.rounded.Undo
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.IosShare
@@ -274,7 +283,7 @@ private const val QUEUE_FLICK_VELOCITY = 450f
  * theirs on as well, which is what makes the whole top of the player closable
  * rather than just its topmost 32dp. See the dismiss band in `NowPlayingScreen`.
  */
-private val DISMISS_STRIP_HEIGHT = 32.dp
+private val DISMISS_STRIP_HEIGHT = 52.dp
 /** The breathing room above the sleeve, needed twice: once to apply, once to measure past. */
 private val ART_BOX_TOP_PAD = 8.dp
 /**
@@ -370,6 +379,29 @@ private fun PlayerMeshBackdrop(
         )
     }
 }
+
+/**
+ * The default theme's backdrop: the artwork's own colour at the top of the
+ * screen, deepening down the page into near-black, so the controls at the foot
+ * always sit on dark.
+ */
+@Composable
+private fun ArtworkGradientBackdrop(imageUrl: String?, modifier: Modifier = Modifier) {
+    val palette = rememberArtworkPalette(imageUrl, dark = true, artPx = ART_PX)
+    val top = palette.wash
+    Box(
+        modifier.background(
+            Brush.verticalGradient(
+                0f to top,
+                0.45f to lerp(top, GradientFloor, 0.45f),
+                1f to GradientFloor,
+            ),
+        ),
+    )
+}
+
+/** Where [ArtworkGradientBackdrop] ends up at the bottom of the screen. */
+private val GradientFloor = Color(0xFF121212)
 
 /** The legacy theme's backdrop, in a scope of its own for the same reason. */
 @Composable
@@ -487,7 +519,7 @@ private val LANDSCAPE_PLAYER_MIN_WIDTH = 560.dp
  * three settled poses, never a blend of two.
  */
 private const val ARTWORK_EXPANDED_SCALE = 1f
-private const val ARTWORK_PAUSE_SHRINK_SCALE = 0.88f
+private const val ARTWORK_PAUSE_SHRINK_SCALE = 1f
 private const val ARTWORK_DRAG_SHRINK_SCALE = 0.94f
 
 /**
@@ -976,6 +1008,8 @@ fun NowPlayingScreen(
      * rather than a still of it.
      */
     onLiveCanvasChanged: (Boolean) -> Unit = {},
+    /** Closes the player back to the mini player, from the header's chevron. */
+    onDismiss: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
@@ -1470,9 +1504,9 @@ fun NowPlayingScreen(
     }
     val setSwipeOffset: (Float) -> Unit = { swipeTargets.trySend(it) }
 
-    // Signature Apple Music touch: the sleeve shrinks back while paused.
+    // The sleeve holds its size whether playing or paused.
     val artScale by animateFloatAsState(
-        targetValue = if (isPlaying) 1f else 0.86f,
+        targetValue = 1f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioLowBouncy,
             stiffness = Spring.StiffnessLow,
@@ -2593,6 +2627,10 @@ fun NowPlayingScreen(
                                     onNext = onNext,
                                     compact = compact,
                                     animationsActive = !panelOpen,
+                                    shuffleEnabled = shuffleEnabled.takeUnless { controlsLocked },
+                                    repeatMode = repeatMode,
+                                    onToggleShuffle = onToggleShuffle,
+                                    onCycleRepeat = onCycleRepeat,
                                 )
                             },
                             volume = if (hideVolumeBar) {
@@ -2730,13 +2768,17 @@ fun NowPlayingScreen(
                 // have no sleeve for a mesh to carry on from.
                 val legacyMeshBackdrop = !tabletArtworkBackdrop && !spotifyCanvasPresentation &&
                     playerTheme == PlayerTheme.LEGACY
-                val artworkMeshBackdrop = !tabletArtworkBackdrop && playerTheme == PlayerTheme.DEFAULT
+                // The default theme: the artwork's colour washed down the screen
+                // into near-black, under the main player. The lyrics and queue
+                // keep the blurred cover over it.
+                val gradientBackdrop = !tabletArtworkBackdrop && playerTheme == PlayerTheme.DEFAULT
+                val artworkMeshBackdrop = false
                 val fullArtworkBackdropAlpha by animateFloatAsState(
                     targetValue = if (
                         !legacyMeshBackdrop &&
                         (tabletArtworkBackdrop || blurAvailable) &&
                         (!spotifyCanvasPresentation || lyricsOpen || queueOpen) &&
-                        (!artworkMeshBackdrop || lyricsOpen || queueOpen)
+                        (!(artworkMeshBackdrop || gradientBackdrop) || lyricsOpen || queueOpen)
                     ) 1f else 0f,
                     animationSpec = tween(durationMillis = 360, easing = FastOutSlowInEasing),
                     label = "fullArtworkBackdropCrossfade",
@@ -2803,6 +2845,16 @@ fun NowPlayingScreen(
                             alpha = {
                                 if (spotifyCanvasPresentation || fullArtworkBackdropAlpha >= 1f) 0f else 1f
                             },
+                        )
+                    }
+                    if (gradientBackdrop) {
+                        ArtworkGradientBackdrop(
+                            imageUrl = remoteArt,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .graphicsLayer {
+                                    alpha = if (spotifyCanvasPresentation) 0f else 1f - fullArtworkBackdropAlpha
+                                },
                         )
                     }
                     fullArtworkBlurContent(
@@ -3163,30 +3215,28 @@ fun NowPlayingScreen(
                             },
                         contentAlignment = Alignment.Center,
                     ) {
-                        // While the origin caption is present the handle belongs at
-                        // the top of the strip. As lyrics or the queue replace the
-                        // album-cover player, it glides into the now-empty strip's
-                        // vertical centre alongside the caption's fade.
-                        Box(
-                            Modifier
-                                .align(Alignment.TopCenter)
-                                .offset {
-                                    IntOffset(
-                                        x = 0,
-                                        y = lerp(
-                                            6.dp,
-                                            (topStrip - 5.dp).coerceAtLeast(0.dp) / 2,
-                                            p(),
-                                        ).roundToPx(),
-                                    )
-                                }
-                                .width(38.dp)
-                                .height(5.dp)
+                        // A close chevron at the left and the ⋯ menu at the right,
+                        // with what is playing from between them. Both stay up over
+                        // the lyrics and the queue, where the caption fades away.
+                        PlayerHeaderGlyph(
+                            icon = Icons.Rounded.KeyboardArrowDown,
+                            contentDescription = stringResource(Res.string.close_player),
+                            onClick = onDismiss,
+                            iconSize = 32.dp,
+                            modifier = Modifier
+                                .align(Alignment.CenterStart)
+                                .padding(start = PLAYER_GUTTER - 12.dp)
+                                .graphicsLayer { alpha = spotifyChromeAlpha },
+                        )
+                        PlayerHeaderGlyph(
+                            icon = if (showRevertCue) Icons.AutoMirrored.Rounded.Undo else Icons.Rounded.MoreVert,
+                            contentDescription = stringResource(Res.string.more),
+                            onClick = onOpenMenu,
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .padding(end = PLAYER_GUTTER - 12.dp)
                                 .graphicsLayer { alpha = spotifyChromeAlpha }
-                                .shadow(2.dp, RoundedCornerShape(3.dp), clip = false)
-                                .clip(RoundedCornerShape(3.dp))
-                                .additiveChrome(LocalPlayerChrome.current)
-                                .background(chromeWhite(0.70f)),
+                                .menuAnchor(),
                         )
                         // [p] is the shared album-to-panel transition. Keeping this in
                         // composition until its final frame gives the caption a real
@@ -3198,9 +3248,9 @@ fun NowPlayingScreen(
                                     text = playbackOriginText(song, playedBy),
                                     onClick = openPlaybackOrigin,
                                     textAlign = TextAlign.Center,
-                                    contentPadding = PaddingValues(start = PLAYER_GUTTER, end = PLAYER_GUTTER, bottom = 1.dp),
+                                    contentPadding = PaddingValues(horizontal = PLAYER_GUTTER + 40.dp),
                                     modifier = Modifier
-                                        .align(Alignment.BottomCenter)
+                                        .align(Alignment.Center)
                                         .graphicsLayer { alpha = (1f - p()) * spotifyChromeAlpha },
                                 )
                             }
@@ -4206,12 +4256,13 @@ fun NowPlayingScreen(
                                     // Stagger each block's artist only if its own title crawls.
                                     var titleOverflowing by remember { mutableStateOf(false) }
                                     val scrolling = scrolls()
-                                    val artistColor = chromeWhite(0.55f)
+                                    val artistColor = chromeWhite(0.7f)
                                     Column {
                                         MarqueeText(
                                             text = song.title,
                                             style = MaterialTheme.typography.titleLarge.copy(
-                                                fontSize = 20.sp,
+                                                fontSize = 22.sp,
+                                                fontWeight = FontWeight.Bold,
                                             ),
                                             color = Color.White,
                                             enabled = scrolling,
@@ -4232,9 +4283,9 @@ fun NowPlayingScreen(
                                             credits = remember(song.artist, song.artists, song.artistId) {
                                                 artistCredits(song.artist, song.artists, song.artistId)
                                             },
-                                            style = MaterialTheme.typography.titleLarge.copy(
-                                                fontWeight = FontWeight.W500,
-                                                fontSize = 20.sp,
+                                            style = MaterialTheme.typography.titleMedium.copy(
+                                                fontWeight = FontWeight.Normal,
+                                                fontSize = 16.sp,
                                             ),
                                             color = artistColor,
                                             enabled = scrolling,
@@ -4248,70 +4299,35 @@ fun NowPlayingScreen(
                                 }
                             }
                             Spacer(Modifier.width(10.dp))
-                            // Beside the credits rather than down in the toggle row:
-                            // liking is about *this song*, and the row below is about
-                            // how the queue plays. Guests get nothing to tap, since
-                            // there's no account to record it against — except on a
-                            // local file or a finished download, whose star is the
-                            // device's own Liked playlist and needs no account.
-                            // One frost behind both discs — see [GlassDiscPair].
-                            GlassDiscPair(
-                                hazeState = playerHaze,
-                                overlayOpen = { overlayOpen.value },
-                            ) {
-                                if (signedIn || song.localUri != null) {
-                                    val liked = likeStatus == LikeStatus.LIKE
-                                    CircleGlyph(
-                                        icon = if (liked) BitChordIcons.StarFilled else BitChordIcons.Star,
-                                        contentDescription = stringResource(
-                                            if (liked) Res.string.remove_from_liked else Res.string.like,
-                                        ),
-                                        onClick = onToggleLike,
-                                        active = liked,
-                                        haptic = if (liked) Haptic.ToggleOff else Haptic.ToggleOn,
-                                    )
-                                    Spacer(Modifier.width(8.dp))
-                                }
-                                // While the lyrics are up the menu glyph becomes the share
-                                // entry: the same pick mode a long-press on a line opens,
-                                // only on phones where a card can actually be made. While
-                                // picking it is the way back out again — the bar below
-                                // already holds Share.
-                                // Only once the sleeve has fully collapsed: the moment it starts
-                                // coming back the glyph is the menu again.
-                                // And only while the half player under the lyrics is tucked
-                                // away: with it up, the screen is the player again and the
-                                // glyph is its menu. A pick in progress keeps its Close
-                                // whichever way the controls are.
-                                val lyricsShareGlyphVisible = lyricsOpen && collapseDone && lyricsShareEnabled &&
-                                    !lyrics.isNullOrEmpty() && (!lyricsControlsOpen || lyricPicker.picking)
-                                CircleGlyph(
-                                    icon = when {
-                                        showRevertCue -> Icons.AutoMirrored.Rounded.Undo
-                                        lyricsShareGlyphVisible && lyricPicker.picking -> Icons.Rounded.Close
-                                        lyricsShareGlyphVisible -> Icons.Rounded.IosShare
-                                        else -> Icons.Rounded.MoreHoriz
-                                    },
+                            // Beside the credits: liking is about *this song*. Guests
+                            // get nothing to tap, since there's no account to record
+                            // it against — except on a local file or a finished
+                            // download, whose heart is the device's own Liked playlist.
+                            if (signedIn || song.localUri != null) {
+                                val liked = likeStatus == LikeStatus.LIKE
+                                PlayerHeartGlyph(
+                                    liked = liked,
                                     contentDescription = stringResource(
-                                        when {
-                                            showRevertCue -> Res.string.more
-                                            lyricsShareGlyphVisible && lyricPicker.picking -> Res.string.cancel
-                                            lyricsShareGlyphVisible -> Res.string.share
-                                            else -> Res.string.more
-                                        },
+                                        if (liked) Res.string.remove_from_liked else Res.string.like,
                                     ),
-                                    onClick = when {
-                                        showRevertCue -> onOpenMenu
-                                        lyricsShareGlyphVisible && lyricPicker.picking -> lyricPicker.cancel
-                                        lyricsShareGlyphVisible -> lyricPicker.beginPicking
-                                        else -> onOpenMenu
-                                    },
-                                    haptic = if (lyricsShareGlyphVisible && !showRevertCue) {
-                                        Haptic.Select
-                                    } else {
-                                        Haptic.Tap
-                                    },
-                                    modifier = Modifier.menuAnchor(),
+                                    onClick = onToggleLike,
+                                )
+                            }
+                            // While the lyrics are up, with the half player tucked
+                            // away, a share glyph sits beside the heart: the same pick
+                            // mode a long-press on a line opens, and while picking the
+                            // way back out again — the bar below already holds Share.
+                            // The ⋯ menu itself lives in the header.
+                            val lyricsShareGlyphVisible = lyricsOpen && collapseDone && lyricsShareEnabled &&
+                                !lyrics.isNullOrEmpty() && (!lyricsControlsOpen || lyricPicker.picking)
+                            if (lyricsShareGlyphVisible) {
+                                Spacer(Modifier.width(4.dp))
+                                PlayerHeaderGlyph(
+                                    icon = if (lyricPicker.picking) Icons.Rounded.Close else Icons.Rounded.IosShare,
+                                    contentDescription = stringResource(
+                                        if (lyricPicker.picking) Res.string.cancel else Res.string.share,
+                                    ),
+                                    onClick = if (lyricPicker.picking) lyricPicker.cancel else lyricPicker.beginPicking,
                                 )
                             }
                         }
@@ -4650,6 +4666,10 @@ fun NowPlayingScreen(
                                 (!lyricsOpen || lyricsControlsOpen) &&
                                 (!queueOpen || queueControlsOpen) &&
                                 (!spotifyCanvasPresentation || spotifyCanvasControlsOpen || mixing),
+                            shuffleEnabled = shuffleEnabled.takeUnless { controlsLocked },
+                            repeatMode = repeatMode,
+                            onToggleShuffle = onToggleShuffle,
+                            onCycleRepeat = onCycleRepeat,
                         )
                     }
                     if (!hideVolumeBar) {
@@ -4695,6 +4715,83 @@ fun NowPlayingScreen(
                 }
             }
         }
+    }
+}
+
+/** The like control beside the credits: an outlined heart, filled green once liked. */
+@Composable
+private fun PlayerHeartGlyph(
+    liked: Boolean,
+    contentDescription: String,
+    onClick: () -> Unit,
+) {
+    val haptics = rememberHaptics()
+    val tint by animateColorAsState(
+        targetValue = if (liked) PlayerActiveGreen else Color.White.copy(alpha = 0.85f),
+        label = "heartTint",
+    )
+    val pop = remember { Animatable(1f) }
+    val scope = rememberCoroutineScope()
+    Box(
+        modifier = Modifier
+            .size(44.dp)
+            .clip(CircleShape)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+            ) {
+                haptics.play(if (liked) Haptic.ToggleOff else Haptic.ToggleOn)
+                scope.launch {
+                    pop.snapTo(0.8f)
+                    pop.animateTo(1f, spring(dampingRatio = Spring.DampingRatioMediumBouncy))
+                }
+                onClick()
+            },
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            imageVector = if (liked) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+            contentDescription = contentDescription,
+            tint = tint,
+            modifier = Modifier
+                .size(26.dp)
+                .graphicsLayer {
+                    scaleX = pop.value
+                    scaleY = pop.value
+                },
+        )
+    }
+}
+
+/** A plain white glyph in the player's header: the close chevron or the ⋯ menu. */
+@Composable
+private fun PlayerHeaderGlyph(
+    icon: ImageVector,
+    contentDescription: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    iconSize: Dp = 24.dp,
+) {
+    val haptics = rememberHaptics()
+    Box(
+        modifier = modifier
+            .size(44.dp)
+            .clip(CircleShape)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+            ) {
+                haptics.play(Haptic.Tap)
+                onClick()
+            },
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = Color.White,
+            modifier = Modifier.size(iconSize),
+        )
     }
 }
 
