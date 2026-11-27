@@ -70,6 +70,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
+import com.music.bitchord.ui.theme.AccentStyle
+import com.music.bitchord.ui.theme.Accent
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.VolumeDown
@@ -588,7 +590,7 @@ internal fun BestPartPill(
                     .vibrantChrome(chrome)
                     .background(discFill(chrome)),
             )
-            Box(Modifier.matchParentSize().glassRim(shape))
+            Box(Modifier.matchParentSize().playerRim(shape))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(start = 12.dp, end = 15.dp, top = 7.dp, bottom = 7.dp),
@@ -711,11 +713,11 @@ internal fun TransportRow(
             // would shunt everything below it on every load.
             Box(Modifier.size(playTouch), contentAlignment = Alignment.Center) {
                 Box(
-                    Modifier.size(playDisc).clip(CircleShape).background(Color.White),
+                    Modifier.size(playDisc).clip(CircleShape).playDisc(),
                     contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator(
-                        color = Color.Black,
+                        color = if (Accent.outlined) Accent.Icon else Color.Black,
                         strokeWidth = 3.dp,
                         modifier = Modifier.size(if (compact) 22.dp else 28.dp),
                     )
@@ -765,7 +767,16 @@ internal fun TransportRow(
 }
 
 /** The lit colour of shuffle, repeat and the liked heart: TuneTable's accent. */
-internal val PlayerActiveGreen: Color get() = com.music.bitchord.ui.theme.Accent.Solid
+internal val PlayerActiveGreen: Color get() =
+    if (Accent.style == AccentStyle.GLOW) Accent.Solid else Accent.Icon
+
+/** The play button's disc: solid white, or an accent ring under Neon. */
+private fun Modifier.playDisc(): Modifier =
+    if (Accent.outlined) border(2.dp, Accent.Start, CircleShape) else background(Color.White)
+
+/** A round player control's rim: the glass edge, or an accent ring under Neon. */
+private fun Modifier.playerRim(shape: Shape): Modifier =
+    if (Accent.outlined) border(1.5.dp, Accent.Start, shape) else glassRim(shape)
 
 /** The play/pause disc, and the glyph drawn on it. */
 private val PLAY_DISC_SIZE = 66.dp
@@ -1125,7 +1136,7 @@ internal fun CircleGlyph(
                 .background(discFill(chrome, discAlpha)),
         )
         // Outside the blend: the rim is light catching the edge, not ink.
-        Box(Modifier.matchParentSize().glassRim(CircleShape))
+        Box(Modifier.matchParentSize().playerRim(CircleShape))
         Crossfade(
             targetState = icon,
             animationSpec = tween(durationMillis = 180),
@@ -1262,7 +1273,7 @@ private fun TransportGlyph(
         targetValue = if (enabled) 1f else 0.3f,
         label = "transportAlpha",
     )
-    val ink = if (disc != null) Color.Black else Color.White.copy(alpha = alpha)
+    val ink = if (disc != null) (if (Accent.outlined) Accent.Icon else Color.Black) else Color.White.copy(alpha = alpha)
     // A press shrinks the disc a little, in place of the glyph's press circle.
     val pressed by interactionSource.collectIsPressedAsState()
     val discScale by animateFloatAsState(
@@ -1310,7 +1321,7 @@ private fun TransportGlyph(
                         this.alpha = alpha
                     }
                     .clip(CircleShape)
-                    .background(Color.White),
+                    .playDisc(),
             )
         }
         if (skipMotion != null) {
@@ -1439,7 +1450,13 @@ private fun Pill(
         modifier = modifier
             .height(BOTTOM_ACTION_SIZE)
             .clip(CircleShape)
-            .background(Color.White.copy(alpha = 0.12f))
+            .then(
+                if (Accent.outlined) {
+                    Modifier.border(1.5.dp, Accent.Start, CircleShape)
+                } else {
+                    Modifier.background(Color.White.copy(alpha = 0.12f))
+                },
+            )
             .animateContentSize(
                 animationSpec = spring(
                     dampingRatio = 0.82f,
