@@ -1,6 +1,7 @@
 package com.music.bitchord.ui.components
 
 import com.music.bitchord.ui.theme.Accent
+import com.music.bitchord.ui.theme.accentFill
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -76,7 +77,6 @@ fun PillSegmentedControl(
     val trackColor = TRACK_FILL.copy(alpha = if (light) LIGHT_TRACK_ALPHA else DARK_TRACK_ALPHA)
     // The selected segment is the accent, its label in whichever of black or
     // white reads on it.
-    val pillBrush = Accent.fillBrush
     val selectedLabelColor = Accent.OnFill
     val labelColor = if (light) Color.Black else Color.White
     val reduceAnimation by PlayerSettings.reduceAnimation.collectAsStateWithLifecycle()
@@ -162,7 +162,7 @@ fun PillSegmentedControl(
                                 }
                             }
                             .clip(PillShape)
-                            .background(pillBrush),
+                            .accentFill(PillShape),
                     )
                 }
                 options.forEachIndexed { index, label ->

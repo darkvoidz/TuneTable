@@ -1,6 +1,13 @@
 package com.music.bitchord.ui.theme
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.border
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.Modifier
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -29,17 +36,23 @@ data class AccentColors(val start: Color, val end: Color) {
 }
 
 /**
- * How strongly the accent colours the app — Settings → Appearance → Style.
+ * How the accent colours the app — Settings → Appearance → Style.
  */
 enum class AccentStyle {
     /** A hint of the accent in the backgrounds; the accent itself for highlights. */
     SUBTLE,
 
-    /** The accent soaks every surface; fills run the full gradient. */
-    VIBRANT,
-
-    /** A darker, richer version of the accent everywhere. */
+    /** Surfaces built from the accent's darkest shades, pale accent icons. */
     DEEP,
+
+    /** A dark page under a soft glow of the accent; gradient fills, white icons. */
+    GLOW,
+
+    /** Surfaces in the accent's second colour, highlights in its first. */
+    DUOTONE,
+
+    /** A near-black page; highlights drawn as thin accent outlines. */
+    NEON,
 }
 
 /**
@@ -48,7 +61,7 @@ enum class AccentStyle {
  * Held as Compose state, so everything drawn in it — a lit glyph, a switch,
  * the selected tab — follows a new choice at once. [Solid] is the colour for
  * anything drawn flat; [brush] and [sweep] are the full run, for the few marks
- * big enough to show a gradient.
+ * big enough to show a gradient. [style] decides how the accent is spent.
  */
 object Accent {
     var colors: AccentColors by mutableStateOf(AccentColors.Icon)
@@ -56,30 +69,71 @@ object Accent {
     /** The style in force — see [AccentStyle]. */
     var style: AccentStyle by mutableStateOf(AccentStyle.SUBTLE)
 
-    /**
-     * How much stronger the accent washes over cards, menus and drawers run in
-     * this style. Deep's surfaces are already the accent's own dark colour, so
-     * it keeps the plain amount.
-     */
-    val washScale: Float get() = if (style == AccentStyle.VIBRANT) 2.2f else 1f
+    /** How much of the usual accent wash goes over cards, menus and drawers. */
+    val washScale: Float get() = when (style) {
+        AccentStyle.GLOW -> 1.4f
+        AccentStyle.DUOTONE -> 1.8f
+        AccentStyle.NEON -> 0f
+        else -> 1f
+    }
 
     /** The fill of a selected chip, segment or switch, as one colour. */
     val Fill: Color get() = if (style == AccentStyle.DEEP) Start.withLightness(DEEP_FILL_LIGHTNESS) else Start
 
-    /** [Fill] as a brush: the full gradient in Vibrant. */
+    /** [Fill] as a brush: the full gradient under Glow. */
     val fillBrush: Brush get() = when (style) {
-        AccentStyle.VIBRANT -> brush
+        AccentStyle.GLOW -> brush
         else -> SolidColor(Fill)
     }
 
-    /** Text or a glyph drawn on [Fill]. */
-    val OnFill: Color get() = if (style == AccentStyle.DEEP || Fill.luminance() <= 0.55f) Color.White else Color.Black
+    /** Neon draws a selected chip or segment as an outline rather than a fill. */
+    val outlined: Boolean get() = style == AccentStyle.NEON
 
-    /**
-     * A plain icon drawn in the accent on a surface: lifted towards white in
-     * Vibrant, so it still stands out on surfaces the accent already colours.
-     */
-    val Icon: Color get() = if (style == AccentStyle.VIBRANT) lerp(Start, Color.White, 0.35f) else Start
+    /** Text or a glyph drawn on [Fill] (or inside Neon's outline). */
+    val OnFill: Color get() = when (style) {
+        AccentStyle.NEON -> Icon
+        AccentStyle.DEEP, AccentStyle.GLOW -> Color.White
+        else -> if (Fill.luminance() > 0.55f) Color.Black else Color.White
+    }
+
+    /** A plain icon drawn in the accent on a surface. */
+    val Icon: Color get() = when (style) {
+        AccentStyle.SUBTLE -> Start
+        AccentStyle.DEEP -> Start.withLightness(0.80f)
+        AccentStyle.GLOW -> Color.White
+        AccentStyle.DUOTONE -> Start.withLightness(0.68f)
+        AccentStyle.NEON -> Start.withLightness(0.66f)
+    }
+
+    /** Accent-coloured headline text, such as Home's greeting. */
+    val headlineBrush: Brush get() = if (style == AccentStyle.NEON) brush else SolidColor(Icon)
+
+    /** The round tile behind a Settings icon. */
+    val tileBrush: Brush get() = when (style) {
+        AccentStyle.DEEP -> SolidColor(Start.withLightness(0.30f))
+        AccentStyle.DUOTONE -> SolidColor(Start)
+        AccentStyle.NEON -> SolidColor(Color.Transparent)
+        else -> brush
+    }
+
+    /** The glyph on [tileBrush]. */
+    val TileGlyph: Color get() = when (style) {
+        AccentStyle.DEEP -> Start.withLightness(0.82f)
+        AccentStyle.DUOTONE -> OnSolid
+        AccentStyle.NEON -> Icon
+        else -> Color.White
+    }
+
+    /** An outline drawn round tiles, the mini player and menus, if the style has one. */
+    val Outline: Color? get() = if (style == AccentStyle.NEON) Start else null
+
+    /** The mini player's fill, given the plain [container] it would otherwise have. */
+    fun barBrush(container: Color): Brush = when {
+        container.luminance() > 0.5f -> SolidColor(container)
+        style == AccentStyle.GLOW -> brush
+        style == AccentStyle.DUOTONE -> SolidColor(lerp(container, Start, 0.28f))
+        else -> SolidColor(container)
+    }
 
     val Start: Color get() = colors.start
     val End: Color get() = colors.end
@@ -123,3 +177,35 @@ fun Color.toHsv(): Triple<Float, Float, Float> {
     val saturation = if (max == 0f) 0f else delta / max
     return Triple(hue, saturation, max)
 }
+
+/**
+ * A selected chip, segment or button in the accent, as the style draws it:
+ * filled with [Accent.fillBrush], or outlined under Neon.
+ */
+fun Modifier.accentFill(shape: Shape): Modifier =
+    if (Accent.outlined) {
+        border(1.5.dp, Accent.Start, shape)
+    } else {
+        background(Accent.fillBrush, shape)
+    }
+
+/** Glow's soft light of the accent across the top of the page; nothing in any other style. */
+fun Modifier.accentGlow(dark: Boolean): Modifier =
+    if (Accent.style != AccentStyle.GLOW || !dark) {
+        this
+    } else {
+        drawBehind {
+            val start = Accent.Start
+            val end = Accent.End
+            val radius = maxOf(size.width * 1.05f, size.height * 0.55f)
+            drawRect(
+                Brush.radialGradient(
+                    0f to start.copy(alpha = 0.42f),
+                    0.45f to end.copy(alpha = 0.20f),
+                    1f to Color.Transparent,
+                    center = Offset(size.width / 2f, 0f),
+                    radius = radius,
+                ),
+            )
+        }
+    }

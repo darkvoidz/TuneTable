@@ -1,6 +1,8 @@
 package com.music.bitchord
 
 import androidx.compose.animation.core.spring
+import androidx.compose.ui.graphics.luminance
+import com.music.bitchord.ui.theme.accentGlow
 import kotlin.math.roundToInt
 import androidx.compose.ui.layout.layout
 import com.music.bitchord.ui.components.BAR_GUTTER
@@ -475,7 +477,7 @@ class MainActivity : AppCompatActivity() {
                 Accent.colors = accent
                 Accent.style = accentStyle
             }
-            BitChordTheme(darkTheme = darkTheme, font = appFont, accent = accent.start, style = accentStyle) {
+            BitChordTheme(darkTheme = darkTheme, font = appFont, accent = accent.start, accentEnd = accent.end, style = accentStyle) {
                 // The glass surfaces sample this layer, and a layer records only
                 // what is drawn into it — which, for BitChord, is a page that
                 // paints no background of its own. Everywhere a page is not
@@ -2982,6 +2984,7 @@ private fun BitChordApp(
         Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
+            .accentGlow(dark = MaterialTheme.colorScheme.background.luminance() < 0.5f)
             // Nothing of the page under a portrait player that is fully up:
             // that player is its own window, opaque from edge to edge, and
             // this one drawing on behind it — the page, the glass bar and the

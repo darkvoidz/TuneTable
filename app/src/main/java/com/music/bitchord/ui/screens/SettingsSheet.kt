@@ -1,6 +1,7 @@
 package com.music.bitchord.ui.screens
 
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.foundation.border
 import androidx.compose.ui.graphics.Brush
 import com.music.bitchord.ui.theme.Accent
 import com.music.bitchord.ui.components.AccentColourDialog
@@ -1146,7 +1147,7 @@ fun SettingsScreen(
                 if (showAccent) AccentColourDialog(onDismiss = { showAccent = false })
             }
             val styleTitle = stringResource(R.string.accent_style)
-            row(styleTitle, "style", "vibrant", "deep", "subtle", "tint") {
+            row(styleTitle, "style", "glow", "duotone", "neon", "deep", "subtle", "tint") {
                 val accentStyle by AppSettings.accentStyle.collectAsStateWithLifecycle()
                 SettingsRow(
                     icon = Icons.Rounded.AutoAwesome,
@@ -1156,8 +1157,10 @@ fun SettingsScreen(
                 SegmentedControl(
                     options = listOf(
                         stringResource(R.string.accent_style_subtle),
-                        stringResource(R.string.accent_style_vibrant),
                         stringResource(R.string.accent_style_deep),
+                        stringResource(R.string.accent_style_glow),
+                        stringResource(R.string.accent_style_duotone),
+                        stringResource(R.string.accent_style_neon),
                     ),
                     selectedIndex = AccentStyle.entries.indexOf(accentStyle),
                     onSelect = { AppSettings.setAccentStyle(AccentStyle.entries[it]) },
@@ -2718,7 +2721,8 @@ internal fun SettingsIconTile(content: @Composable () -> Unit) {
         modifier = Modifier
             .size(ICON_TILE)
             .clip(CircleShape)
-            .background(Accent.brush),
+            .background(Accent.tileBrush)
+            .then(Accent.Outline?.let { Modifier.border(1.5.dp, it, CircleShape) } ?: Modifier),
         contentAlignment = Alignment.Center,
     ) {
         content()
@@ -2801,7 +2805,7 @@ internal fun SettingsRow(
                 Icon(
                     painter = iconPainter,
                     contentDescription = null,
-                    tint = Color.White,
+                    tint = Accent.TileGlyph,
                     modifier = Modifier.size(ICON_GLYPH),
                 )
             }
@@ -2810,7 +2814,7 @@ internal fun SettingsRow(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = Color.White,
+                    tint = Accent.TileGlyph,
                     modifier = Modifier.size(ICON_GLYPH),
                 )
             }
@@ -2981,7 +2985,7 @@ internal fun SliderRow(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = Color.White,
+                    tint = Accent.TileGlyph,
                     modifier = Modifier.size(ICON_GLYPH),
                 )
             }

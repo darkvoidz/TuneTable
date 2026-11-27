@@ -149,13 +149,15 @@ fun BitChordTheme(
      * primary — a check mark, a link, a progress bar, the cursor — takes it.
      */
     accent: Color? = null,
-    /** How strongly [accent] colours the page and its surfaces. */
+    /** The accent's other end, for the styles that use both. */
+    accentEnd: Color? = null,
+    /** How [accent] colours the page and its surfaces. */
     style: AccentStyle = AccentStyle.SUBTLE,
     content: @Composable () -> Unit,
 ) {
     val base = if (darkTheme) DarkColors else LightColors
     MaterialTheme(
-        colorScheme = if (accent == null) base else accentScheme(base, accent, style, darkTheme),
+        colorScheme = if (accent == null) base else accentScheme(base, accent, accentEnd ?: accent, style, darkTheme),
         typography = when (font) {
             AppFont.DEFAULT -> BitChordTypography
             AppFont.LEGACY -> LegacyTypography
@@ -165,49 +167,63 @@ fun BitChordTheme(
 }
 
 /**
- * [base] coloured by [accent] in [style]. Subtle gives the page a breath of
- * the accent — a very dark shade of it in the dark theme, a faint wash in the
- * light one, each step up a little more coloured. Vibrant soaks every surface
- * in it. Deep builds the surfaces from the accent's own darkest shades.
+ * [base] coloured by [accent] (and [second], the accent's other end) in
+ * [style]. Subtle gives the page a breath of the accent — a very dark shade
+ * of it in the dark theme, a faint wash in the light one, each step up a
+ * little more coloured. Deep builds the surfaces from the accent's own darkest
+ * shades. Glow keeps the page dark (the glow itself is drawn over it) with
+ * cards in a hint of the second colour. Duotone builds the surfaces from the
+ * second colour. Neon stays near black.
  */
 private fun accentScheme(
     base: androidx.compose.material3.ColorScheme,
     accent: Color,
+    second: Color,
     style: AccentStyle,
     dark: Boolean,
 ): androidx.compose.material3.ColorScheme {
     // Background, surface, surfaceVariant, the three containers, outline.
-    val amounts = when (style) {
-        AccentStyle.SUBTLE -> if (dark) {
-            floatArrayOf(0.07f, 0.09f, 0.12f, 0.10f, 0.12f, 0.14f, 0.12f)
+    val subtleDark = floatArrayOf(0.07f, 0.09f, 0.12f, 0.10f, 0.12f, 0.14f, 0.12f)
+    val subtleLight = floatArrayOf(0.04f, 0.05f, 0.07f, 0.05f, 0.06f, 0.07f, 0.12f)
+    val (source, amounts) = when (style) {
+        AccentStyle.SUBTLE, AccentStyle.DEEP -> accent to if (dark) subtleDark else subtleLight
+        AccentStyle.GLOW -> second to if (dark) {
+            floatArrayOf(0.03f, 0.06f, 0.10f, 0.08f, 0.10f, 0.12f, 0.14f)
         } else {
-            floatArrayOf(0.04f, 0.05f, 0.07f, 0.05f, 0.06f, 0.07f, 0.12f)
+            subtleLight
         }
-        AccentStyle.VIBRANT -> if (dark) {
-            floatArrayOf(0.20f, 0.24f, 0.30f, 0.26f, 0.30f, 0.34f, 0.30f)
+        AccentStyle.DUOTONE -> second to if (dark) {
+            floatArrayOf(0.12f, 0.16f, 0.22f, 0.18f, 0.22f, 0.26f, 0.26f)
         } else {
-            floatArrayOf(0.10f, 0.12f, 0.16f, 0.12f, 0.14f, 0.16f, 0.24f)
+            floatArrayOf(0.06f, 0.08f, 0.11f, 0.08f, 0.10f, 0.12f, 0.18f)
         }
-        AccentStyle.DEEP -> floatArrayOf()
+        AccentStyle.NEON -> accent to if (dark) {
+            floatArrayOf(0.015f, 0.02f, 0.025f, 0.02f, 0.025f, 0.03f, 0.10f)
+        } else {
+            subtleLight
+        }
     }
-    fun pick(index: Int, baseColor: Color, deepDark: Float, deepLight: Float): Color = when (style) {
-        AccentStyle.DEEP -> if (dark) {
-            accent.withLightness(deepDark)
-        } else {
-            lerp(baseColor, accent.withLightness(0.42f), deepLight)
-        }
-        else -> tinted(baseColor, accent, amounts[index])
+    fun pick(index: Int, baseColor: Color, deepDark: Float, deepLight: Float): Color = when {
+        style == AccentStyle.DEEP && dark -> accent.withLightness(deepDark)
+        style == AccentStyle.DEEP -> lerp(baseColor, accent.withLightness(0.42f), deepLight)
+        else -> tinted(baseColor, source, amounts[index])
     }
-    return base.copy(
+    // Neon's page goes all the way to black, the surfaces just off it.
+    val neonBase = if (style == AccentStyle.NEON && dark) {
+        base.copy(background = Color(0xFF060606), surface = Color(0xFF0C0C0E), surfaceVariant = Color(0xFF141416))
+    } else {
+        base
+    }
+    return neonBase.copy(
         primary = accent,
         onPrimary = if (accent.luminance() > 0.55f) Color.Black else Color.White,
-        background = pick(0, base.background, 0.055f, 0.05f),
-        surface = pick(1, base.surface, 0.08f, 0.06f),
-        surfaceVariant = pick(2, base.surfaceVariant, 0.13f, 0.09f),
-        surfaceContainer = pick(3, base.surfaceContainer, 0.10f, 0.06f),
-        surfaceContainerHigh = pick(4, base.surfaceContainerHigh, 0.13f, 0.08f),
-        surfaceContainerHighest = pick(5, base.surfaceContainerHighest, 0.16f, 0.09f),
-        outline = pick(6, base.outline, 0.22f, 0.16f),
+        background = pick(0, neonBase.background, 0.055f, 0.05f),
+        surface = pick(1, neonBase.surface, 0.08f, 0.06f),
+        surfaceVariant = pick(2, neonBase.surfaceVariant, 0.13f, 0.09f),
+        surfaceContainer = pick(3, neonBase.surfaceContainer, 0.10f, 0.06f),
+        surfaceContainerHigh = pick(4, neonBase.surfaceContainerHigh, 0.13f, 0.08f),
+        surfaceContainerHighest = pick(5, neonBase.surfaceContainerHighest, 0.16f, 0.09f),
+        outline = pick(6, neonBase.outline, 0.22f, 0.16f),
     )
 }
 

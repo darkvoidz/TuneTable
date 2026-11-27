@@ -208,7 +208,7 @@ fun Modifier.iosMenuPanel(
                 listOf(Accent.Start.copy(alpha = MENU_WASH), Accent.End.copy(alpha = MENU_WASH * 0.8f)),
             ),
         )
-        .border(0.5.dp, rimOverride ?: colors.rim, IosMenuShape)
+        .border(if (Accent.Outline != null) 1.dp else 0.5.dp, Accent.Outline ?: rimOverride ?: colors.rim, IosMenuShape)
 }
 
 /** The shadow the menu panel casts. */

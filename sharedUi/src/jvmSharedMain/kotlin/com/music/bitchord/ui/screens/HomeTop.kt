@@ -1,6 +1,7 @@
 package com.music.bitchord.ui.screens
 
 import androidx.compose.foundation.background
+import com.music.bitchord.ui.theme.accentFill
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -98,9 +99,8 @@ internal fun HomeGreeting(replayYear: ReplayYearBadge?) {
         Column(Modifier.weight(1f)) {
             Text(
                 stringResource(greeting),
-                style = MaterialTheme.typography.titleSmall,
+                style = MaterialTheme.typography.titleSmall.copy(brush = Accent.headlineBrush),
                 fontWeight = FontWeight.SemiBold,
-                color = Accent.Icon,
             )
             Text(
                 stringResource(Res.string.welcome_back),
@@ -128,7 +128,7 @@ internal fun HomeFilterChips(selected: HomeFilter, onSelect: (HomeFilter) -> Uni
             Box(
                 modifier = Modifier
                     .clip(CircleShape)
-                    .then(if (on) Modifier.background(Accent.fillBrush) else Modifier.background(MaterialTheme.colorScheme.surfaceVariant))
+                    .then(if (on) Modifier.accentFill(CircleShape) else Modifier.background(MaterialTheme.colorScheme.surfaceVariant))
                     .clickable { onSelect(filter) }
                     .padding(horizontal = 16.dp, vertical = 8.dp),
             ) {
@@ -235,7 +235,7 @@ internal fun JumpBackInCard(target: JumpBackIn, onOpen: () -> Unit) {
             modifier = Modifier
                 .size(48.dp)
                 .clip(CircleShape)
-                .background(Accent.fillBrush),
+                .accentFill(CircleShape),
             contentAlignment = Alignment.Center,
         ) {
             Icon(

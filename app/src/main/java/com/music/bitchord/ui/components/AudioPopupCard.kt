@@ -1,6 +1,7 @@
 package com.music.bitchord.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
+import com.music.bitchord.ui.theme.accentFill
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material3.Icon
 import androidx.compose.foundation.layout.size
@@ -187,7 +188,7 @@ internal fun PopupPillButton(label: String, onClick: () -> Unit, primary: Boolea
         modifier = Modifier
             .fillMaxWidth()
             .clip(CircleShape)
-            .background(if (primary) Accent.Fill else Color.White.copy(alpha = 0.09f))
+            .then(if (primary) Modifier.accentFill(CircleShape) else Modifier.background(Color.White.copy(alpha = 0.09f)))
             .clickable(onClick = onClick)
             .padding(vertical = 13.dp),
         contentAlignment = Alignment.Center,
