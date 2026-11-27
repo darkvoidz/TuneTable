@@ -90,7 +90,6 @@ fun TvSettingsScreen(
     val uiScale by TvSettings.tvUiScale.collectAsState()
     val refreshRate by TvRefreshRateController.preference.collectAsState()
     val reduceMotion by AppSettings.reduceAnimation.collectAsState()
-    val reduceTransparency by AppSettings.reduceDynamicBlur.collectAsState()
 
     var blurb by remember { mutableStateOf(DefaultBlurb) }
     var sheet by remember { mutableStateOf<SettingsSheet?>(null) }
@@ -318,14 +317,6 @@ fun TvSettingsScreen(
                     value = onOff(reduceMotion),
                     onFocused = { blurb = "Calms the moving background and other decorative animation." },
                     onClick = { AppSettings.setReduceAnimation(!reduceMotion) },
-                )
-            }
-            item {
-                TvListRow(
-                    title = "Reduce Transparency",
-                    value = onOff(reduceTransparency),
-                    onFocused = { blurb = "Replaces blurred backgrounds with solid ones. Helps on slower TVs." },
-                    onClick = { AppSettings.setReduceDynamicBlur(!reduceTransparency) },
                 )
             }
 

@@ -19,6 +19,7 @@ import com.music.bitchord.playback.EqLayout
 import com.music.bitchord.playback.EqualizerPreset
 import com.music.bitchord.ui.player.AutoMixArtworkPreferences
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 
@@ -530,8 +531,12 @@ object AppSettings {
     /** Analyzes audio waveform/envelope to align matching playback moment between versions. */
     val smartVersionAlignment = MutableStateFlow(true)
 
-    /** Drops haze blur (status bar, mini player, bottom fade, lyrics focus) for a solid-fill look. */
-    val reduceDynamicBlur = MutableStateFlow(false)
+    /**
+     * Frosted glass is removed from the app: haze blur (status bar, mini player,
+     * bottom fade, menus, the player's panels) always draws as a solid fill.
+     * Always true; kept as a flow so the surfaces that read it stay flat.
+     */
+    val reduceDynamicBlur: StateFlow<Boolean> = MutableStateFlow(true)
 
     /**
      * Draws the player's glyphs and text, and the dark menus' rows, in plain white
@@ -540,14 +545,14 @@ object AppSettings {
     val disableBlendEffects = MutableStateFlow(false)
 
     /** Real backdrop-sampled glass (blur, lens refraction) on the floating nav bar, Android 12+ only. */
-    val liquidGlass = MutableStateFlow(false)
+    val liquidGlass: StateFlow<Boolean> = MutableStateFlow(false)
 
     /**
      * Frosts the glass instead of refracting it, for phones the lens shader is too
      * much for: the bar's rim, shadow, tint and motion all stay. A Liquid Glass
      * option, honoured only while [liquidGlass] is on.
      */
-    val glassPerformance = MutableStateFlow(false)
+    val glassPerformance: StateFlow<Boolean> = MutableStateFlow(false)
 
     /**
      * Blurs what scrolls under the status bar and the top controls, easing out
@@ -555,7 +560,7 @@ object AppSettings {
      * option, honoured only while [liquidGlass] is on. Off by default: it costs
      * frames. Reduce dynamic blur overrides it.
      */
-    val progressiveBlur = MutableStateFlow(false)
+    val progressiveBlur: StateFlow<Boolean> = MutableStateFlow(false)
 
     /** Blurs unfocused lyric lines, keeping the active line sharp. */
     val lyricsBlur = MutableStateFlow(true)
@@ -1133,18 +1138,13 @@ object AppSettings {
         squareVideoThumbnails.value = prefs.getBoolean(KEY_SQUARE_VIDEO_THUMBNAILS, false)
         VideoThumbnails.square = squareVideoThumbnails.value
         smartVersionAlignment.value = prefs.getBoolean(KEY_SMART_VERSION_ALIGNMENT, true)
-        reduceDynamicBlur.value = prefs.getBoolean(KEY_REDUCE_BLUR, false)
         disableBlendEffects.value = prefs.getBoolean(KEY_DISABLE_BLEND_EFFECTS, false)
-        liquidGlass.value = prefs.getBoolean(KEY_LIQUID_GLASS, false)
-        glassPerformance.value = prefs.getBoolean(KEY_GLASS_PERFORMANCE, false)
-        progressiveBlur.value = prefs.getBoolean(KEY_PROGRESSIVE_BLUR, false)
         lyricsBlur.value = prefs.getBoolean(KEY_LYRICS_BLUR, true)
         lyricsOffsetMs.value = prefs.getInt(KEY_LYRICS_OFFSET_MS, 0)
             .coerceIn(MIN_LYRICS_OFFSET_MS, MAX_LYRICS_OFFSET_MS)
         translationLanguage.value = prefs.getString(KEY_TRANSLATION_LANGUAGE, "").orEmpty()
         if (highPerformanceMode.value) {
             reduceAnimation.value = false
-            reduceDynamicBlur.value = false
         }
         animatedCanvas.value = prefs.getBoolean(KEY_ANIMATED_CANVAS, true)
         canvasOverCellular.value = prefs.getBoolean(KEY_CANVAS_OVER_CELLULAR, false)
@@ -1654,39 +1654,14 @@ object AppSettings {
         prefs.edit().putBoolean(KEY_DISABLE_BLEND_EFFECTS, value).apply()
     }
 
-    fun setReduceDynamicBlur(value: Boolean) {
-        reduceDynamicBlur.value = value
-        if (value) highPerformanceMode.value = false
-        val editor = prefs.edit().putBoolean(KEY_REDUCE_BLUR, value)
-        if (value) editor.putBoolean(KEY_HIGH_PERFORMANCE_MODE, false)
-        editor.apply()
-    }
-
-    fun setLiquidGlass(value: Boolean) {
-        liquidGlass.value = value
-        prefs.edit().putBoolean(KEY_LIQUID_GLASS, value).apply()
-    }
-
-    fun setGlassPerformance(value: Boolean) {
-        glassPerformance.value = value
-        prefs.edit().putBoolean(KEY_GLASS_PERFORMANCE, value).apply()
-    }
-
-    fun setProgressiveBlur(value: Boolean) {
-        progressiveBlur.value = value
-        prefs.edit().putBoolean(KEY_PROGRESSIVE_BLUR, value).apply()
-    }
-
     fun setHighPerformanceMode(value: Boolean) {
         highPerformanceMode.value = value
         if (value) {
             reduceAnimation.value = false
-            reduceDynamicBlur.value = false
         }
         val editor = prefs.edit().putBoolean(KEY_HIGH_PERFORMANCE_MODE, value)
         if (value) {
             editor.putBoolean(KEY_REDUCE_ANIMATION, false)
-            editor.putBoolean(KEY_REDUCE_BLUR, false)
         }
         editor.apply()
     }
@@ -2478,11 +2453,7 @@ object AppSettings {
     private const val KEY_HIDE_HOME_MOODS = "hide_home_moods"
     private const val KEY_SQUARE_VIDEO_THUMBNAILS = "square_video_thumbnails"
     private const val KEY_SMART_VERSION_ALIGNMENT = "smart_version_alignment"
-    private const val KEY_REDUCE_BLUR = "reduce_dynamic_blur"
     private const val KEY_DISABLE_BLEND_EFFECTS = "disable_blend_effects"
-    private const val KEY_LIQUID_GLASS = "liquid_glass"
-    private const val KEY_GLASS_PERFORMANCE = "glass_performance"
-    private const val KEY_PROGRESSIVE_BLUR = "progressive_blur"
     private const val KEY_LYRICS_BLUR = "lyrics_blur"
     private const val KEY_LYRICS_OFFSET_MS = "lyrics_offset_ms"
     private const val KEY_TRANSLATION_LANGUAGE = "translation_language"
