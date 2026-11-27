@@ -45,6 +45,8 @@ import com.music.bitchord.ui.components.SearchPlayingBars
 import com.music.bitchord.ui.components.contextClick
 import com.music.bitchord.ui.components.longPressMenuClickable
 import com.music.bitchord.ui.theme.Accent
+import androidx.compose.foundation.border
+import androidx.compose.ui.draw.shadow
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import java.time.LocalTime
@@ -277,6 +279,7 @@ internal fun RecentlyPlayedGrid(
                             onClick = { onItemClick(item) },
                             onLongPress = onItemLongPress?.let { { it(item) } },
                             playing = isCurrent(item) && isPlaying,
+                            current = isCurrent(item),
                             modifier = Modifier.weight(1f),
                         )
                     }
@@ -293,13 +296,26 @@ private fun RecentTile(
     onClick: () -> Unit,
     onLongPress: (() -> Unit)?,
     playing: Boolean,
+    current: Boolean,
     modifier: Modifier,
 ) {
+    val shape = RoundedCornerShape(8.dp)
+    // Neon lights the tile of the song that's on: an accent outline and a
+    // soft glow of the same colour.
+    val outline = Accent.Outline?.takeIf { current }
     Row(
         modifier = modifier
             .height(RECENT_TILE_HEIGHT)
-            .clip(RoundedCornerShape(8.dp))
+            .then(
+                if (outline != null) {
+                    Modifier.shadow(10.dp, shape, ambientColor = outline, spotColor = outline)
+                } else {
+                    Modifier
+                },
+            )
+            .clip(shape)
             .background(MaterialTheme.colorScheme.surfaceVariant)
+            .then(if (outline != null) Modifier.border(1.5.dp, outline, shape) else Modifier)
             .longPressMenuClickable(onClick = onClick, onLongClick = onLongPress)
             .contextClick(onLongPress),
         verticalAlignment = Alignment.CenterVertically,
