@@ -127,6 +127,14 @@ object Accent {
     /** An outline drawn round tiles, the mini player and menus, if the style has one. */
     val Outline: Color? get() = if (style == AccentStyle.NEON) Start else null
 
+    /**
+     * The mini player's second line (the artist), given the [default] colour
+     * and the plain [container]: lifted to a soft white on Glow's gradient,
+     * where the usual grey disappears into it.
+     */
+    fun barSubtitle(default: Color, container: Color): Color =
+        if (style == AccentStyle.GLOW && container.luminance() <= 0.5f) Color.White.copy(alpha = 0.82f) else default
+
     /** The mini player's fill, given the plain [container] it would otherwise have. */
     fun barBrush(container: Color): Brush = when {
         container.luminance() > 0.5f -> SolidColor(container)

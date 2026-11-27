@@ -519,13 +519,19 @@ fun MiniPlayer(
                     song = song,
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onBackground,
-                    badgeColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    badgeColor = Accent.barSubtitle(
+                        MaterialTheme.colorScheme.onSurfaceVariant,
+                        MaterialTheme.colorScheme.surfaceVariant,
+                    ),
                     fadeOverflow = true,
                 )
                 FadingLine(
                     text = song.artist,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = Accent.barSubtitle(
+                        MaterialTheme.colorScheme.onSurfaceVariant,
+                        MaterialTheme.colorScheme.surfaceVariant,
+                    ),
                 )
             }
             if (isLoading) {
