@@ -4051,7 +4051,7 @@ private fun BitChordApp(
                             (header * fadeRamp)).coerceIn(0f, 1f)
                     }
                 }
-                if (reduceDynamicBlur || !glassActive || !progressiveBlur) {
+                if (!isGlassSupported()) {
                     BottomFadeScrim(
                         pageColor = chromePageColor,
                         modifier = Modifier
@@ -4420,6 +4420,7 @@ private fun BitChordApp(
                 // Drawn before the bars so their own glass reads on top of it.
                 BottomFadeScrim(
                     withMiniPlayer = player.song != null,
+                    hazeState = hazeState,
                     // Not the wash: by the foot of the screen the page has finished
                     // easing out of it and into this, so this is what is actually
                     // under the tab bar.

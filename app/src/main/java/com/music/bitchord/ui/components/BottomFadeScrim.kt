@@ -1,5 +1,15 @@
 package com.music.bitchord.ui.components
 
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeProgressive
+import dev.chrisbanes.haze.HazeInputScale
+import dev.chrisbanes.haze.ExperimentalHazeApi
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.EaseInCubic
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -64,6 +74,7 @@ private const val STOPS = 16
  * not a blur, it costs nothing to leave in, and with the bars filled solid it
  * is the only thing keeping content from running out from under them.
  */
+@OptIn(ExperimentalHazeApi::class)
 @Composable
 fun BottomFadeScrim(
     modifier: Modifier = Modifier,
@@ -74,6 +85,8 @@ fun BottomFadeScrim(
      * its wash has settled into down here rather than the wash itself.
      */
     pageColor: Color = MaterialTheme.colorScheme.background,
+    /** The page's haze; with it the strip blurs what is under it as well as fading it. */
+    hazeState: HazeState? = null,
 ) {
     // The gesture bar sits below the tab pill and wants covering too, so it is
     // added on rather than being part of the fade's own run.
@@ -104,9 +117,52 @@ fun BottomFadeScrim(
         modifier = modifier
             .fillMaxWidth()
             .height(height)
-            .background(brush),
+            .then(
+                if (hazeState != null && isGlassSupported()) {
+                    // A progressive blur under the fade: what scrolls down
+                    // behind the bars is frosted, hardest at the foot of the
+                    // screen and easing to nothing at the top of the strip.
+                    // The fade over it is lighter, since the blur already
+                    // keeps the page from competing with the bars.
+                    Modifier
+                        .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                        .drawWithContent {
+                            drawContent()
+                            drawRect(HeadFade, blendMode = BlendMode.DstIn)
+                            drawRect(brush, alpha = BLURRED_SCRIM_ALPHA)
+                        }
+                        .hazeEffect(state = hazeState) {
+                            backgroundColor = pageColor
+                            tints = emptyList()
+                            blurRadius = BLUR_MAX
+                            noiseFactor = 0f
+                            inputScale = HazeInputScale.Fixed(0.33f)
+                            progressive = HazeProgressive.verticalGradient(
+                                easing = EaseInOut,
+                                startIntensity = 0f,
+                                endIntensity = 1f,
+                            )
+                        }
+                } else {
+                    Modifier.background(brush)
+                },
+            ),
     )
 }
+
+/** The blur at the very foot of the screen, where it is strongest. */
+private val BLUR_MAX = 24.dp
+
+/** How much of the colour fade stays over the blur. */
+private const val BLURRED_SCRIM_ALPHA = 0.55f
+
+/** The blurred strip's opacity: eased in from nothing over its top third, then whole. */
+private val HeadFade = Brush.verticalGradient(
+    colorStops = Array(9) { i ->
+        val t = i / 8f
+        (t * 0.35f) to Color.Black.copy(alpha = EaseInOut.transform(t))
+    },
+)
 
 /**
  * How far above the floating bars the page stops taking touches. A tap that
