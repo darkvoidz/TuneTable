@@ -1,5 +1,10 @@
 package com.music.bitchord.ui.components
 
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.AnimatedVisibility
 import com.music.bitchord.ui.theme.Accent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.AnimationSpec
@@ -184,6 +189,13 @@ fun FloatingBottomBar(
     modifier: Modifier = Modifier,
     /** Called when the user taps the currently active tab (scroll-to-top). */
     onActiveTabTap: () -> Unit = {},
+    /**
+     * Folded down to the current tab alone, as it is while a page is being
+     * scrolled down. The other tabs shrink away into it and spring back out.
+     */
+    collapsed: Boolean = false,
+    /** Asked for by a tap on the folded bar: bring the other tabs back. */
+    onExpand: () -> Unit = {},
 ) {
     val pillShape = RoundedCornerShape(percent = 50)
     val container = MaterialTheme.colorScheme.surfaceVariant
@@ -216,7 +228,8 @@ fun FloatingBottomBar(
     val currentLastIndex by rememberUpdatedState(tabs.lastIndex)
     val currentOnTabSelected by rememberUpdatedState(onTabSelected)
 
-    val pillTargetPx = if (tabStepPx > 0f) {
+    // Folded, the selected tab is the only one left, at the start of the row.
+    val pillTargetPx = if (tabStepPx > 0f && !collapsed) {
         selectedIndex * tabStepPx + dragOffset
     } else 0f
 
@@ -290,7 +303,9 @@ fun FloatingBottomBar(
         Row(
             modifier = Modifier
                 .onSizeChanged { rowSize = it }
-                .pointerInput(Unit) {
+                .pointerInput(collapsed) {
+                    // Nothing to drag between while folded.
+                    if (collapsed) return@pointerInput
                     // Every drag measures from the tab selected when it starts.
                     // A stale index here measured them all from the tab the bar
                     // first opened on: a drag right of it still landed, while
@@ -342,17 +357,26 @@ fun FloatingBottomBar(
             val glassTint = glassContentColor()
             val adaptiveTint = if (useGlass) glassTint else null
             tabs.forEachIndexed { index, tab ->
-                BottomBarItem(
-                    tab = tab,
-                    selected = index == selectedIndex,
-                    glassSpec = glassSpec,
-                    // White on the accent circle.
-                    selectedTint = Color.White,
-                    unselectedTint = adaptiveTint?.copy(alpha = 0.65f),
-                    onClick = { onTabSelected(index) },
-                    onActiveTabTap = onActiveTabTap,
-                    modifier = Modifier.size(TAB_SLOT),
-                )
+                val selected = index == selectedIndex
+                // The other tabs fold away sideways as they fade, on the bar's
+                // own spring, and unfold the same way.
+                AnimatedVisibility(
+                    visible = selected || !collapsed,
+                    enter = expandHorizontally(FOLD_SPRING, expandFrom = Alignment.CenterHorizontally) + fadeIn(),
+                    exit = shrinkHorizontally(FOLD_SPRING, shrinkTowards = Alignment.CenterHorizontally) + fadeOut(),
+                ) {
+                    BottomBarItem(
+                        tab = tab,
+                        selected = selected,
+                        glassSpec = glassSpec,
+                        // White on the accent circle.
+                        selectedTint = Color.White,
+                        unselectedTint = adaptiveTint?.copy(alpha = 0.65f),
+                        onClick = { if (collapsed) onExpand() else onTabSelected(index) },
+                        onActiveTabTap = { if (!collapsed) onActiveTabTap() },
+                        modifier = Modifier.size(TAB_SLOT),
+                    )
+                }
             }
         }
     }
@@ -419,6 +443,9 @@ private fun BottomBarItem(
         )
     }
 }
+
+/** The spring the other tabs fold away and back on: soft, with one small overshoot. */
+private val FOLD_SPRING = spring<IntSize>(dampingRatio = 0.78f, stiffness = 380f)
 
 /** Each tab's round target, which the accent circle fills when it is selected. */
 private val TAB_SLOT = 48.dp

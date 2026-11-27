@@ -17,11 +17,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Download
-import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material.icons.rounded.Pause
-import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material.icons.rounded.Radio
+import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material.icons.automirrored.rounded.QueueMusic
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -40,7 +37,6 @@ import coil3.compose.AsyncImage
 import com.music.bitchord.data.model.HomeShelf
 import com.music.bitchord.data.model.ROW_ART_PX
 import com.music.bitchord.data.model.ShelfItem
-import com.music.bitchord.data.model.Song
 import com.music.bitchord.data.model.artworkAt
 import com.music.bitchord.sharedui.resources.*
 import com.music.bitchord.ui.components.PAGE_GUTTER
@@ -147,29 +143,18 @@ internal fun HomeFilterChips(selected: HomeFilter, onSelect: (HomeFilter) -> Uni
     }
 }
 
-/** Liked, Downloads and Radio, one tap away. Each is left out without its action. */
+/** Your playlists, one tap away, as a single wide button. Left out without its action. */
 @Composable
-internal fun HomeQuickActions(
-    onLiked: (() -> Unit)?,
-    onDownloads: (() -> Unit)?,
-    onRadio: (() -> Unit)?,
-) {
-    val actions = listOfNotNull(
-        onLiked?.let { Triple(Icons.Rounded.Favorite, Res.string.home_liked, it) },
-        onDownloads?.let { Triple(Icons.Rounded.Download, Res.string.home_downloads, it) },
-        onRadio?.let { Triple(Icons.Rounded.Radio, Res.string.home_radio, it) },
+internal fun HomePlaylistsButton(onOpen: (() -> Unit)?) {
+    if (onOpen == null) return
+    QuickAction(
+        Icons.AutoMirrored.Rounded.QueueMusic,
+        stringResource(Res.string.your_playlists),
+        onOpen,
+        Modifier
+            .padding(horizontal = PAGE_GUTTER, vertical = 6.dp)
+            .fillMaxWidth(),
     )
-    if (actions.isEmpty()) return
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = PAGE_GUTTER, vertical = 6.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        actions.forEach { (icon, label, onClick) ->
-            QuickAction(icon, stringResource(label), onClick, Modifier.weight(1f))
-        }
-    }
 }
 
 @Composable
@@ -195,17 +180,15 @@ private fun QuickAction(icon: ImageVector, label: String, onClick: () -> Unit, m
     }
 }
 
+/** The album or playlist to jump back into: its name and a picture for it. */
+data class JumpBackIn(val title: String, val thumbnailUrl: String?)
+
 /**
- * The song in the player, as a card washed in the accent: tap it for the
- * player, or the round button to play or pause it from here.
+ * The album or playlist the latest song was played from, as a card washed in
+ * the accent: tap it, or its arrow, to open that page again.
  */
 @Composable
-internal fun ContinueListeningCard(
-    song: Song,
-    isPlaying: Boolean,
-    onOpen: () -> Unit,
-    onPlayPause: () -> Unit,
-) {
+internal fun JumpBackInCard(target: JumpBackIn, onOpen: () -> Unit) {
     val shape = RoundedCornerShape(18.dp)
     Row(
         modifier = Modifier
@@ -223,7 +206,7 @@ internal fun ContinueListeningCard(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         AsyncImage(
-            model = song.thumbnailUrl.artworkAt(ROW_ART_PX),
+            model = target.thumbnailUrl.artworkAt(ROW_ART_PX),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -234,23 +217,16 @@ internal fun ContinueListeningCard(
         Spacer(Modifier.width(14.dp))
         Column(Modifier.weight(1f)) {
             Text(
-                stringResource(Res.string.continue_listening),
+                stringResource(Res.string.jump_back_in),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
             )
             Text(
-                song.title,
+                target.title,
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Text(
-                song.artist,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                maxLines = 1,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
         }
@@ -259,15 +235,14 @@ internal fun ContinueListeningCard(
             modifier = Modifier
                 .size(48.dp)
                 .clip(CircleShape)
-                .background(Accent.Solid)
-                .clickable(onClick = onPlayPause),
+                .background(Accent.Solid),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                if (isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
-                contentDescription = stringResource(if (isPlaying) Res.string.pause else Res.string.play),
+                Icons.AutoMirrored.Rounded.ArrowForward,
+                contentDescription = null,
                 tint = Accent.OnSolid,
-                modifier = Modifier.size(28.dp),
+                modifier = Modifier.size(24.dp),
             )
         }
     }

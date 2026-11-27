@@ -1,5 +1,6 @@
 package com.music.bitchord
 
+import com.music.bitchord.ui.screens.JumpBackIn
 import androidx.compose.ui.graphics.toArgb
 import com.music.bitchord.ui.theme.Accent
 import com.music.bitchord.ui.theme.rememberAccentColors
@@ -3112,7 +3113,9 @@ private fun BitChordApp(
                                     // without each one having to know about it.
                                     .nestedScroll(navBarScroll)
                             } else {
-                                Modifier
+                                // The same for the floating tab bar: scrolling a
+                                // page down folds it to the current tab alone.
+                                Modifier.nestedScroll(navBarScroll)
                             },
                         ),
                     label = "content",
@@ -3644,46 +3647,30 @@ private fun BitChordApp(
                                 // Nothing on Home is seen while the greeting covers it.
                                 artworkMotion = artworkMotion,
                                 replayYear = replayYearBadge,
-                                // The quick buttons under the greeting. Liked is the
-                                // account's Liked music, so it needs an account.
-                                onOpenLiked = if (signedIn) {
-                                    {
-                                        viewModel.openDetail(
-                                            browseId = YtMusicRepository.LIKED_MUSIC,
-                                            title = context.getString(R.string.auto_liked),
-                                            subtitle = "",
-                                            thumbnailUrl = null,
-                                        )
+                                // Your playlists: the Library's own list of them, or the
+                                // Library tab itself while that has not loaded yet.
+                                onOpenPlaylists = {
+                                    val playlists = (libraryState as? UiState.Success)?.data?.shelves
+                                        ?.firstOrNull { it.title == YtMusicRepository.PLAYLISTS_SHELF }
+                                    if (playlists != null) {
+                                        navigator.push(AppRoute.LibraryShowAll(playlists))
+                                    } else {
+                                        navigator.clear()
+                                        viewModel.closeMoodGenre()
+                                        selectedTab = TAB_LIBRARY
                                     }
-                                } else {
-                                    null
                                 },
-                                onOpenDownloads = {
-                                    onLibraryItemClick(
-                                        ShelfItem(
-                                            title = context.getString(R.string.downloads),
-                                            subtitle = context.getString(R.string.downloaded_songs),
-                                            thumbnailUrl = null,
-                                            videoId = null,
-                                            browseId = "local:downloads",
-                                        ),
-                                    )
+                                // Jump back in: the album or playlist the latest song
+                                // was played from, opened as the player's caption does.
+                                jumpBackIn = player.song
+                                    ?.takeIf { it.playbackSourceType == PlaybackSourceType.BROWSE && it.playbackSourceId != null }
+                                    ?.let { JumpBackIn(it.playbackSource ?: it.albumName ?: it.title, it.thumbnailUrl) },
+                                onJumpBackIn = {
+                                    player.song?.playbackSourceId?.let { id ->
+                                        viewModel.closeMoodGenre()
+                                        viewModel.openDetail(id, player.song?.playbackSource ?: player.song?.albumName ?: "")
+                                    }
                                 },
-                                // What the tab bar does for Radio, Home already being
-                                // the top of the stack.
-                                onOpenRadio = {
-                                    navigator.clear()
-                                    viewModel.closeMoodGenre()
-                                    selectedTab = TAB_RADIO
-                                },
-                                // Continue listening opens the player as the mini
-                                // player does, and plays or pauses from the card.
-                                onOpenPlayer = if (reducePlayerMotion) {
-                                    { showNowPlaying = true }
-                                } else {
-                                    playerSheetMotion::open
-                                },
-                                onPlayPause = { togglePlayPause() },
                                 onTopPickLongPress = { pick ->
                                     pick.browseId?.let { browseId ->
                                         onShelfLongPress(
@@ -4442,6 +4429,8 @@ private fun BitChordApp(
                     navigator.clear()
                     viewModel.closeMoodGenre()
                     selectedTab = index
+                    // A new tab starts with the whole bar showing.
+                    navBarScroll.expand()
 
                     // Every search tab tap resets the field, focuses it, and opens
                     // the keyboard through SearchScreen's focus request.
@@ -4557,6 +4546,8 @@ private fun BitChordApp(
                         hazeState = hazeState,
                         onTabSelected = onTabSelected,
                         onActiveTabTap = onActiveTabTap,
+                        collapsed = navBarScroll.isInline,
+                        onExpand = navBarScroll::expand,
                     )
                 }
             }

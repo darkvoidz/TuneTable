@@ -159,13 +159,11 @@ fun HomeScreen(
     artworkMotion: Boolean = true,
     /** The Replay year story's button beside the greeting, or null for none. See [ReplayYearButton]. */
     replayYear: ReplayYearBadge? = null,
-    /** The quick buttons under the greeting; each is left out without its action. */
-    onOpenLiked: (() -> Unit)? = null,
-    onOpenDownloads: (() -> Unit)? = null,
-    onOpenRadio: (() -> Unit)? = null,
-    /** Continue listening: the card opens the player, its button plays or pauses. */
-    onOpenPlayer: (() -> Unit)? = null,
-    onPlayPause: (() -> Unit)? = null,
+    /** The Your playlists button under the greeting, left out without it. */
+    onOpenPlaylists: (() -> Unit)? = null,
+    /** The album or playlist for the Jump back in card, or null for no card. */
+    jumpBackIn: JumpBackIn? = null,
+    onJumpBackIn: () -> Unit = {},
 ) {
     // Which of the chips is on. Kept across leaving the tab and coming back.
     var filter by rememberSaveable { mutableStateOf(HomeFilter.ALL) }
@@ -202,11 +200,9 @@ fun HomeScreen(
             if (title != null) {
                 item(key = "greeting") { HomeGreeting(replayYear) }
                 item(key = "filters") { HomeFilterChips(filter) { filter = it } }
-                item(key = "quick") { HomeQuickActions(onOpenLiked, onOpenDownloads, onOpenRadio) }
-                if (currentSong != null && onOpenPlayer != null && onPlayPause != null) {
-                    item(key = "continue") {
-                        ContinueListeningCard(currentSong, isPlaying, onOpenPlayer, onPlayPause)
-                    }
+                item(key = "playlists") { HomePlaylistsButton(onOpenPlaylists) }
+                if (jumpBackIn != null) {
+                    item(key = "jump-back-in") { JumpBackInCard(jumpBackIn, onJumpBackIn) }
                 }
             }
             if (!signedIn && onSignIn != null) {

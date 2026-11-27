@@ -122,6 +122,8 @@
     <string name="home_downloads">Downloads</string>
     <string name="home_radio">Radio</string>
     <string name="continue_listening">Continue listening</string>
+    <string name="jump_back_in">Jump back in</string>
+    <string name="your_playlists">Your playlists</string>
     <string name="recently_played">Recently played</string>
     <string name="played_by">Played by %1$s</string>
     <string name="playing_from">Playing from %1$s</string>
