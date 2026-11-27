@@ -3644,6 +3644,46 @@ private fun BitChordApp(
                                 // Nothing on Home is seen while the greeting covers it.
                                 artworkMotion = artworkMotion,
                                 replayYear = replayYearBadge,
+                                // The quick buttons under the greeting. Liked is the
+                                // account's Liked music, so it needs an account.
+                                onOpenLiked = if (signedIn) {
+                                    {
+                                        viewModel.openDetail(
+                                            browseId = YtMusicRepository.LIKED_MUSIC,
+                                            title = context.getString(R.string.auto_liked),
+                                            subtitle = "",
+                                            thumbnailUrl = null,
+                                        )
+                                    }
+                                } else {
+                                    null
+                                },
+                                onOpenDownloads = {
+                                    onLibraryItemClick(
+                                        ShelfItem(
+                                            title = context.getString(R.string.downloads),
+                                            subtitle = context.getString(R.string.downloaded_songs),
+                                            thumbnailUrl = null,
+                                            videoId = null,
+                                            browseId = "local:downloads",
+                                        ),
+                                    )
+                                },
+                                // What the tab bar does for Radio, Home already being
+                                // the top of the stack.
+                                onOpenRadio = {
+                                    navigator.clear()
+                                    viewModel.closeMoodGenre()
+                                    selectedTab = TAB_RADIO
+                                },
+                                // Continue listening opens the player as the mini
+                                // player does, and plays or pauses from the card.
+                                onOpenPlayer = if (reducePlayerMotion) {
+                                    { showNowPlaying = true }
+                                } else {
+                                    playerSheetMotion::open
+                                },
+                                onPlayPause = { togglePlayPause() },
                                 onTopPickLongPress = { pick ->
                                     pick.browseId?.let { browseId ->
                                         onShelfLongPress(

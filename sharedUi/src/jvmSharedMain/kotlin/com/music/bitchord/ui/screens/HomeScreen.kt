@@ -1,5 +1,8 @@
 package com.music.bitchord.ui.screens
 
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.luminance
 import com.music.bitchord.ui.components.trackArtSize
 import com.music.bitchord.ui.components.contextClick
@@ -154,9 +157,18 @@ fun HomeScreen(
     onMoodsShowAll: () -> Unit = {},
     /** Whether the Top Picks and mood artwork may animate — see [LocalArtworkMotion]. */
     artworkMotion: Boolean = true,
-    /** The Replay year story's button beside the wordmark, or null for none. See [ReplayYearButton]. */
+    /** The Replay year story's button beside the greeting, or null for none. See [ReplayYearButton]. */
     replayYear: ReplayYearBadge? = null,
+    /** The quick buttons under the greeting; each is left out without its action. */
+    onOpenLiked: (() -> Unit)? = null,
+    onOpenDownloads: (() -> Unit)? = null,
+    onOpenRadio: (() -> Unit)? = null,
+    /** Continue listening: the card opens the player, its button plays or pauses. */
+    onOpenPlayer: (() -> Unit)? = null,
+    onPlayPause: (() -> Unit)? = null,
 ) {
+    // Which of the chips is on. Kept across leaving the tab and coming back.
+    var filter by rememberSaveable { mutableStateOf(HomeFilter.ALL) }
     // Top Picks' pictures and motion wait for the feed — see LocalArtworkImages.
     val feedReady = state !is UiState.Loading
     CompositionLocalProvider(
@@ -188,7 +200,14 @@ fun HomeScreen(
             },
         ) {
             if (title != null) {
-                item { HomeTitle(title, replayYear) }
+                item(key = "greeting") { HomeGreeting(replayYear) }
+                item(key = "filters") { HomeFilterChips(filter) { filter = it } }
+                item(key = "quick") { HomeQuickActions(onOpenLiked, onOpenDownloads, onOpenRadio) }
+                if (currentSong != null && onOpenPlayer != null && onPlayPause != null) {
+                    item(key = "continue") {
+                        ContinueListeningCard(currentSong, isPlaying, onOpenPlayer, onPlayPause)
+                    }
+                }
             }
             if (!signedIn && onSignIn != null) {
                 item {
@@ -201,17 +220,21 @@ fun HomeScreen(
                     )
                 }
             }
-            if (onTopPickClick != null) {
-                when {
-                    !topPicks.isNullOrEmpty() -> item(key = "top-picks") {
-                        TopPicksShelf(
-                            picks = topPicks,
-                            listenerName = listenerName,
-                            onClick = onTopPickClick,
-                            onLongPress = onTopPickLongPress,
-                        )
+            // Top Picks come after Recently played, and only under All: they are
+            // a mix of every kind, so no one chip can claim them.
+            val topPicksItems: androidx.compose.foundation.lazy.LazyListScope.() -> Unit = {
+                if (onTopPickClick != null && filter == HomeFilter.ALL) {
+                    when {
+                        !topPicks.isNullOrEmpty() -> item(key = "top-picks") {
+                            TopPicksShelf(
+                                picks = topPicks,
+                                listenerName = listenerName,
+                                onClick = onTopPickClick,
+                                onLongPress = onTopPickLongPress,
+                            )
+                        }
+                        topPicks == null && topPicksLoading -> topPicksSkeleton()
                     }
-                    topPicks == null && topPicksLoading -> topPicksSkeleton()
                 }
             }
             when (state) {
@@ -219,6 +242,7 @@ fun HomeScreen(
                     if (recentlyPlayedLoading) {
                         recentlyPlayedSkeleton()
                     }
+                    topPicksItems()
                     feedSkeleton()
                 }
                 is UiState.Error -> item {
@@ -228,9 +252,27 @@ fun HomeScreen(
                     if (recentlyPlayedLoading) {
                         recentlyPlayedSkeleton()
                     }
+                    val shelves = state.data.filteredBy(filter)
+                    // Recents, when the feed leads with it, becomes the
+                    // Recently played grid, with Top Picks after it.
+                    val recents = shelves.firstOrNull()
+                        ?.takeIf { it.title.equals(RECENTS_TITLE, ignoreCase = true) }
+                    if (recents != null) {
+                        item(key = "recently-played") {
+                            RecentlyPlayedGrid(
+                                items = recents.items,
+                                onItemClick = { item -> onItemClick(item, recents.title) },
+                                onItemLongPress = onItemLongPress,
+                                isCurrent = recents.items.playingItemMatcher(currentSong),
+                                isPlaying = isPlaying,
+                            )
+                        }
+                    }
+                    topPicksItems()
                     itemsIndexedShelves(
-                        shelves = state.data,
-                        onMoodClick = onMoodClick,
+                        shelves = if (recents != null) shelves.drop(1) else shelves,
+                        // Moods, like Top Picks, belong under All alone.
+                        onMoodClick = onMoodClick.takeIf { filter == HomeFilter.ALL },
                         onMoodsShowAll = onMoodsShowAll,
                         onItemClick = onItemClick,
                         onItemLongPress = onItemLongPress,
