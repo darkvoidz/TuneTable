@@ -5894,8 +5894,8 @@ private fun BitChordApp(
         }
 
         BackHandler(enabled = showAccountSelector) { showAccountSelector = false }
-        // The dim fades in; the card itself grows down from the top as it fades,
-        // and goes back the same way.
+        // The dim fades in; the card grows out of its top-right corner, under
+        // the profile picture, and goes back the same way.
         AnimatedVisibility(
             visible = showAccountSelector,
             enter = fadeIn(tween(200)),
@@ -5905,10 +5905,10 @@ private fun BitChordApp(
                 cardModifier = Modifier.animateEnterExit(
                     enter = scaleIn(
                         tween(260, easing = CubicBezierEasing(0.2f, 0f, 0f, 1f)),
-                        initialScale = 0.9f,
-                        transformOrigin = TransformOrigin(0.5f, 0f),
-                    ) + slideInVertically(tween(260)) { -it / 12 },
-                    exit = scaleOut(tween(160), targetScale = 0.94f, transformOrigin = TransformOrigin(0.5f, 0f)),
+                        initialScale = 0.85f,
+                        transformOrigin = TransformOrigin(1f, 0f),
+                    ) + slideInVertically(tween(260)) { -it / 16 },
+                    exit = scaleOut(tween(160), targetScale = 0.92f, transformOrigin = TransformOrigin(1f, 0f)),
                 ),
                 accounts = googleAccounts,
                 activeAccountId = activeAccountId,

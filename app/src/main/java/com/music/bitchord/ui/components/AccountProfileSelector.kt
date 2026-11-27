@@ -1,5 +1,8 @@
 package com.music.bitchord.ui.components
 
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.icons.rounded.ManageAccounts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -91,15 +94,16 @@ fun AccountProfileSelector(
     Column(
         modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.scrim.copy(alpha = .48f))
             .clickable(onClick = onDismiss),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.End,
     ) {
         Surface(
             color = Color.Transparent,
             contentColor = MaterialTheme.colorScheme.onSurface,
             shape = shape,
             modifier = Modifier
-                .padding(top = 56.dp, start = 20.dp, end = 20.dp)
+                .padding(top = 56.dp, start = 20.dp, end = 16.dp)
                 .then(cardModifier)
+                .widthIn(max = 300.dp)
                 .fillMaxWidth()
                 .clip(shape)
                 .then(
@@ -124,16 +128,17 @@ fun AccountProfileSelector(
         ) {
             // Room under the last row to match the space between rows, so the
             // list doesn't stop short against the card's edge.
-            LazyColumn(contentPadding = PaddingValues(bottom = 14.dp)) {
-                item { Text(stringResource(R.string.switch_account), style = MaterialTheme.typography.titleLarge,
+            LazyColumn(contentPadding = PaddingValues(bottom = 8.dp)) {
+                item { Text(stringResource(R.string.switch_account), style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(20.dp, 18.dp, 20.dp, 8.dp)) }
+                    modifier = Modifier.padding(16.dp, 14.dp, 16.dp, 2.dp)) }
                 accounts.forEach { account ->
                 item {
                     Text(account.email.ifBlank { account.name.ifBlank { stringResource(R.string.accounts) } },
-                        style = MaterialTheme.typography.labelLarge,
+                        style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(20.dp, 12.dp, 20.dp, 4.dp))
+                        modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 2.dp))
                 }
                 items(account.profiles.size) { index ->
                     val profile = account.profiles[index]
@@ -142,7 +147,7 @@ fun AccountProfileSelector(
                 }
                 }
                 item { SelectorAction(SfIcons.Add, stringResource(R.string.add_account), onClick = onAddAccount) }
-                item { SelectorAction(SfIcons.Close, stringResource(R.string.manage_accounts)) { managing = !managing } }
+                item { SelectorAction(Icons.Rounded.ManageAccounts, stringResource(R.string.manage_accounts)) { managing = !managing } }
                 item { SelectorAction(SfIcons.Settings, stringResource(R.string.settings), onClick = onOpenSettings) }
             }
         }
@@ -152,31 +157,36 @@ fun AccountProfileSelector(
 @Composable private fun ProfileRow(profile: YouTubeProfile, selected: Boolean, managing: Boolean,
     onClick: () -> Unit, onRemove: () -> Unit) {
     val description = stringResource(if (selected) R.string.selected_account else R.string.switch_account)
-    Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable(role = Role.RadioButton, onClick = if (managing) onRemove else onClick)
+    Row(Modifier.fillMaxWidth().heightIn(min = 46.dp).clickable(role = Role.RadioButton, onClick = if (managing) onRemove else onClick)
         .semantics { contentDescription = description }
-        .padding(horizontal = 20.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-        if (profile.avatar != null) AsyncImage(profile.avatar, null, Modifier.size(38.dp).clip(MaterialTheme.shapes.extraLarge))
-        else Icon(SfIcons.AccountPlaceholder, null, Modifier.size(38.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        .padding(horizontal = 16.dp, vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
+        if (profile.avatar != null) AsyncImage(profile.avatar, null, Modifier.size(PROFILE_AVATAR).clip(MaterialTheme.shapes.extraLarge))
+        else Icon(SfIcons.AccountPlaceholder, null, Modifier.size(PROFILE_AVATAR), tint = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.width(12.dp)); Column(Modifier.weight(1f)) {
-            Text(profile.name, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(profile.name, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
             Text(profile.handle.ifBlank { stringResource(if (profile.isBrandAccount) R.string.brand_account else R.string.personal) },
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        if (selected && !managing) Icon(Icons.Rounded.Check, stringResource(R.string.selected_account), tint = MaterialTheme.colorScheme.primary)
-        if (managing) Text(stringResource(R.string.sign_out), color = MaterialTheme.colorScheme.error)
+        if (selected && !managing) Icon(Icons.Rounded.Check, stringResource(R.string.selected_account),
+            Modifier.size(20.dp), tint = MaterialTheme.colorScheme.primary)
+        if (managing) Text(stringResource(R.string.sign_out), style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.error)
     }
 }
 
 @Composable private fun SelectorAction(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String,
-    iconSize: Dp = 24.dp,
+    iconSize: Dp = 20.dp,
     onClick: () -> Unit,
 ) {
-    Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).clickable(role = Role.Button, onClick = onClick)
-        .semantics { contentDescription = label }.padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(Modifier.fillMaxWidth().heightIn(min = 44.dp).clickable(role = Role.Button, onClick = onClick)
+        .semantics { contentDescription = label }.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
         // In the avatars' column, so the labels line up with the names above.
-        Box(Modifier.width(38.dp), contentAlignment = Alignment.Center) { Icon(icon, null, Modifier.size(iconSize)) }
-        Spacer(Modifier.width(12.dp)); Text(label)
+        Box(Modifier.width(PROFILE_AVATAR), contentAlignment = Alignment.Center) { Icon(icon, null, Modifier.size(iconSize)) }
+        Spacer(Modifier.width(12.dp)); Text(label, style = MaterialTheme.typography.bodyMedium)
     }
 }
+
+/** The avatars, and the column the action icons are centred in to line up with them. */
+private val PROFILE_AVATAR = 32.dp
