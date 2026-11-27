@@ -1,5 +1,8 @@
 package com.music.bitchord.ui.components
 
+import kotlin.math.roundToInt
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.draw.clipToBounds
 import com.music.bitchord.ui.theme.Accent
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.rotate
@@ -387,6 +390,12 @@ fun MiniPlayer(
      * tick redraws the ring and nothing else.
      */
     progress: (() -> Float)? = null,
+    /**
+     * How far the bar has folded into its compact form, 0 to 1: the title
+     * fades and skip folds away, leaving the cover and play/pause. Read while
+     * laying out and drawing, so a fold recomposes nothing.
+     */
+    compact: () -> Float = { 0f },
     modifier: Modifier = Modifier,
     autoMixArtwork: (@Composable (String?, Modifier) -> Unit)? = null,
 ) {
@@ -494,7 +503,12 @@ fun MiniPlayer(
             }
             }
             Spacer(Modifier.width(10.dp))
-            Column(Modifier.weight(1f)) {
+            Column(
+                Modifier
+                    .weight(1f)
+                    .clipToBounds()
+                    .graphicsLayer { alpha = 1f - compact().coerceIn(0f, 1f) },
+            ) {
                 // The badge in the artist line's colour and a long line faded
                 // out at its end, as on the glass bar's mini player.
                 ExplicitSongTitle(
@@ -539,6 +553,18 @@ fun MiniPlayer(
                     )
                 }
             }
+            // Skip folds away with the title in the compact form.
+            Row(
+                Modifier
+                    .layout { measurable, constraints ->
+                        val placeable = measurable.measure(constraints)
+                        val kept = 1f - compact().coerceIn(0f, 1f)
+                        layout((placeable.width * kept).roundToInt(), placeable.height) { placeable.place(0, 0) }
+                    }
+                    .clipToBounds()
+                    .graphicsLayer { alpha = 1f - compact().coerceIn(0f, 1f) },
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
             Spacer(Modifier.width(TRANSPORT_GAP))
             // Faded and inert rather than removed while the host holds the
             // controls, so the bar keeps its shape — see [controlsLocked].
@@ -556,6 +582,7 @@ fun MiniPlayer(
                     tint = MaterialTheme.colorScheme.onBackground
                         .copy(alpha = if (controlsLocked) 0.3f else 1f),
                 )
+            }
             }
         }
     }
@@ -599,6 +626,13 @@ private fun Modifier.progressRing(progress: (() -> Float)?): Modifier =
     }
 
 private val RING_STROKE = 2.5.dp
+
+/**
+ * The compact bar's width: the ringed cover, the gap after it, play/pause and
+ * the row's padding at either end, plus the gutter the bar keeps either side.
+ */
+val MINI_PLAYER_COMPACT_WIDTH: Dp =
+    ART_SIZE + (RING_GAP + RING_STROKE) * 2 + 10.dp + GLYPH_SLOT + ROW_PADDING_HORIZONTAL * 2 + BAR_GUTTER * 2
 
 @Composable
 internal fun MiniPlayerArtwork(song: Song, autoMixArtwork: (@Composable (String?, Modifier) -> Unit)?) {

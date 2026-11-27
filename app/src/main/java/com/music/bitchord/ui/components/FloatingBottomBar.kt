@@ -1,10 +1,8 @@
 package com.music.bitchord.ui.components
 
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.shrinkHorizontally
-import androidx.compose.animation.expandHorizontally
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.layout.layout
 import com.music.bitchord.ui.theme.Accent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.AnimationSpec
@@ -191,9 +189,11 @@ fun FloatingBottomBar(
     onActiveTabTap: () -> Unit = {},
     /**
      * Folded down to the current tab alone, as it is while a page is being
-     * scrolled down. The other tabs shrink away into it and spring back out.
+     * scrolled down — the state the bar is headed for. [fold] is how far
+     * along the way it is, 0 open to 1 folded, and drives the drawing.
      */
     collapsed: Boolean = false,
+    fold: () -> Float = { if (collapsed) 1f else 0f },
     /** Asked for by a tap on the folded bar: bring the other tabs back. */
     onExpand: () -> Unit = {},
 ) {
@@ -228,8 +228,7 @@ fun FloatingBottomBar(
     val currentLastIndex by rememberUpdatedState(tabs.lastIndex)
     val currentOnTabSelected by rememberUpdatedState(onTabSelected)
 
-    // Folded, the selected tab is the only one left, at the start of the row.
-    val pillTargetPx = if (tabStepPx > 0f && !collapsed) {
+    val pillTargetPx = if (tabStepPx > 0f) {
         selectedIndex * tabStepPx + dragOffset
     } else 0f
 
@@ -278,6 +277,23 @@ fun FloatingBottomBar(
             )
             .border(GLASS_EDGE_WIDTH, GLASS_EDGE_COLOR, pillShape)
             .padding(horizontal = PILL_INSET, vertical = PILL_INSET),
+    ) {
+    // Folding: the row keeps its full size but only part of it is shown — from
+    // the whole row open, down to one tab's circle folded — and it slides so the
+    // selected tab ends up in that circle. The highlight rides inside the row,
+    // so the two can never part company. Read in layout, so a fold re-places
+    // this box each frame and recomposes nothing.
+    Box(
+        Modifier.layout { measurable, constraints ->
+            val placeable = measurable.measure(constraints.copy(minWidth = 0, maxWidth = Constraints.Infinity))
+            val f = fold().coerceIn(0f, 1f)
+            val slot = TAB_SLOT.roundToPx()
+            val step = slot + TAB_GAP.roundToPx()
+            val shown = (placeable.width + (slot - placeable.width) * f).roundToInt()
+            layout(shown, placeable.height) {
+                placeable.place((-selectedIndex * step * f).roundToInt(), 0)
+            }
+        },
     ) {
         if (tabWidthPx > 0f) {
             Box(
@@ -358,13 +374,6 @@ fun FloatingBottomBar(
             val adaptiveTint = if (useGlass) glassTint else null
             tabs.forEachIndexed { index, tab ->
                 val selected = index == selectedIndex
-                // The other tabs fold away sideways as they fade, on the bar's
-                // own spring, and unfold the same way.
-                AnimatedVisibility(
-                    visible = selected || !collapsed,
-                    enter = expandHorizontally(FOLD_SPRING, expandFrom = Alignment.CenterHorizontally) + fadeIn(),
-                    exit = shrinkHorizontally(FOLD_SPRING, shrinkTowards = Alignment.CenterHorizontally) + fadeOut(),
-                ) {
                     BottomBarItem(
                         tab = tab,
                         selected = selected,
@@ -374,11 +383,14 @@ fun FloatingBottomBar(
                         unselectedTint = adaptiveTint?.copy(alpha = 0.65f),
                         onClick = { if (collapsed) onExpand() else onTabSelected(index) },
                         onActiveTabTap = { if (!collapsed) onActiveTabTap() },
-                        modifier = Modifier.size(TAB_SLOT),
+                        modifier = Modifier
+                            .size(TAB_SLOT)
+                            // The others fade as they fold out of sight.
+                            .graphicsLayer { alpha = if (selected) 1f else 1f - fold().coerceIn(0f, 1f) },
                     )
-                }
             }
         }
+    }
     }
 }
 
@@ -444,8 +456,8 @@ private fun BottomBarItem(
     }
 }
 
-/** The spring the other tabs fold away and back on: soft, with one small overshoot. */
-private val FOLD_SPRING = spring<IntSize>(dampingRatio = 0.78f, stiffness = 380f)
+/** The tab pill's own height: one tab's circle and the inset round it. */
+val FLOATING_TAB_PILL_HEIGHT: Dp get() = TAB_SLOT + PILL_INSET * 2
 
 /** Each tab's round target, which the accent circle fills when it is selected. */
 private val TAB_SLOT = 48.dp

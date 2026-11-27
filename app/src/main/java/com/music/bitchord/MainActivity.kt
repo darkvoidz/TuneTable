@@ -1,5 +1,11 @@
 package com.music.bitchord
 
+import androidx.compose.animation.core.spring
+import kotlin.math.roundToInt
+import androidx.compose.ui.layout.layout
+import com.music.bitchord.ui.components.BAR_GUTTER
+import com.music.bitchord.ui.components.FLOATING_TAB_PILL_HEIGHT
+import com.music.bitchord.ui.components.MINI_PLAYER_COMPACT_WIDTH
 import com.music.bitchord.ui.screens.JumpBackIn
 import androidx.compose.ui.graphics.toArgb
 import com.music.bitchord.ui.theme.Accent
@@ -4510,6 +4516,18 @@ private fun BitChordApp(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     QueueActionNoticeHost(queueNotice)
+                    // One value, 0 open to 1 folded, moves the tab bar and the
+                    // mini player together on one spring: the tabs fold into the
+                    // current one and glide to the bottom-left corner, and the
+                    // mini player drops into the same row on the right, down to
+                    // its cover and play/pause. Read only while laying out and
+                    // drawing, so a fold recomposes neither.
+                    val barFoldState = animateFloatAsState(
+                        targetValue = if (navBarScroll.isInline) 1f else 0f,
+                        animationSpec = spring(dampingRatio = 0.82f, stiffness = 300f),
+                        label = "barFold",
+                    )
+                    val barFold: () -> Float = { barFoldState.value }
                     player.song?.let { song ->
                         MiniPlayer(
                             song = song,
@@ -4535,7 +4553,24 @@ private fun BitChordApp(
                                 val duration = player.durationMs
                                 if (duration > 0L) player.position.positionMs.toFloat() / duration else 0f
                             },
-                            modifier = Modifier.fillMaxWidth(),
+                            compact = barFold,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .layout { measurable, constraints ->
+                                    val f = barFold().coerceIn(0f, 1f)
+                                    val full = constraints.maxWidth
+                                    val compactWidth = MINI_PLAYER_COMPACT_WIDTH.roundToPx().coerceAtMost(full)
+                                    val width = (full + (compactWidth - full) * f).roundToInt()
+                                    val placeable = measurable.measure(
+                                        constraints.copy(minWidth = width, maxWidth = width),
+                                    )
+                                    // Down into the tab pill's row, centred on it.
+                                    val pill = FLOATING_TAB_PILL_HEIGHT.roundToPx()
+                                    val drop = placeable.height + 8.dp.roundToPx() + (pill - placeable.height) / 2
+                                    layout(full, placeable.height) {
+                                        placeable.place(full - width, (drop * f).roundToInt())
+                                    }
+                                },
                             autoMixArtwork = miniArtwork,
                         )
                         Spacer(Modifier.height(8.dp))
@@ -4547,7 +4582,22 @@ private fun BitChordApp(
                         onTabSelected = onTabSelected,
                         onActiveTabTap = onActiveTabTap,
                         collapsed = navBarScroll.isInline,
+                        fold = barFold,
                         onExpand = navBarScroll::expand,
+                        // Centred while open, gliding to the bottom-left corner
+                        // as it folds.
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .layout { measurable, constraints ->
+                                val placeable = measurable.measure(constraints.copy(minWidth = 0))
+                                val full = constraints.maxWidth
+                                val centred = (full - placeable.width) / 2
+                                val corner = BAR_GUTTER.roundToPx()
+                                val f = barFold().coerceIn(0f, 1f)
+                                layout(full, placeable.height) {
+                                    placeable.place((centred + (corner - centred) * f).roundToInt(), 0)
+                                }
+                            },
                     )
                 }
             }
