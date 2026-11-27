@@ -2082,7 +2082,11 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private suspend fun fetchLibrary(identity: String?) {
-        val next = YtMusicRepository.library().fold(
+        // The signed-in Spotify account's playlists, fetched alongside and
+        // listed after YouTube Music's own in the Playlists shelf. A Spotify
+        // that fails to answer leaves the shelf as YouTube Music has it.
+        val spotify = viewModelScope.async { spotifyPlaylistItems() }
+        val next = YtMusicRepository.library().map { it.withSpotifyPlaylists(spotify.await()) }.fold(
             onSuccess = { page ->
                 // Liked Music is published with just its first page on the tab;
                 // the rest of the collection is synced into LikeState here, in
@@ -2095,6 +2099,34 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             onFailure = { UiState.Error(it.friendly()) },
         )
         if (identity == listenerKey()) _library.value = next
+    }
+
+    /** The Spotify account's playlists as shelf items that open as Spotify pages; none when signed out. */
+    private suspend fun spotifyPlaylistItems(): List<ShelfItem> {
+        if (AppSettings.spotifySpdcToken.value.isBlank()) return emptyList()
+        val spotify = text(R.string.spotify)
+        return runCatching { SpotifyLibrary.playlists() }.getOrNull().orEmpty().map { playlist ->
+            ShelfItem(
+                title = playlist.name,
+                subtitle = listOfNotNull(spotify, playlist.owner).joinToString(" • "),
+                thumbnailUrl = playlist.imageUrl,
+                videoId = null,
+                browseId = SPOTIFY_PAGE_PREFIX + playlist.id,
+            )
+        }
+    }
+
+    /** This library with [spotify] added to the end of its Playlists shelf, making the shelf if it has none. */
+    private fun LibraryPage.withSpotifyPlaylists(spotify: List<ShelfItem>): LibraryPage {
+        if (spotify.isEmpty()) return this
+        val at = shelves.indexOfFirst { it.title == YtMusicRepository.PLAYLISTS_SHELF }
+        return copy(
+            shelves = if (at >= 0) {
+                shelves.toMutableList().also { it[at] = it[at].copy(items = it[at].items + spotify) }
+            } else {
+                shelves + HomeShelf(title = YtMusicRepository.PLAYLISTS_SHELF, items = spotify)
+            },
+        )
     }
 
     /**
