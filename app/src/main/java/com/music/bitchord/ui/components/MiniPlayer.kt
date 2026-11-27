@@ -145,10 +145,10 @@ private val ROW_PADDING_HORIZONTAL = 12.dp
  * height happens to be — so that constraint is gone and the artwork can go
  * back to matching [SongRow].
  */
-private val ART_CORNER = ART_SIZE / 2
-
 /** The cover: a circle, a little smaller than the old square one, for a slimmer bar. */
 private val ART_SIZE = 36.dp
+
+private val ART_CORNER = ART_SIZE / 2
 
 /** Distance that makes a horizontal drag an intentional track change. */
 private val TRACK_SWIPE_THRESHOLD = 72.dp
