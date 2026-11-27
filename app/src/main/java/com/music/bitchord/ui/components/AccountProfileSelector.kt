@@ -1,5 +1,6 @@
 package com.music.bitchord.ui.components
 
+import androidx.compose.ui.graphics.Brush
 import com.music.bitchord.ui.theme.Accent
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.layout.widthIn
@@ -109,7 +110,14 @@ fun AccountProfileSelector(
                 .clip(shape)
                 .then(
                     if (reduceDynamicBlur) {
-                        Modifier.background(MaterialTheme.colorScheme.surface)
+                        // The menus' own wash of the accent over the surface.
+                        Modifier
+                            .background(MaterialTheme.colorScheme.surface)
+                            .background(
+                                Brush.linearGradient(
+                                    listOf(Accent.Start.copy(alpha = MENU_WASH), Accent.End.copy(alpha = MENU_WASH * 0.8f)),
+                                ),
+                            )
                     } else {
                         Modifier.optimizedHazeEffect(
                             state = hazeState,

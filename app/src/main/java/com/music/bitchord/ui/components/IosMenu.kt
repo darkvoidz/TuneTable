@@ -141,8 +141,8 @@ fun iosMenuColors(): IosMenuColors {
     }
 }
 
-/** How much of the accent washes over a menu's slab. */
-private const val MENU_WASH = 0.05f
+/** How much of the accent washes over a menu's slab. Also the account menu's. */
+internal const val MENU_WASH = 0.09f
 
 /** The panel's silhouette: a large, continuously curved corner. */
 val IosMenuShape: Shape = RoundedCornerShape(30.dp).continuous()
