@@ -1,5 +1,6 @@
 package com.music.bitchord.ui.screens
 
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Brush
 import com.music.bitchord.ui.theme.Accent
 import com.music.bitchord.ui.components.AccentColourDialog
@@ -2679,6 +2680,11 @@ internal fun SettingsGroup(
     }
 }
 
+/** A row's secondary text — subtitles and values — on an accent-washed card. */
+@Composable
+@ReadOnlyComposable
+internal fun SubtitleInk(): Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f)
+
 /** How much of the accent washes over a settings card. */
 private const val CARD_WASH = 0.12f
 
@@ -2810,7 +2816,9 @@ internal fun SettingsRow(
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    // The card's own text colour, softened, rather than a grey:
+                    // a grey loses itself in the accent's wash.
+                    color = SubtitleInk(),
                     maxLines = 5,
                 )
             }
@@ -2823,7 +2831,7 @@ internal fun SettingsRow(
                 Text(
                     text = value,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = SubtitleInk(),
                     maxLines = 1,
                 )
                 Spacer(Modifier.width(4.dp))

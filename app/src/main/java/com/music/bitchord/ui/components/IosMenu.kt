@@ -1,5 +1,7 @@
 package com.music.bitchord.ui.components
 
+import androidx.compose.ui.graphics.Brush
+import com.music.bitchord.ui.theme.Accent
 import android.provider.Settings
 import com.music.bitchord.ui.player.PlayerBackHandler
 import com.music.bitchord.ui.player.additiveChrome
@@ -139,6 +141,9 @@ fun iosMenuColors(): IosMenuColors {
     }
 }
 
+/** How much of the accent washes over a menu's slab. */
+private const val MENU_WASH = 0.12f
+
 /** The panel's silhouette: a large, continuously curved corner. */
 val IosMenuShape: Shape = RoundedCornerShape(30.dp).continuous()
 
@@ -196,6 +201,13 @@ fun Modifier.iosMenuPanel(
     }
     return surface
         .clip(IosMenuShape)
+        // A faint wash of the accent over the slab, as the settings cards and
+        // the player's drawers have.
+        .background(
+            Brush.linearGradient(
+                listOf(Accent.Start.copy(alpha = MENU_WASH), Accent.End.copy(alpha = MENU_WASH * 0.8f)),
+            ),
+        )
         .border(0.5.dp, rimOverride ?: colors.rim, IosMenuShape)
 }
 
@@ -294,7 +306,8 @@ fun RowScope.IosMenuQuickAction(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = tint ?: color,
+            // The accent, unless the caller has a colour of its own for it.
+            tint = tint ?: if (enabled) Accent.Solid else color,
             modifier = Modifier.size(23.dp),
         )
         Spacer(Modifier.height(6.dp))
@@ -364,7 +377,9 @@ fun IosMenuRow(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = (iconTint ?: foreground).let { it.copy(alpha = it.alpha * alpha) },
+                    // The accent, unless the row has a colour of its own (a
+                    // destructive red, say), as its label would.
+                    tint = (iconTint ?: labelColor ?: Accent.Solid).let { it.copy(alpha = it.alpha * alpha) },
                     modifier = Modifier.size(21.dp),
                 )
             }
