@@ -453,17 +453,21 @@ fun MiniPlayer(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = ROW_PADDING_HORIZONTAL)
+                .padding(end = ROW_PADDING_HORIZONTAL)
                 // Open, the row's own padding; folded, just enough to make the
-                // bar exactly as tall as the folded tab beside it.
+                // bar exactly as tall as the folded tab beside it, and the same
+                // at the start, so the ringed cover sits evenly in the bar's
+                // rounded end.
                 .layout { measurable, constraints ->
                     val c = compact().coerceIn(0f, 1f)
                     val open = ROW_PADDING_VERTICAL.toPx()
                     val folded = ((COMPACT_BAR_HEIGHT - ART_SIZE - (RING_GAP + RING_STROKE) * 2) / 2)
                         .toPx().coerceAtLeast(0f)
                     val pad = (open + (folded - open) * c).roundToInt()
-                    val placeable = measurable.measure(constraints.offset(vertical = -pad * 2))
-                    layout(placeable.width, placeable.height + pad * 2) { placeable.place(0, pad) }
+                    val openStart = ROW_PADDING_HORIZONTAL.toPx()
+                    val start = (openStart + (folded - openStart) * c).roundToInt()
+                    val placeable = measurable.measure(constraints.offset(horizontal = -start, vertical = -pad * 2))
+                    layout(placeable.width + start, placeable.height + pad * 2) { placeable.place(start, pad) }
                 },
             verticalAlignment = Alignment.CenterVertically,
         ) {

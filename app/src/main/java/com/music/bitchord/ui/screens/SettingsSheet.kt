@@ -2486,7 +2486,7 @@ internal val ICON_GAP = 14.dp
 
 /** Where a row's text starts — dividers are inset to match, as on iOS. */
 /** A row's icon badge: the glyph on a round coral-to-purple disc. */
-internal val ICON_TILE = 32.dp
+internal val ICON_TILE = 36.dp
 internal val TEXT_INSET = ROW_INSET + ICON_TILE + ICON_GAP
 
 /**
@@ -2683,7 +2683,7 @@ internal fun SettingsGroup(
 private const val CARD_WASH = 0.12f
 
 /** A row icon's glyph, white on its badge. */
-internal val ICON_GLYPH = 18.dp
+internal val ICON_GLYPH = 21.dp
 
 /** The round coral-to-purple badge a settings row's icon sits on. */
 @Composable
