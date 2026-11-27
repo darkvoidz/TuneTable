@@ -1,5 +1,13 @@
 package com.music.bitchord.ui.components
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.material3.Icon
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.Brush
+import com.music.bitchord.ui.theme.Accent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -60,6 +68,10 @@ internal fun AudioPopupCard(
     doneLabel: String,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    /** A glyph for the round gradient badge above the title, or null for none. */
+    badge: ImageVector? = null,
+    /** Anything to stand above the Done button, such as a second action. */
+    footer: @Composable ColumnScope.() -> Unit = {},
     content: @Composable BoxScope.() -> Unit,
 ) {
     val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
@@ -92,6 +104,12 @@ internal fun AudioPopupCard(
                         else -> Modifier.liveMenuFrost(hazeState, MenuFrostDark)
                     }
                 )
+                // A faint wash of the accent, as the drawers and menus have.
+                .background(
+                    Brush.linearGradient(
+                        listOf(Accent.Start.copy(alpha = POPUP_WASH), Accent.End.copy(alpha = POPUP_WASH * 0.8f)),
+                    ),
+                )
                 // Swallows the tap before it reaches the scrim behind, so
                 // touching the card itself never dismisses it.
                 .clickable(
@@ -106,11 +124,23 @@ internal fun AudioPopupCard(
                     .padding(horizontal = 16.dp, vertical = 19.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                if (badge != null) {
+                    Box(
+                        modifier = Modifier
+                            .padding(bottom = 12.dp)
+                            .size(56.dp)
+                            .clip(CircleShape)
+                            .background(Accent.brush),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(badge, contentDescription = null, tint = Color.White, modifier = Modifier.size(28.dp))
+                    }
+                }
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodyLarge.copy(
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.W600,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.W700,
                     ),
                     color = Color.White,
                     textAlign = TextAlign.Center,
@@ -136,8 +166,39 @@ internal fun AudioPopupCard(
 
             // Full width: the default rule is indented to clear the pipeline's
             // icon lane, which left this one sitting right of centre.
-            PipelineRule(Modifier)
-            PipelineDoneAction(label = doneLabel, onClick = onDismiss)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                footer()
+                // Done as an accent pill, rather than a row of plain text.
+                PopupPillButton(label = doneLabel, onClick = onDismiss, primary = true)
+            }
         }
     }
 }
+
+/** A full-width pill: the accent for the main action, a quiet tint for the rest. */
+@Composable
+internal fun PopupPillButton(label: String, onClick: () -> Unit, primary: Boolean) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(CircleShape)
+            .background(if (primary) Accent.Solid else Color.White.copy(alpha = 0.09f))
+            .clickable(onClick = onClick)
+            .padding(vertical = 13.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp, fontWeight = FontWeight.W700),
+            color = if (primary) Accent.OnSolid else Color.White,
+        )
+    }
+}
+
+/** How much of the accent washes over a popup card. */
+private const val POPUP_WASH = 0.08f

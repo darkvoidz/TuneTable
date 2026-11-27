@@ -2686,7 +2686,7 @@ internal fun SettingsGroup(
 internal fun SubtitleInk(): Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f)
 
 /** How much of the accent washes over a settings card. */
-private const val CARD_WASH = 0.12f
+private const val CARD_WASH = 0.05f
 
 /** A row icon's glyph, white on its badge. */
 internal val ICON_GLYPH = 21.dp
@@ -3278,7 +3278,7 @@ internal fun <T> ChoiceGroup(
                         Text(
                             text = it(option),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = SubtitleInk(),
                         )
                     }
                 }
