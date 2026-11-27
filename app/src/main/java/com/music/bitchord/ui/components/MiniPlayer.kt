@@ -479,15 +479,10 @@ fun MiniPlayer(
             val ringed = !(showsPicture && !VideoThumbnails.square)
             Box(
                 modifier = Modifier
-                    .then(
-                        if (ringed) {
-                            Modifier
-                                .progressRing(progress)
-                                .padding(RING_GAP + RING_STROKE)
-                        } else {
-                            Modifier
-                        },
-                    ),
+                    // The ring's room is kept round a music video's picture too,
+                    // so the bar is the same height whichever it is showing.
+                    .then(if (ringed) Modifier.progressRing(progress) else Modifier)
+                    .padding(RING_GAP + RING_STROKE),
             ) {
             Box(
                 modifier = Modifier
