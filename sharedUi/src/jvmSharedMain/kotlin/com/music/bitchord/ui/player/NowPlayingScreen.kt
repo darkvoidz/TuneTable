@@ -246,7 +246,7 @@ internal const val SEEK_SETTLE_TIMEOUT_MS = 4_000L
 
 private val THUMB_SIZE = 54.dp
 private val HEADER_HEIGHT = 60.dp
-private val ART_TITLE_GAP = 20.dp
+private val ART_TITLE_GAP = 14.dp
 
 /** How much lower the sleeve's foot (stats, Best Part) sits over full-screen art than on the card. */
 private val BANNER_FOOT_DROP = 26.dp
@@ -3376,7 +3376,7 @@ fun NowPlayingScreen(
                             .weight(1f)
                             .widthIn(max = PLAYER_MAX_WIDTH)
                             .fillMaxWidth()
-                            .padding(top = ART_BOX_TOP_PAD, bottom = 18.dp),
+                            .padding(top = ART_BOX_TOP_PAD, bottom = 10.dp),
                     ) {
                         if (spotifyCanvasPresentation && playerDeckSettledOpen &&
                             maxHeight != spotifyCanvasExpandedTopHeight
@@ -4698,7 +4698,9 @@ fun NowPlayingScreen(
                         // The scrubber draws its times 9dp above their slot, which
                         // leaves that much more visible room above; half of it moves
                         // from the top gap to the bottom one.
-                        val run = 8.dp + 12.dp + 6.dp + controlSpread + VOLUME_ROW_HEIGHT
+                        // The volume bar's own height is not held for it: that room
+                        // goes to the artwork instead.
+                        val run = 8.dp + 12.dp + 6.dp + controlSpread
                         val lift = SCRUBBER_LABEL_LIFT / 2
                         Spacer(Modifier.height(run / 2 - lift))
                         transport()
@@ -4706,7 +4708,7 @@ fun NowPlayingScreen(
                     }
 
                     playerActions()
-                    Spacer(Modifier.height(18.dp))
+                    Spacer(Modifier.height(8.dp))
                     }
                     }
                     }
