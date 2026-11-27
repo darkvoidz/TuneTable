@@ -479,6 +479,7 @@ private val TAB_GLYPH = 24.dp
 @Composable
 private fun tabIdleTint(): Color = when {
     MaterialTheme.colorScheme.background.luminance() > 0.5f -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
-    Accent.style == AccentStyle.SUBTLE || Accent.style == AccentStyle.GLOW -> Color.White.copy(alpha = 0.88f)
+    Accent.style == AccentStyle.SUBTLE || Accent.style == AccentStyle.GLOW || Accent.style == AccentStyle.DUOTONE ->
+        Color.White.copy(alpha = 0.88f)
     else -> Accent.Icon.copy(alpha = 0.9f)
 }
