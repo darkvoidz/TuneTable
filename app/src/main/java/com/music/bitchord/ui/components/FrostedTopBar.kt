@@ -510,7 +510,11 @@ private fun artworkPageSurface(
         // Keep the same explicit hairline as FloatingBottomBar. Liquid glass
         // also has its refractive highlight, but the navbar retains this edge
         // so these surfaces do as well.
-        .border(GLASS_EDGE_WIDTH, GLASS_EDGE_COLOR, shape)
+        .border(
+            if (Accent.Outline != null) Accent.OutlineWidth else GLASS_EDGE_WIDTH,
+            Accent.Outline ?: GLASS_EDGE_COLOR,
+            shape,
+        )
 }
 
 /**
@@ -563,8 +567,7 @@ fun TopBarAccountButton(
                 modifier = Modifier
                     .size(AVATAR_SIZE)
                     .clip(CircleShape)
-                    .thumbnailBorder(CircleShape)
-                    .then(Accent.Outline?.let { Modifier.border(Accent.OutlineWidth, it, CircleShape) } ?: Modifier),
+                    .thumbnailBorder(CircleShape),
             )
         } else {
             Box(
@@ -572,8 +575,7 @@ fun TopBarAccountButton(
                     .size(AVATAR_SIZE)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .thumbnailBorder(CircleShape)
-                    .then(Accent.Outline?.let { Modifier.border(Accent.OutlineWidth, it, CircleShape) } ?: Modifier),
+                    .thumbnailBorder(CircleShape),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(

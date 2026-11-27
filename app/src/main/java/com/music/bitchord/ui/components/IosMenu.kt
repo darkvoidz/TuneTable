@@ -1,5 +1,6 @@
 package com.music.bitchord.ui.components
 
+import com.music.bitchord.ui.theme.AccentStyle
 import androidx.compose.ui.graphics.Brush
 import com.music.bitchord.ui.theme.Accent
 import android.provider.Settings
@@ -138,7 +139,7 @@ fun iosMenuColors(): IosMenuColors {
         MaterialTheme.colorScheme.background.luminance() >= 0.5f -> LightMenu
         plain -> PlainDarkMenu
         else -> DarkMenu
-    }
+    }.let { if (it.dark && Accent.style == AccentStyle.NEON) it.copy(fill = NEON_CHARCOAL) else it }
 }
 
 /** How much of the accent washes over a menu's slab. Also the account menu's. */

@@ -1,5 +1,7 @@
 package com.music.bitchord.ui.components
 
+import com.music.bitchord.ui.theme.AccentStyle
+import com.music.bitchord.ui.theme.Accent
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -88,5 +90,11 @@ private const val LIVE_FROST_INPUT_SCALE = 0.10f
 /** How much of the slab covers the frost on the player's drawers and popups. */
 const val MENU_FROST_ALPHA = 0.80f
 
-/** The menu panel's charcoal, and the player's — which is dark whatever the theme. */
-val MenuFrostDark = Color(0xFF1C1C1E)
+/**
+ * The menu panel's charcoal, and the player's — which is dark whatever the
+ * theme. Darker under Neon, to sit with its near-black pages.
+ */
+val MenuFrostDark: Color get() = if (Accent.style == AccentStyle.NEON) NEON_CHARCOAL else Color(0xFF1C1C1E)
+
+/** Neon's menus, drawers and popups: a charcoal just above its page. */
+val NEON_CHARCOAL = Color(0xFF111113)
