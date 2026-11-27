@@ -4729,7 +4729,7 @@ private fun PlayerHeartGlyph(
 ) {
     val haptics = rememberHaptics()
     val tint by animateColorAsState(
-        targetValue = if (liked) PlayerActiveGreen else Color.White.copy(alpha = 0.85f),
+        targetValue = if (liked) PlayerActiveGreen else PlayerIdleInk,
         label = "heartTint",
     )
     val pop = remember { Animatable(1f) }

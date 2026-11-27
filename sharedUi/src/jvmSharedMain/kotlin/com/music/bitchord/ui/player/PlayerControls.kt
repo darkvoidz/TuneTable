@@ -770,6 +770,10 @@ internal fun TransportRow(
 internal val PlayerActiveGreen: Color get() =
     if (Accent.style == AccentStyle.GLOW) Accent.Solid else Accent.Icon
 
+/** A player toggle while it is off: soft white, or a dimmed accent under Neon. */
+internal val PlayerIdleInk: Color get() =
+    if (Accent.outlined) Accent.Icon.copy(alpha = 0.6f) else Color.White.copy(alpha = 0.85f)
+
 /** The play button's disc: solid white, or an accent ring under Neon. */
 private fun Modifier.playDisc(): Modifier =
     if (Accent.outlined) border(Accent.OutlineWidth, Accent.Start, CircleShape) else background(Color.White)
@@ -798,7 +802,7 @@ private fun ModeGlyph(
     val haptics = rememberHaptics()
     var lastTap by remember { mutableLongStateOf(0L) }
     val tint by androidx.compose.animation.animateColorAsState(
-        targetValue = if (active) PlayerActiveGreen else Color.White.copy(alpha = 0.85f),
+        targetValue = if (active) PlayerActiveGreen else PlayerIdleInk,
         label = "modeGlyphTint",
     )
     Box(
@@ -1273,7 +1277,11 @@ private fun TransportGlyph(
         targetValue = if (enabled) 1f else 0.3f,
         label = "transportAlpha",
     )
-    val ink = if (disc != null) (if (Accent.outlined) Accent.Icon else Color.Black) else Color.White.copy(alpha = alpha)
+    val ink = when {
+        disc != null -> if (Accent.outlined) Accent.Icon else Color.Black
+        Accent.outlined -> Accent.Icon.copy(alpha = alpha)
+        else -> Color.White.copy(alpha = alpha)
+    }
     // A press shrinks the disc a little, in place of the glyph's press circle.
     val pressed by interactionSource.collectIsPressedAsState()
     val discScale by animateFloatAsState(
@@ -1884,12 +1892,19 @@ private fun BottomGlyph(
         // Not while lit: the tile's cut-out needs the glyph drawn plainly in the
         // layer above, which is blended as a whole.
         val chrome = LocalPlayerChrome.current && !highlighted
+        // Neon draws the row plainly in its accent, out of the blend.
+        val neon = Accent.outlined && !highlighted
         val tint = when {
+            neon -> Accent.Icon
             vibrant && chrome -> brightRowInk()
             highlighted -> Color.White
             else -> chromeWhite(0.75f)
         }
-        val glyphChrome = if (vibrant) Modifier.vibrantChrome(chrome) else Modifier.additiveChrome(chrome)
+        val glyphChrome = when {
+            neon -> Modifier
+            vibrant -> Modifier.vibrantChrome(chrome)
+            else -> Modifier.additiveChrome(chrome)
+        }
         if (icon != null) {
             Icon(
                 imageVector = icon,
