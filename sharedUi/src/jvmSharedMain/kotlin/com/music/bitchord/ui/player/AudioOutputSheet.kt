@@ -3,6 +3,8 @@ package com.music.bitchord.ui.player
 import androidx.compose.foundation.border
 import androidx.compose.ui.graphics.Brush
 import com.music.bitchord.ui.theme.Accent
+import com.music.bitchord.ui.theme.accentSelectedBorder
+import com.music.bitchord.ui.theme.accentTile
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -169,13 +171,13 @@ private fun AudioPipelineRow(onClick: () -> Unit) {
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .background(Accent.brush),
+                .accentTile(),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = Icons.Rounded.GraphicEq,
                 contentDescription = null,
-                tint = Color.White,
+                tint = Accent.TileGlyph,
                 modifier = Modifier.size(20.dp),
             )
         }
@@ -234,13 +236,13 @@ private fun CastRow(cast: CastUi, onClick: () -> Unit) {
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .background(Accent.brush),
+                .accentTile(),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = if (casting) Icons.Rounded.CastConnected else Icons.Rounded.Cast,
                 contentDescription = null,
-                tint = Color.White,
+                tint = Accent.TileGlyph,
                 modifier = Modifier.size(21.dp),
             )
         }
@@ -308,13 +310,13 @@ private fun WatchRow(watch: WatchOutputUi, onClick: () -> Unit) {
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .background(Accent.brush),
+                .accentTile(),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = Icons.Rounded.Watch,
                 contentDescription = null,
-                tint = Color.White,
+                tint = Accent.TileGlyph,
                 modifier = Modifier.size(21.dp),
             )
         }
@@ -381,13 +383,13 @@ private fun OutputRow(
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .background(Accent.brush),
+                .accentTile(),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = iconFor(device),
                 contentDescription = null,
-                tint = Color.White,
+                tint = Accent.TileGlyph,
                 modifier = Modifier.size(21.dp),
             )
         }
@@ -518,5 +520,5 @@ private fun Modifier.outputCard(active: Boolean): Modifier {
     return this
         .background(Color.White.copy(alpha = 0.04f))
         .background(Brush.linearGradient(listOf(Accent.Start.copy(alpha = wash), Accent.End.copy(alpha = wash * 0.85f))))
-        .then(if (active) Modifier.border(1.dp, Accent.brush, ROW_SHAPE) else Modifier)
+        .then(if (active) Modifier.accentSelectedBorder(ROW_SHAPE) else Modifier)
 }

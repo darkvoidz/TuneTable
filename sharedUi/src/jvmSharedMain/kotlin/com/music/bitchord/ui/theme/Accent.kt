@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -200,6 +201,19 @@ fun Modifier.accentFill(shape: Shape): Modifier =
     } else {
         background(Accent.fillBrush, shape)
     }
+
+/**
+ * A round icon tile (already clipped to its circle) as the style draws it —
+ * the same tile Settings uses: [Accent.tileBrush], ringed under Neon.
+ */
+fun Modifier.accentTile(): Modifier =
+    background(Accent.tileBrush).then(
+        Accent.Outline?.let { border(Accent.OutlineWidth, it, CircleShape) } ?: Modifier,
+    )
+
+/** The outline round the selected card in a list: the gradient, or Neon's thin line. */
+fun Modifier.accentSelectedBorder(shape: Shape): Modifier =
+    Accent.Outline?.let { border(Accent.OutlineWidth, it, shape) } ?: border(1.dp, Accent.brush, shape)
 
 /** Glow's soft light of the accent across the top of the page; nothing in any other style. */
 fun Modifier.accentGlow(dark: Boolean): Modifier =

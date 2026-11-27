@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.Brush
 import com.music.bitchord.ui.theme.Accent
+import com.music.bitchord.ui.theme.accentTile
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -131,10 +132,10 @@ internal fun AudioPopupCard(
                             .padding(bottom = 12.dp)
                             .size(56.dp)
                             .clip(CircleShape)
-                            .background(Accent.brush),
+                            .accentTile(),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Icon(badge, contentDescription = null, tint = Color.White, modifier = Modifier.size(28.dp))
+                        Icon(badge, contentDescription = null, tint = Accent.TileGlyph, modifier = Modifier.size(28.dp))
                     }
                 }
                 Text(

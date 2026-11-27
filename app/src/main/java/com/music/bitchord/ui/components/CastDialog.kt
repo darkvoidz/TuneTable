@@ -7,6 +7,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.border
 import androidx.compose.ui.graphics.Brush
 import com.music.bitchord.ui.theme.Accent
+import com.music.bitchord.ui.theme.accentSelectedBorder
+import com.music.bitchord.ui.theme.accentTile
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -168,10 +170,13 @@ private fun CastDeviceRow(
                     Modifier
                         .background(
                             Brush.linearGradient(
-                                listOf(Accent.Start.copy(alpha = 0.24f), Accent.End.copy(alpha = 0.20f)),
+                                listOf(
+                                    Accent.Start.copy(alpha = 0.24f * minOf(Accent.washScale, 1.6f)),
+                                    Accent.End.copy(alpha = 0.20f * minOf(Accent.washScale, 1.6f)),
+                                ),
                             ),
                         )
-                        .border(1.dp, Accent.brush, shape)
+                        .accentSelectedBorder(shape)
                 } else {
                     Modifier
                 },
@@ -184,13 +189,13 @@ private fun CastDeviceRow(
             modifier = Modifier
                 .size(38.dp)
                 .clip(CircleShape)
-                .background(Accent.brush),
+                .accentTile(),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = if (connected) Icons.Rounded.CastConnected else Icons.Rounded.Cast,
                 contentDescription = null,
-                tint = Color.White,
+                tint = Accent.TileGlyph,
                 modifier = Modifier.size(20.dp),
             )
         }
