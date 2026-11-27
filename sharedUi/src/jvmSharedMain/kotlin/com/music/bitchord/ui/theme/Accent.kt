@@ -127,7 +127,7 @@ object Accent {
     }
 
     /** How thick Neon's outlines are drawn. */
-    val OutlineWidth: Dp = 1.dp
+    val OutlineWidth: Dp = 0.75.dp
 
     /** An outline drawn round tiles, the mini player and menus, if the style has one. */
     val Outline: Color? get() = if (style == AccentStyle.NEON) Start else null
