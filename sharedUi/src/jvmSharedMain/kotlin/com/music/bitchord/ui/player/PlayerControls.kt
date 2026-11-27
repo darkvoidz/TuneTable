@@ -772,11 +772,11 @@ internal val PlayerActiveGreen: Color get() =
 
 /** The play button's disc: solid white, or an accent ring under Neon. */
 private fun Modifier.playDisc(): Modifier =
-    if (Accent.outlined) border(2.dp, Accent.Start, CircleShape) else background(Color.White)
+    if (Accent.outlined) border(Accent.OutlineWidth, Accent.Start, CircleShape) else background(Color.White)
 
 /** A round player control's rim: the glass edge, or an accent ring under Neon. */
 private fun Modifier.playerRim(shape: Shape): Modifier =
-    if (Accent.outlined) border(1.5.dp, Accent.Start, shape) else glassRim(shape)
+    if (Accent.outlined) border(Accent.OutlineWidth, Accent.Start, shape) else glassRim(shape)
 
 /** The play/pause disc, and the glyph drawn on it. */
 private val PLAY_DISC_SIZE = 66.dp
@@ -1452,7 +1452,7 @@ private fun Pill(
             .clip(CircleShape)
             .then(
                 if (Accent.outlined) {
-                    Modifier.border(1.5.dp, Accent.Start, CircleShape)
+                    Modifier.border(Accent.OutlineWidth, Accent.Start, CircleShape)
                 } else {
                     Modifier.background(Color.White.copy(alpha = 0.12f))
                 },

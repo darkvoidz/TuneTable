@@ -444,7 +444,7 @@ fun MiniPlayer(
                     )
                 },
             )
-            .border(if (Accent.Outline != null) 1.5.dp else 0.5.dp, Accent.Outline ?: Color.White.copy(alpha = 0.10f), shape)
+            .border(if (Accent.Outline != null) Accent.OutlineWidth else 0.5.dp, Accent.Outline ?: Color.White.copy(alpha = 0.10f), shape)
             // Deliberately silent: the whole bar is the target, so it catches
             // stray taps meant for the page behind it, and the sheet rising is
             // its own confirmation. The glyphs on it still buzz.

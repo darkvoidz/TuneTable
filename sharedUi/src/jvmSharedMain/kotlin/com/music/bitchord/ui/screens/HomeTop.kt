@@ -315,7 +315,7 @@ private fun RecentTile(
             )
             .clip(shape)
             .background(MaterialTheme.colorScheme.surfaceVariant)
-            .then(if (outline != null) Modifier.border(1.5.dp, outline, shape) else Modifier)
+            .then(if (outline != null) Modifier.border(Accent.OutlineWidth, outline, shape) else Modifier)
             .longPressMenuClickable(onClick = onClick, onLongClick = onLongPress)
             .contextClick(onLongPress),
         verticalAlignment = Alignment.CenterVertically,

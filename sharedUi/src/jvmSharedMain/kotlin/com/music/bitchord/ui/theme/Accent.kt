@@ -1,6 +1,7 @@
 package com.music.bitchord.ui.theme
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.border
 import androidx.compose.foundation.background
@@ -124,6 +125,9 @@ object Accent {
         else -> Color.White
     }
 
+    /** How thick Neon's outlines are drawn. */
+    val OutlineWidth: Dp = 1.dp
+
     /** An outline drawn round tiles, the mini player and menus, if the style has one. */
     val Outline: Color? get() = if (style == AccentStyle.NEON) Start else null
 
@@ -192,7 +196,7 @@ fun Color.toHsv(): Triple<Float, Float, Float> {
  */
 fun Modifier.accentFill(shape: Shape): Modifier =
     if (Accent.outlined) {
-        border(1.5.dp, Accent.Start, shape)
+        border(Accent.OutlineWidth, Accent.Start, shape)
     } else {
         background(Accent.fillBrush, shape)
     }

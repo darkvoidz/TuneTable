@@ -275,7 +275,7 @@ fun FloatingBottomBar(
                     )
                 },
             )
-            .border(if (Accent.Outline != null) 1.5.dp else GLASS_EDGE_WIDTH, Accent.Outline ?: GLASS_EDGE_COLOR, pillShape)
+            .border(if (Accent.Outline != null) Accent.OutlineWidth else GLASS_EDGE_WIDTH, Accent.Outline ?: GLASS_EDGE_COLOR, pillShape)
             .padding(horizontal = PILL_INSET, vertical = PILL_INSET),
     ) {
     // Folding: the row keeps its full size but only part of it is shown — from

@@ -2722,7 +2722,7 @@ internal fun SettingsIconTile(content: @Composable () -> Unit) {
             .size(ICON_TILE)
             .clip(CircleShape)
             .background(Accent.tileBrush)
-            .then(Accent.Outline?.let { Modifier.border(1.5.dp, it, CircleShape) } ?: Modifier),
+            .then(Accent.Outline?.let { Modifier.border(Accent.OutlineWidth, it, CircleShape) } ?: Modifier),
         contentAlignment = Alignment.Center,
     ) {
         content()
