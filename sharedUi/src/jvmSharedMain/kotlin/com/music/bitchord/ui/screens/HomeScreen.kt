@@ -1,5 +1,6 @@
 package com.music.bitchord.ui.screens
 
+import androidx.compose.ui.graphics.luminance
 import com.music.bitchord.ui.components.trackArtSize
 import com.music.bitchord.ui.components.contextClick
 import com.music.bitchord.ui.AppUi
@@ -474,14 +475,25 @@ private fun HomeTitle(
             modifier = Modifier.padding(bottom = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(
-                painter = painterResource(Res.drawable.ic_logo),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier
-                    .height(logoHeight)
-                    .aspectRatio(LOGO_ASPECT),
-            )
+            // On the dark theme the logo keeps its own white-to-grey shine;
+            // on the light one it takes the text colour so it stays visible.
+            val logoModifier = Modifier
+                .height(logoHeight)
+                .aspectRatio(LOGO_ASPECT)
+            if (MaterialTheme.colorScheme.background.luminance() < 0.5f) {
+                Image(
+                    painter = painterResource(Res.drawable.ic_logo),
+                    contentDescription = null,
+                    modifier = logoModifier,
+                )
+            } else {
+                Icon(
+                    painter = painterResource(Res.drawable.ic_logo),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onBackground,
+                    modifier = logoModifier,
+                )
+            }
             if (replayYear != null) {
                 Spacer(Modifier.width(14.dp))
                 ReplayYearButton(replayYear, height = logoHeight * 0.68f)

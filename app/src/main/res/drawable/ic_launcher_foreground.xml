@@ -1,28 +1,34 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- A turntable seen from above: the record and the tonearm. -->
-    <path
-        android:fillColor="#FFFFFFFF"
-        android:fillType="evenOdd"
-        android:pathData="M32,57a18,18 0 1,0 36,0a18,18 0 1,0 -36,0ZM34,57a16,16 0 1,0 32,0a16,16 0 1,0 -32,0ZM35,57a15,15 0 1,0 30,0a15,15 0 1,0 -30,0ZM37.5,57a12.5,12.5 0 1,0 25.0,0a12.5,12.5 0 1,0 -25.0,0ZM38.5,57a11.5,11.5 0 1,0 23.0,0a11.5,11.5 0 1,0 -23.0,0ZM44.5,57a5.5,5.5 0 1,0 11.0,0a5.5,5.5 0 1,0 -11.0,0ZM48.5,57a1.5,1.5 0 1,0 3.0,0a1.5,1.5 0 1,0 -3.0,0Z" />
-    <path
-        android:fillColor="#FFFFFFFF"
-        android:pathData="M70.6,36a3.4,3.4 0 1,0 6.8,0a3.4,3.4 0 1,0 -6.8,0Z" />
-    <path
-        android:strokeColor="#FFFFFFFF"
-        android:strokeWidth="3"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:pathData="M74,36L74,62L66,69" />
+    <!-- Two offset Ts, for TuneTable, set on a slant. -->
     <group
-        android:rotation="45"
-        android:pivotX="66"
-        android:pivotY="68.5">
-        <path
-            android:fillColor="#FFFFFFFF"
-            android:pathData="M63.7,66h4.6a1.2,1.2 0 0,1 1.2,1.2v2.6a1.2,1.2 0 0,1 -1.2,1.2h-4.6a1.2,1.2 0 0,1 -1.2,-1.2v-2.6a1.2,1.2 0 0,1 1.2,-1.2Z" />
+        android:translateX="2.26"
+        android:translateY="-1.58">
+        <group
+            android:rotation="-30"
+            android:pivotX="54"
+            android:pivotY="54">
+            <path
+                android:strokeWidth="10"
+                android:strokeLineCap="round"
+                android:strokeLineJoin="round"
+                android:pathData="M34,42L56,42M45,42L45,62M52,56L74,56M63,56L63,76">
+                <aapt:attr name="android:strokeColor">
+                    <gradient
+                        android:type="linear"
+                        android:startX="0"
+                        android:startY="30"
+                        android:endX="0"
+                        android:endY="80">
+                        <item android:offset="0" android:color="#FFFFFFFF" />
+                        <item android:offset="1" android:color="#FFBDBDC4" />
+                    </gradient>
+                </aapt:attr>
+            </path>
+        </group>
     </group>
 </vector>
