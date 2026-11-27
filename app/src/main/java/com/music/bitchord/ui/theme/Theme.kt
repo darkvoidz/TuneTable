@@ -9,6 +9,7 @@ import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
@@ -158,6 +159,16 @@ fun BitChordTheme(
             base.copy(
                 primary = accent,
                 onPrimary = if (accent.luminance() > 0.55f) Color.Black else Color.White,
+                // The page and everything that sits on it take a breath of the
+                // accent: a very dark shade of it in the dark theme, a faint
+                // wash in the light one, each step up a little more coloured.
+                background = tinted(base.background, accent, if (darkTheme) 0.07f else 0.04f),
+                surface = tinted(base.surface, accent, if (darkTheme) 0.09f else 0.05f),
+                surfaceVariant = tinted(base.surfaceVariant, accent, if (darkTheme) 0.12f else 0.07f),
+                surfaceContainer = tinted(base.surfaceContainer, accent, if (darkTheme) 0.10f else 0.05f),
+                surfaceContainerHigh = tinted(base.surfaceContainerHigh, accent, if (darkTheme) 0.12f else 0.06f),
+                surfaceContainerHighest = tinted(base.surfaceContainerHighest, accent, if (darkTheme) 0.14f else 0.07f),
+                outline = tinted(base.outline, accent, 0.12f),
             )
         },
         typography = when (font) {
@@ -167,6 +178,9 @@ fun BitChordTheme(
         content = content,
     )
 }
+
+/** [base] with [amount] of [accent] mixed into it. */
+private fun tinted(base: Color, accent: Color, amount: Float): Color = lerp(base, accent, amount)
 
 /**
  * Draws the status and navigation bar glyphs dark or light.

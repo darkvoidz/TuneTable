@@ -1,5 +1,6 @@
 package com.music.bitchord
 
+import androidx.compose.ui.graphics.toArgb
 import com.music.bitchord.ui.theme.Accent
 import com.music.bitchord.ui.theme.rememberAccentColors
 import android.Manifest
@@ -475,6 +476,10 @@ class MainActivity : AppCompatActivity() {
                 // the floor the pages have always been drawn against, so it is
                 // laid down here too and the recording is opaque like the screen.
                 val windowBackground = MaterialTheme.colorScheme.background
+                // The window itself, under every page, in the theme's background —
+                // tinted with the accent — rather than the plain black it starts as.
+                val windowBackgroundArgb = windowBackground.toArgb()
+                SideEffect { window.decorView.setBackgroundColor(windowBackgroundArgb) }
                 val paintBackdrop: ContentDrawScope.() -> Unit = remember(windowBackground) {
                     {
                         drawRect(windowBackground)
