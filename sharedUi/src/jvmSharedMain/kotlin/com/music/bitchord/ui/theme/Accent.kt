@@ -134,11 +134,16 @@ object Accent {
 
     /**
      * The mini player's second line (the artist), given the [default] colour
-     * and the plain [container]: lifted to a soft white on Glow's gradient,
-     * where the usual grey disappears into it.
+     * and the plain [container]: a soft white on a dark bar, a little brighter
+     * on Glow's gradient; [default] on a light one.
      */
-    fun barSubtitle(default: Color, container: Color): Color =
-        if (style == AccentStyle.GLOW && container.luminance() <= 0.5f) Color.White.copy(alpha = 0.82f) else default
+    fun barSubtitle(default: Color, container: Color): Color = when {
+        container.luminance() > 0.5f -> default
+        style == AccentStyle.GLOW -> Color.White.copy(alpha = 0.82f)
+        // A soft white rather than the theme's grey, which sinks into the
+        // accent-tinted bar of every style but Neon's near-black.
+        else -> Color.White.copy(alpha = 0.72f)
+    }
 
     /** The mini player's fill, given the plain [container] it would otherwise have. */
     fun barBrush(container: Color): Brush = when {
