@@ -109,7 +109,7 @@ fun AccountProfileSelector(
                 .fillMaxWidth()
                 .clip(shape)
                 .then(
-                    if (reduceDynamicBlur) {
+                    if (menusSolid(reduceDynamicBlur)) {
                         // The menus' own wash of the accent over the surface.
                         Modifier
                             .background(MaterialTheme.colorScheme.surface)
@@ -121,7 +121,7 @@ fun AccountProfileSelector(
                     } else {
                         Modifier.optimizedHazeEffect(
                             state = hazeState,
-                            style = style,
+                            style = if (neonFrost) menuFrost(NEON_CHARCOAL, NEON_FROST_ALPHA) else style,
                         )
                     },
                 )

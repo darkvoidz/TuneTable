@@ -1,5 +1,7 @@
 package com.music.bitchord.ui.player
 
+import com.music.bitchord.ui.components.menuSlabAlpha
+import com.music.bitchord.ui.components.menusSolid
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -139,9 +141,9 @@ fun Modifier.playerMenuSurface(
     val frost = LocalPlayerFrost.current
     return clip(shape).then(
         when {
-            reduceDynamicBlur || (frost == null && hazeState == null) -> Modifier.background(MenuFrostDark)
-            frost != null -> with(frost) { Modifier.frostPanel(shape, MenuFrostDark.copy(alpha = slabAlpha)) }
-            else -> Modifier.liveMenuFrost(hazeState!!, MenuFrostDark, slabAlpha)
+            menusSolid(reduceDynamicBlur) || (frost == null && hazeState == null) -> Modifier.background(MenuFrostDark)
+            frost != null -> with(frost) { Modifier.frostPanel(shape, MenuFrostDark.copy(alpha = menuSlabAlpha(slabAlpha))) }
+            else -> Modifier.liveMenuFrost(hazeState!!, MenuFrostDark, menuSlabAlpha(slabAlpha))
         },
     )
 }

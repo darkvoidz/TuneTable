@@ -1,5 +1,7 @@
 package com.music.bitchord.ui.player
 
+import com.music.bitchord.ui.components.menuSlabAlpha
+import com.music.bitchord.ui.components.menusSolid
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
@@ -124,11 +126,11 @@ internal fun LyricsOffsetSheet(
                     // [PlayerDrawer].
                     .then(
                         when {
-                            reduceDynamicBlur -> Modifier.background(MenuFrostDark)
+                            menusSolid(reduceDynamicBlur) -> Modifier.background(MenuFrostDark)
                             frost != null -> with(frost) {
-                                Modifier.frostPanel(DrawerShape, MenuFrostDark.copy(alpha = MENU_FROST_ALPHA))
+                                Modifier.frostPanel(DrawerShape, MenuFrostDark.copy(alpha = menuSlabAlpha(MENU_FROST_ALPHA)))
                             }
-                            else -> Modifier.liveMenuFrost(hazeState, MenuFrostDark)
+                            else -> Modifier.liveMenuFrost(hazeState, MenuFrostDark, menuSlabAlpha(MENU_FROST_ALPHA))
                         },
                     )
                     .clickable(

@@ -1,5 +1,6 @@
 package com.music.bitchord
 
+import com.music.bitchord.ui.components.menusSolid
 import androidx.compose.animation.core.spring
 import androidx.compose.ui.graphics.luminance
 import com.music.bitchord.ui.theme.accentGlow
@@ -5175,11 +5176,11 @@ private fun BitChordApp(
                     }
                     Box(
                         when {
-                            reduceDynamicBlur -> Modifier
+                            menusSolid(reduceDynamicBlur) -> Modifier
                             playerLiveCanvas -> Modifier.layerBackdrop(livePlayerBackdrop)
                             else -> Modifier.snapshotBackdropSource(playerBackdrop)
                         }.then(
-                            if (reduceDynamicBlur) Modifier else Modifier.hazeSource(playerMenuHaze),
+                            if (menusSolid(reduceDynamicBlur)) Modifier else Modifier.hazeSource(playerMenuHaze),
                         ),
                     ) {
                         CompositionLocalProvider(LocalPlayerDock provides activeDock) {

@@ -98,3 +98,19 @@ val MenuFrostDark: Color get() = if (Accent.style == AccentStyle.NEON) NEON_CHAR
 
 /** Neon's menus, drawers and popups: a charcoal just above its page. */
 val NEON_CHARCOAL = Color(0xFF111113)
+
+/**
+ * Neon's menus, drawers and popups are frosted glass — [NEON_CHARCOAL] at
+ * [NEON_FROST_ALPHA] over a blur of what is behind — even with the app's own
+ * blur turned off everywhere else.
+ */
+val neonFrost: Boolean get() = Accent.style == AccentStyle.NEON
+
+/** How much of Neon's charcoal covers the frost. */
+const val NEON_FROST_ALPHA = 0.62f
+
+/** Whether menus, drawers and popups are drawn as a solid slab rather than frost. */
+fun menusSolid(reduceDynamicBlur: Boolean): Boolean = reduceDynamicBlur && !neonFrost
+
+/** The slab's alpha over the frost: [default], or Neon's own. */
+fun menuSlabAlpha(default: Float): Float = if (neonFrost) NEON_FROST_ALPHA else default

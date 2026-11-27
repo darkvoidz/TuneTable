@@ -99,11 +99,11 @@ internal fun AudioPopupCard(
                     // The ⋯ menu's frost — see [PlayerDrawer], whose drawers
                     // these popups open from.
                     when {
-                        reduceDynamicBlur -> Modifier.background(MenuFrostDark)
+                        menusSolid(reduceDynamicBlur) -> Modifier.background(MenuFrostDark)
                         frost != null -> with(frost) {
-                            Modifier.frostPanel(POPUP_CARD_SHAPE, MenuFrostDark.copy(alpha = MENU_FROST_ALPHA))
+                            Modifier.frostPanel(POPUP_CARD_SHAPE, MenuFrostDark.copy(alpha = menuSlabAlpha(MENU_FROST_ALPHA)))
                         }
-                        else -> Modifier.liveMenuFrost(hazeState, MenuFrostDark)
+                        else -> Modifier.liveMenuFrost(hazeState, MenuFrostDark, menuSlabAlpha(MENU_FROST_ALPHA))
                     }
                 )
                 // A faint wash of the accent, as the drawers and menus have.
