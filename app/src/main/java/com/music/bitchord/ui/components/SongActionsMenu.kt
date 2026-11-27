@@ -218,9 +218,10 @@ fun SongActionsMenu(
             IosMenuQuickActions {
                 if (canRate) {
                     IosMenuQuickAction(
-                        icon = if (liked) SfIcons.StarFill else SfIcons.Star,
+                        icon = if (liked) SfIcons.HeartFill else SfIcons.Heart,
                         label = stringResource(R.string.like),
-                        tint = if (liked) palette.accent else null,
+                        // The same green as the now playing screen's heart.
+                        tint = if (liked) Color(0xFF1ED760) else null,
                         onClick = onToggleLike,
                     )
                 }
