@@ -1,5 +1,8 @@
 package com.music.bitchord.ui.player
 
+import androidx.compose.foundation.border
+import androidx.compose.ui.graphics.Brush
+import com.music.bitchord.ui.theme.Accent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -151,7 +154,7 @@ private fun AudioPipelineRow(onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(ROW_SHAPE)
-            .background(Color.White.copy(alpha = 0.05f))
+            .outputCard(false)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
@@ -166,13 +169,13 @@ private fun AudioPipelineRow(onClick: () -> Unit) {
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .background(Color.White.copy(alpha = 0.08f)),
+                .background(Accent.brush),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = Icons.Rounded.GraphicEq,
                 contentDescription = null,
-                tint = Color.White.copy(alpha = 0.7f),
+                tint = Color.White,
                 modifier = Modifier.size(20.dp),
             )
         }
@@ -216,7 +219,7 @@ private fun CastRow(cast: CastUi, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(ROW_SHAPE)
-            .background(Color.White.copy(alpha = if (casting) 0.10f else 0.05f))
+            .outputCard(casting)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
@@ -231,13 +234,13 @@ private fun CastRow(cast: CastUi, onClick: () -> Unit) {
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .background(Color.White.copy(alpha = if (casting) 0.16f else 0.08f)),
+                .background(Accent.brush),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = if (casting) Icons.Rounded.CastConnected else Icons.Rounded.Cast,
                 contentDescription = null,
-                tint = Color.White.copy(alpha = if (casting) 1f else 0.7f),
+                tint = Color.White,
                 modifier = Modifier.size(21.dp),
             )
         }
@@ -289,7 +292,7 @@ private fun WatchRow(watch: WatchOutputUi, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(ROW_SHAPE)
-            .background(Color.White.copy(alpha = if (active) 0.10f else 0.05f))
+            .outputCard(active)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
@@ -305,13 +308,13 @@ private fun WatchRow(watch: WatchOutputUi, onClick: () -> Unit) {
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .background(Color.White.copy(alpha = if (active) 0.16f else 0.08f)),
+                .background(Accent.brush),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = Icons.Rounded.Watch,
                 contentDescription = null,
-                tint = Color.White.copy(alpha = if (active) 1f else 0.7f),
+                tint = Color.White,
                 modifier = Modifier.size(21.dp),
             )
         }
@@ -339,7 +342,7 @@ private fun WatchRow(watch: WatchOutputUi, onClick: () -> Unit) {
             Icon(
                 imageVector = Icons.Rounded.Check,
                 contentDescription = null,
-                tint = Color.White,
+                tint = Accent.Solid,
                 modifier = Modifier.size(20.dp),
             )
         }
@@ -362,7 +365,7 @@ private fun OutputRow(
         modifier = Modifier
             .fillMaxWidth()
             .clip(ROW_SHAPE)
-            .background(Color.White.copy(alpha = if (active) 0.10f else 0.05f))
+            .outputCard(active)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
@@ -378,13 +381,13 @@ private fun OutputRow(
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .background(Color.White.copy(alpha = if (active) 0.16f else 0.08f)),
+                .background(Accent.brush),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = iconFor(device),
                 contentDescription = null,
-                tint = Color.White.copy(alpha = if (active) 1f else 0.7f),
+                tint = Color.White,
                 modifier = Modifier.size(21.dp),
             )
         }
@@ -412,7 +415,7 @@ private fun OutputRow(
             Icon(
                 imageVector = Icons.Rounded.Check,
                 contentDescription = null,
-                tint = Color.White,
+                tint = Accent.Solid,
                 modifier = Modifier.size(20.dp),
             )
         }
@@ -458,7 +461,7 @@ private fun VolumeRow(routeKey: Any) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(ROW_SHAPE)
-            .background(Color.White.copy(alpha = 0.05f))
+            .outputCard(false)
             .padding(horizontal = 16.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -480,6 +483,8 @@ private fun VolumeRow(routeKey: Any) {
             idleHeight = 6.dp,
             activeHeight = 10.dp,
             modifier = Modifier.weight(1f),
+            activeColor = Accent.Solid,
+            inactiveColor = Color.White.copy(alpha = 0.18f),
         )
     }
 }
@@ -503,3 +508,15 @@ private fun iconFor(device: AudioOutputDevice): ImageVector = when (device.kind)
 /** How many times the level is re-read after a route change, and how far apart. */
 private const val VOLUME_REREADS = 4
 private const val VOLUME_REREAD_GAP_MS = 250L
+
+/**
+ * A row's card: a faint wash of the accent's run over the drawer, a little
+ * stronger with a thin accent outline for the output that is playing.
+ */
+private fun Modifier.outputCard(active: Boolean): Modifier {
+    val wash = if (active) 0.24f else 0.12f
+    return this
+        .background(Color.White.copy(alpha = 0.04f))
+        .background(Brush.linearGradient(listOf(Accent.Start.copy(alpha = wash), Accent.End.copy(alpha = wash * 0.85f))))
+        .then(if (active) Modifier.border(1.dp, Accent.brush, ROW_SHAPE) else Modifier)
+}

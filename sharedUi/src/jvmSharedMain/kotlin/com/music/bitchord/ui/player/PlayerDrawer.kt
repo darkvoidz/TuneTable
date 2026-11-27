@@ -1,5 +1,7 @@
 package com.music.bitchord.ui.player
 
+import androidx.compose.ui.graphics.Brush
+import com.music.bitchord.ui.theme.Accent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
@@ -212,6 +214,12 @@ fun PlayerDrawer(
                 // The ⋯ menu's frost, so the drawers and the menu read as one
                 // material over the player — see [playerMenuSurface].
                 .playerMenuSurface(DRAWER_SHAPE, hazeState)
+                // A faint wash of the accent over it, as the settings cards have.
+                .background(
+                    Brush.verticalGradient(
+                        listOf(Accent.Start.copy(alpha = 0.10f), Accent.End.copy(alpha = 0.06f)),
+                    ),
+                )
                 .clickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() },
