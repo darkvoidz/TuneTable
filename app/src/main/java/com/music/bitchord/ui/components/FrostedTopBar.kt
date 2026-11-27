@@ -1,5 +1,6 @@
 package com.music.bitchord.ui.components
 
+import com.music.bitchord.ui.theme.Accent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -562,7 +563,8 @@ fun TopBarAccountButton(
                 modifier = Modifier
                     .size(AVATAR_SIZE)
                     .clip(CircleShape)
-                    .thumbnailBorder(CircleShape),
+                    .thumbnailBorder(CircleShape)
+                    .then(Accent.Outline?.let { Modifier.border(Accent.OutlineWidth, it, CircleShape) } ?: Modifier),
             )
         } else {
             Box(
@@ -570,7 +572,8 @@ fun TopBarAccountButton(
                     .size(AVATAR_SIZE)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .thumbnailBorder(CircleShape),
+                    .thumbnailBorder(CircleShape)
+                    .then(Accent.Outline?.let { Modifier.border(Accent.OutlineWidth, it, CircleShape) } ?: Modifier),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(

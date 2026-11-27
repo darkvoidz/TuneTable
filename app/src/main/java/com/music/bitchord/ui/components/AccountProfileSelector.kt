@@ -127,10 +127,12 @@ fun AccountProfileSelector(
                 )
                 // The same hairline the mini player and the nav bar wear.
                 .border(
-                    0.5.dp,
+                    if (Accent.Outline != null) Accent.OutlineWidth else 0.5.dp,
                     // White on dark like the bars; a light surface has nothing
-                    // for a white hairline to show against.
-                    if (dark) Color.White.copy(alpha = 0.10f) else Color.Black.copy(alpha = 0.10f),
+                    // for a white hairline to show against. Neon's accent line
+                    // in its place.
+                    Accent.Outline
+                        ?: if (dark) Color.White.copy(alpha = 0.10f) else Color.Black.copy(alpha = 0.10f),
                     shape,
                 )
                 .clickable(onClick = {}),
@@ -192,7 +194,7 @@ fun AccountProfileSelector(
     Row(Modifier.fillMaxWidth().heightIn(min = 44.dp).clickable(role = Role.Button, onClick = onClick)
         .semantics { contentDescription = label }.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
         // In the avatars' column, so the labels line up with the names above.
-        Box(Modifier.width(PROFILE_AVATAR), contentAlignment = Alignment.Center) { Icon(icon, null, Modifier.size(iconSize)) }
+        Box(Modifier.width(PROFILE_AVATAR), contentAlignment = Alignment.Center) { Icon(icon, null, Modifier.size(iconSize), tint = Accent.Icon) }
         Spacer(Modifier.width(12.dp)); Text(label, style = MaterialTheme.typography.bodyMedium)
     }
 }
