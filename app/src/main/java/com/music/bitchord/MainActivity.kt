@@ -4492,6 +4492,10 @@ private fun BitChordApp(
                             onBlockedControl = showHostOnlyNotice,
                             dock = activeDock,
                             pull = playerSheetMotion.takeIf { !reducePlayerMotion },
+                            progress = {
+                                val duration = player.durationMs
+                                if (duration > 0L) player.position.positionMs.toFloat() / duration else 0f
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             autoMixArtwork = miniArtwork,
                         )

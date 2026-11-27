@@ -1,5 +1,6 @@
 package com.music.bitchord.ui.components
 
+import com.music.bitchord.ui.theme.Accent
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.rounded.ManageAccounts
@@ -168,7 +169,7 @@ fun AccountProfileSelector(
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         if (selected && !managing) Icon(Icons.Rounded.Check, stringResource(R.string.selected_account),
-            Modifier.size(20.dp), tint = MaterialTheme.colorScheme.primary)
+            Modifier.size(20.dp), tint = Accent.Solid)
         if (managing) Text(stringResource(R.string.sign_out), style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.error)
     }

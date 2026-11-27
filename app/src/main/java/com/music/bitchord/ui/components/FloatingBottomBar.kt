@@ -1,5 +1,6 @@
 package com.music.bitchord.ui.components
 
+import com.music.bitchord.ui.theme.Accent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.animateFloatAsState
@@ -185,7 +186,7 @@ fun FloatingBottomBar(
     onActiveTabTap: () -> Unit = {},
 ) {
     val pillShape = RoundedCornerShape(percent = 50)
-    val container = MaterialTheme.colorScheme.surface
+    val container = MaterialTheme.colorScheme.surfaceVariant
     val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
     val useGlass = LocalLiquidGlassEnabled.current && isGlassSupported()
     val reduceAnimation by AppSettings.reduceAnimation.collectAsStateWithLifecycle()
@@ -200,18 +201,13 @@ fun FloatingBottomBar(
     val currentSelectedIndex by rememberUpdatedState(selectedIndex)
 
     var rowSize by remember { mutableStateOf(IntSize.Zero) }
-    val gapPx = with(density) { 6.dp.toPx() }
+    val gapPx = with(density) { TAB_GAP.toPx() }
     val n = tabs.size
 
-    // With weight(1f) + spacedBy(gap):
-    //   tabWidth = (rowWidth - gap*(n-1)) / n
-    //   tab i left edge = i * (tabWidth + gap) = i * (rowWidth + gap) / n
-    val tabWidthPx = if (rowSize.width > 0 && n > 0) {
-        (rowSize.width - gapPx * (n - 1)) / n
-    } else 0f
-    val tabStepPx = if (rowSize.width > 0 && n > 0) {
-        (rowSize.width + gapPx) / n
-    } else 0f
+    // Every tab is the same fixed circle, [TAB_SLOT] across, [TAB_GAP] apart,
+    // so the bar is only as wide as its icons and tab i starts at i steps.
+    val tabWidthPx = if (rowSize.width > 0 && n > 0) with(density) { TAB_SLOT.toPx() } else 0f
+    val tabStepPx = if (rowSize.width > 0 && n > 0) tabWidthPx + gapPx else 0f
 
     // The drag below runs in one coroutine for the life of the bar, so it
     // reads everything that can change under it through these. Read plainly,
@@ -251,9 +247,9 @@ fun FloatingBottomBar(
     Box(
         modifier = modifier
             .windowInsetsPadding(floatingBarInsets)
-            .padding(horizontal = NAV_BAR_GUTTER)
             .padding(bottom = NAV_BAR_LIFT)
-            .fillMaxWidth()
+            // Sized to its icons and centred by the column it sits in, rather
+            // than run across the screen.
             .clip(pillShape)
             .then(
                 if (reduceDynamicBlur) {
@@ -286,13 +282,13 @@ fun FloatingBottomBar(
                         scaleY = 1f - lag * STRETCH * SQUASH
                     }
                     .clip(pillShape)
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)),
+                    // The selected tab sits in a circle of TuneTable's accent.
+                    .background(Accent.brush),
             )
         }
 
         Row(
             modifier = Modifier
-                .fillMaxWidth()
                 .onSizeChanged { rowSize = it }
                 .pointerInput(Unit) {
                     // Every drag measures from the tab selected when it starts.
@@ -335,7 +331,7 @@ fun FloatingBottomBar(
                         },
                     )
                 },
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            horizontalArrangement = Arrangement.spacedBy(TAB_GAP),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // A real glass pill samples whatever artwork is behind it, not the
@@ -350,11 +346,12 @@ fun FloatingBottomBar(
                     tab = tab,
                     selected = index == selectedIndex,
                     glassSpec = glassSpec,
-                    selectedTint = adaptiveTint,
+                    // White on the accent circle.
+                    selectedTint = Color.White,
                     unselectedTint = adaptiveTint?.copy(alpha = 0.65f),
                     onClick = { onTabSelected(index) },
                     onActiveTabTap = onActiveTabTap,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.size(TAB_SLOT),
                 )
             }
         }
@@ -391,8 +388,8 @@ private fun BottomBarItem(
         label = "tabTint",
     )
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
+    Box(
+        contentAlignment = Alignment.Center,
         modifier = modifier
             .clip(RoundedCornerShape(percent = 50))
             .clickable(
@@ -405,27 +402,29 @@ private fun BottomBarItem(
                     haptics.play(Haptic.Select)
                 }
                 onClick()
-            }
-            .padding(vertical = TAB_VERTICAL_PADDING),
+            },
     ) {
+        // Icons only: the label is still the icon's description, so TalkBack
+        // reads each tab's name.
         Icon(
             imageVector = tab.icon,
             contentDescription = tab.label,
             tint = tint,
             modifier = Modifier
-                .size(TAB_ICON_SIZE)
+                .size(TAB_GLYPH)
                 .graphicsLayer {
                     scaleX = scale
                     scaleY = scale
                 },
         )
-        Spacer(Modifier.height(TAB_ICON_LABEL_GAP))
-        Text(
-            text = tab.label,
-            style = tabLabelStyle(),
-            color = tint,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
     }
 }
+
+/** Each tab's round target, which the accent circle fills when it is selected. */
+private val TAB_SLOT = 48.dp
+
+/** The gap between two tabs' circles. */
+private val TAB_GAP = 6.dp
+
+/** The tab icons inside their circles. */
+private val TAB_GLYPH = 24.dp

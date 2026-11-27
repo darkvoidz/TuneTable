@@ -1,5 +1,6 @@
 package com.music.bitchord.ui.components
 
+import com.music.bitchord.ui.theme.Accent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -82,8 +83,8 @@ fun IosSwitch(
     )
     val track by animateColorAsState(
         targetValue = when {
-            checked && dark -> Color(0xFF30D158)
-            checked -> Color(0xFF34C759)
+            // TuneTable's accent rather than iOS green.
+            checked -> Accent.Solid
             else -> Color(0xFF8E8E93).copy(alpha = if (dark) 0.36f else 0.22f)
         },
         label = "iosSwitchTrack",

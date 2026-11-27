@@ -1,5 +1,12 @@
 package com.music.bitchord.ui.components
 
+import com.music.bitchord.ui.theme.Accent
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.draw.drawBehind
 import com.music.bitchord.R
 
 import androidx.compose.foundation.background
@@ -93,7 +100,7 @@ private val GLYPH_SLOT = 40.dp
  * taller, which is not what a bigger glyph is being asked for. At 32 there is
  * still 4dp of clearance to the slot's edge on every side.
  */
-private val GLYPH_SIZE = 32.dp
+private val GLYPH_SIZE = 24.dp
 
 /** The spinner that stands in for the play glyph, kept in proportion to it. */
 private val SPINNER_SIZE = 22.dp
@@ -116,7 +123,7 @@ private val TRANSPORT_GAP = 8.dp
  * Vertical padding, which with the 40dp artwork sets the bar's height at 56dp
  * and so its pill radius at 28.
  */
-private val ROW_PADDING_VERTICAL = 8.dp
+private val ROW_PADDING_VERTICAL = 6.dp
 
 /**
  * Horizontal padding, deliberately larger than the vertical.
@@ -138,7 +145,10 @@ private val ROW_PADDING_HORIZONTAL = 12.dp
  * height happens to be — so that constraint is gone and the artwork can go
  * back to matching [SongRow].
  */
-private val ART_CORNER = 8.dp
+private val ART_CORNER = ART_SIZE / 2
+
+/** The cover: a circle, a little smaller than the old square one, for a slimmer bar. */
+private val ART_SIZE = 36.dp
 
 /** Distance that makes a horizontal drag an intentional track change. */
 private val TRACK_SWIPE_THRESHOLD = 72.dp
@@ -368,6 +378,12 @@ fun MiniPlayer(
     pull: MiniPlayerPull? = null,
     /** False while the expanded player covers this bar. */
     animationsActive: Boolean = true,
+    /**
+     * How far through the song the player is, 0 to 1, drawn as the accent
+     * ring round the play button. Read only while drawing, so the playhead's
+     * tick redraws the ring and nothing else.
+     */
+    progress: (() -> Float)? = null,
     modifier: Modifier = Modifier,
     autoMixArtwork: (@Composable (String?, Modifier) -> Unit)? = null,
 ) {
@@ -405,7 +421,8 @@ fun MiniPlayer(
             .clip(shape)
             .then(
                 if (reduceDynamicBlur) {
-                    Modifier.background(MaterialTheme.colorScheme.surface)
+                    // The same shade as the tab pill under it.
+                    Modifier.background(MaterialTheme.colorScheme.surfaceVariant)
                 } else {
                     Modifier.optimizedHazeEffect(
                         state = hazeState,
@@ -432,12 +449,12 @@ fun MiniPlayer(
             // mini player does, rather than cropped into the square cover.
             val showsPicture = song.isVideo && MusicOnlyPlayback.showsPicture(song.videoId)
             val artWidth by animateDpAsState(
-                targetValue = if (showsPicture && !VideoThumbnails.square) VIDEO_ART_WIDTH else 40.dp,
+                targetValue = if (showsPicture && !VideoThumbnails.square) VIDEO_ART_WIDTH else ART_SIZE,
                 label = "miniArtWidth",
             )
             Box(
                 modifier = Modifier
-                    .size(width = artWidth, height = 40.dp)
+                    .size(width = artWidth, height = ART_SIZE)
                     .playerDockArt(dock, ART_CORNER)
                     .clip(RoundedCornerShape(ART_CORNER))
                     .thumbnailBorder(RoundedCornerShape(ART_CORNER))
@@ -489,7 +506,9 @@ fun MiniPlayer(
                         playPauseMotion.onTap()
                         onPlayPause()
                     },
-                    modifier = Modifier.size(GLYPH_SLOT),
+                    modifier = Modifier
+                        .size(GLYPH_SLOT)
+                        .progressRing(progress),
                 ) {
                     PlayerPlayPauseGlyph(
                         motion = playPauseMotion,
@@ -524,6 +543,46 @@ fun MiniPlayer(
         }
     }
 }
+
+/**
+ * The accent ring round the play button: a faint full circle, and over it the
+ * part of the song already played, in the accent's coral-to-purple sweep,
+ * starting from the top. Nothing is drawn without a [progress].
+ */
+private fun Modifier.progressRing(progress: (() -> Float)?): Modifier =
+    if (progress == null) this else drawBehind {
+        val stroke = RING_STROKE.toPx()
+        val inset = stroke / 2 + RING_INSET.toPx()
+        val arcSize = Size(size.width - inset * 2, size.height - inset * 2)
+        val topLeft = Offset(inset, inset)
+        drawArc(
+            color = Color.White.copy(alpha = 0.18f),
+            startAngle = 0f,
+            sweepAngle = 360f,
+            useCenter = false,
+            topLeft = topLeft,
+            size = arcSize,
+            style = Stroke(stroke),
+        )
+        val played = progress().coerceIn(0f, 1f)
+        if (played > 0f) {
+            // Turned so the sweep's coral sits where the arc starts, at the top.
+            rotate(-90f) {
+                drawArc(
+                    brush = Accent.sweep,
+                    startAngle = 0f,
+                    sweepAngle = 360f * played,
+                    useCenter = false,
+                    topLeft = topLeft,
+                    size = arcSize,
+                    style = Stroke(stroke, cap = StrokeCap.Round),
+                )
+            }
+        }
+    }
+
+private val RING_STROKE = 2.5.dp
+private val RING_INSET = 1.dp
 
 @Composable
 internal fun MiniPlayerArtwork(song: Song, autoMixArtwork: (@Composable (String?, Modifier) -> Unit)?) {

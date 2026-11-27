@@ -764,8 +764,8 @@ internal fun TransportRow(
     }
 }
 
-/** The lit colour of shuffle, repeat and the liked heart. */
-internal val PlayerActiveGreen = Color(0xFF1ED760)
+/** The lit colour of shuffle, repeat and the liked heart: TuneTable's accent. */
+internal val PlayerActiveGreen = com.music.bitchord.ui.theme.Accent.Solid
 
 /** The play/pause disc, and the glyph drawn on it. */
 private val PLAY_DISC_SIZE = 66.dp
@@ -773,7 +773,7 @@ private val PLAY_DISC_GLYPH_SIZE = 30.dp
 
 /**
  * Shuffle or repeat at an end of [TransportRow]: a plain glyph, white when
- * off, green with a small dot under it when on.
+ * off, in the accent colour with a small dot under it when on.
  */
 @Composable
 private fun ModeGlyph(

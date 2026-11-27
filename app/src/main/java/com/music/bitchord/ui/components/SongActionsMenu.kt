@@ -1,5 +1,6 @@
 package com.music.bitchord.ui.components
 
+import com.music.bitchord.ui.theme.Accent
 import com.music.bitchord.ui.icons.BrokenHeart
 import com.music.bitchord.ui.icons.SfIcons
 import com.music.bitchord.ui.components.trackArtSize
@@ -220,8 +221,8 @@ fun SongActionsMenu(
                     IosMenuQuickAction(
                         icon = if (liked) SfIcons.HeartFill else SfIcons.Heart,
                         label = stringResource(R.string.like),
-                        // The same green as the now playing screen's heart.
-                        tint = if (liked) Color(0xFF1ED760) else null,
+                        // The accent, as on the now playing screen's heart.
+                        tint = if (liked) Accent.Solid else null,
                         onClick = onToggleLike,
                     )
                 }

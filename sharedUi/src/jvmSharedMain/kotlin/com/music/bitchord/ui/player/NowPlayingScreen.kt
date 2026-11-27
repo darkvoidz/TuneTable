@@ -4720,7 +4720,7 @@ fun NowPlayingScreen(
     }
 }
 
-/** The like control beside the credits: an outlined heart, filled green once liked. */
+/** The like control beside the credits: an outlined heart, filled in the accent colour once liked. */
 @Composable
 private fun PlayerHeartGlyph(
     liked: Boolean,
