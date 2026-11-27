@@ -1,5 +1,9 @@
 package com.music.bitchord.ui.screens
 
+import com.music.bitchord.ui.theme.accentFill
+import com.music.bitchord.ui.theme.AccentStyle
+import com.music.bitchord.ui.theme.Accent
+import com.music.bitchord.ui.theme.styledPagePalette
 import com.music.bitchord.ui.components.trackArtSize
 import android.os.Build
 import com.music.bitchord.R
@@ -436,10 +440,8 @@ fun DetailScreen(
             if (signature != null) return@LaunchedEffect
         }
     }
-    val palette = rememberArtworkPalette(
-        imageUrl = appleArt?.heroUrl ?: page.thumbnailUrl,
-        keyColors = appleArt?.keyColors(),
-    )
+    // The page follows the app's accent style rather than its artwork's colours.
+    val palette = styledPagePalette()
 
     // Narrowing the running order in place — the release equivalent of the
     // filter box on the Local Music tab, and the one thing a long track list
@@ -634,7 +636,7 @@ fun DetailScreen(
                         subscription = page.subscription?.takeIf { onToggleSubscription != null },
                         onToggleSubscription = onToggleSubscription,
                         bottomSpace = 22.dp,
-                        playColor = appleArt?.keyColor?.let { Color(it) },
+                        playColor = null,
                     )
                 }
             }
@@ -1641,7 +1643,7 @@ private fun ActionRow(
             onClick = onPlay,
             size = ARTIST_PLAY_BUTTON,
             iconScale = ARTIST_PLAY_ICON_SCALE,
-            containerColor = playColor ?: Color.White,
+            containerColor = playColor ?: Accent.Fill,
         )
 
         if (subscription != null) {
@@ -1685,19 +1687,17 @@ private fun ActionPill(
     // Resume rather than a flat tap: both start a queue, and the rising pair
     // says so.
     val haptics = rememberHaptics()
-    val content = if (filled) Color.Black else MaterialTheme.colorScheme.onSurface
+    val content = if (filled) Accent.OnFill else pageButtonInk()
     Row(
         modifier = modifier
             .height(size)
             .clip(CircleShape)
             .then(
                 if (filled) {
-                    Modifier.background(Color.White)
+                    // The style's own fill — Neon's outline, Glow's gradient.
+                    Modifier.accentFill(CircleShape)
                 } else {
-                    Modifier
-                        .background(Color.White.copy(alpha = LIGHT_FILL_ALPHA), CircleShape)
-                        .liquidGlassRim(CircleShape)
-                        .border(1.dp, Color.White.copy(alpha = TOP_RELEASE_EDGE_ALPHA), CircleShape)
+                    Modifier.pageButtonSurface()
                 },
             )
             .clickable {
@@ -1749,6 +1749,32 @@ private fun PlayCircle(
             // not whatever the page has behind.
             .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
             .drawWithContent {
+                val ring = Accent.Outline
+                if (ring != null) {
+                    // Neon: a thin ring with the triangle drawn in line inside it.
+                    val stroke = Accent.OutlineWidth.toPx()
+                    drawCircle(ring, radius = this.size.minDimension / 2f - stroke / 2f,
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(stroke))
+                    val box = this.size.minDimension * iconScale
+                    val unit = box / 24f
+                    val origin = Offset((this.size.width - box) / 2f, (this.size.height - box) / 2f)
+                    val triangle = androidx.compose.ui.graphics.Path().apply {
+                        moveTo(origin.x + 7.5f * unit, origin.y + 5.5f * unit)
+                        lineTo(origin.x + 18.5f * unit, origin.y + 12f * unit)
+                        lineTo(origin.x + 7.5f * unit, origin.y + 18.5f * unit)
+                        close()
+                    }
+                    drawPath(
+                        triangle,
+                        Accent.Icon,
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(
+                            width = 1.6f * unit,
+                            cap = androidx.compose.ui.graphics.StrokeCap.Round,
+                            join = androidx.compose.ui.graphics.StrokeJoin.Round,
+                        ),
+                    )
+                    return@drawWithContent
+                }
                 drawCircle(containerColor)
                 val box = this.size.minDimension * iconScale
                 val unit = box / 24f
@@ -1801,11 +1827,7 @@ private fun CircleIconButton(
             .size(size)
             .alpha(if (enabled) 1f else DISABLED_ACTION_ALPHA)
             .clip(CircleShape)
-            .background(Color.White.copy(alpha = LIGHT_FILL_ALPHA), CircleShape)
-            // The glass rim the floating bars wear, with Liquid Glass on. Rim
-            // only: over the page's flat tint a blurred fill would look the same.
-            .liquidGlassRim(CircleShape)
-            .border(1.dp, Color.White.copy(alpha = TOP_RELEASE_EDGE_ALPHA), CircleShape)
+            .pageButtonSurface()
             .clickable(enabled = enabled) {
                 haptics.play(haptic)
                 onClick()
@@ -1815,7 +1837,7 @@ private fun CircleIconButton(
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = MaterialTheme.colorScheme.onSurface,
+            tint = pageButtonInk(),
             modifier = Modifier.size(size * 0.44f),
         )
     }
@@ -2533,3 +2555,16 @@ private fun List<Song>.playtime(): String? {
         else -> stringResource(R.string.hours_minutes_short, (minutes / 60).toInt(), (minutes % 60).toInt())
     }
 }
+
+/** The page's round and pill buttons beside Play, as the accent style draws them. */
+@Composable
+private fun Modifier.pageButtonSurface(): Modifier = when (Accent.style) {
+    AccentStyle.NEON -> border(Accent.OutlineWidth, Accent.Start, CircleShape)
+    AccentStyle.GLOW -> background(Color.White.copy(alpha = 0.10f), CircleShape)
+    else -> background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
+}
+
+/** The glyph and label on [pageButtonSurface]. */
+@Composable
+private fun pageButtonInk(): Color =
+    if (Accent.style == AccentStyle.SUBTLE) MaterialTheme.colorScheme.onSurface else Accent.Icon

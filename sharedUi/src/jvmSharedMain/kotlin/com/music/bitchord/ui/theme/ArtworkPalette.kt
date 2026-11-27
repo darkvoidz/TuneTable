@@ -420,3 +420,22 @@ private fun Color.withHsl(
 
 /** Perceived brightness, used only to tell a dark theme from a light one. */
 private fun Color.luminance(): Float = ColorUtils.calculateLuminance(toArgb()).toFloat()
+
+/**
+ * A release or artist page's colours in the app's accent style, in place of
+ * the colours taken from its artwork: the page is the theme's own background,
+ * its buttons the style's surfaces, its highlights the style's icon colour.
+ */
+@androidx.compose.runtime.Composable
+fun styledPagePalette(): ArtworkPalette {
+    val scheme = androidx.compose.material3.MaterialTheme.colorScheme
+    return ArtworkPalette(
+        background = scheme.background,
+        wash = scheme.background,
+        elevated = scheme.surfaceVariant,
+        accent = Accent.Icon,
+        onBackground = scheme.onBackground,
+        onBackgroundVariant = scheme.onBackground.copy(alpha = 0.65f),
+        divider = scheme.onBackground.copy(alpha = 0.08f),
+    )
+}

@@ -1,5 +1,6 @@
 package com.music.bitchord
 
+import com.music.bitchord.ui.theme.styledPagePalette
 import com.music.bitchord.ui.components.menusSolid
 import androidx.compose.animation.core.spring
 import androidx.compose.ui.graphics.luminance
@@ -2568,10 +2569,8 @@ private fun BitChordApp(
         topDetail?.takeIf { it.type == BrowseType.ARTIST }
             ?.let { AppleArtistArtRepository.cached(it.browseId) }
     }
-    val detailPalette = rememberArtworkPalette(
-        imageUrl = detailApple?.heroUrl ?: topDetail?.thumbnailUrl,
-        keyColors = detailApple?.keyColors(),
-    )
+    // Release and artist pages follow the accent style, not their artwork.
+    val detailPalette = styledPagePalette()
 
     // One set of numbers for the cards, the page, the stories and the shared
     // picture, so they cannot disagree. Read while any of them is on screen —
