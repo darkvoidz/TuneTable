@@ -1,5 +1,6 @@
 package com.music.bitchord.ui.screens
 
+import androidx.compose.ui.graphics.Brush
 import com.music.bitchord.ui.theme.Accent
 import com.music.bitchord.ui.components.AccentColourDialog
 import androidx.compose.material.icons.rounded.Palette
@@ -480,7 +481,7 @@ fun SettingsScreen(
                                     model = url,
                                     contentDescription = null,
                                     contentScale = ContentScale.Crop,
-                                    modifier = Modifier.size(ICON_SIZE).clip(CircleShape),
+                                    modifier = Modifier.size(ICON_TILE).clip(CircleShape),
                                 )
                             }
                         },
@@ -2484,7 +2485,9 @@ internal val ICON_SIZE = 22.dp
 internal val ICON_GAP = 14.dp
 
 /** Where a row's text starts — dividers are inset to match, as on iOS. */
-internal val TEXT_INSET = ROW_INSET + ICON_SIZE + ICON_GAP
+/** A row's icon badge: the glyph on a round coral-to-purple disc. */
+internal val ICON_TILE = 32.dp
+internal val TEXT_INSET = ROW_INSET + ICON_TILE + ICON_GAP
 
 /**
  * What is typed into the field under the Settings title, and whether anything
@@ -2621,17 +2624,30 @@ internal fun SettingsGroup(
     content: @Composable () -> Unit,
 ) {
     if (header != null) {
-        Text(
-            text = header.uppercase(Locale.ROOT),
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        // A small dot of the accent's run beside the section's name, in bold.
+        Row(
             modifier = Modifier.padding(
                 start = GROUP_INSET + 4.dp,
                 end = GROUP_INSET,
                 top = 26.dp,
                 bottom = 8.dp,
             ),
-        )
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                Modifier
+                    .size(8.dp)
+                    .clip(CircleShape)
+                    .background(Accent.brush),
+            )
+            Spacer(Modifier.width(8.dp))
+            Text(
+                text = header,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+        }
     } else {
         Spacer(Modifier.height(topSpacing))
     }
@@ -2640,7 +2656,12 @@ internal fun SettingsGroup(
             .fillMaxWidth()
             .padding(horizontal = GROUP_INSET)
             .clip(GroupShape)
-            .background(MaterialTheme.colorScheme.surfaceVariant),
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(
+                Brush.linearGradient(
+                    listOf(Accent.Start.copy(alpha = CARD_WASH), Accent.End.copy(alpha = CARD_WASH * 0.85f)),
+                ),
+            ),
     ) {
         content()
     }
@@ -2655,6 +2676,26 @@ internal fun SettingsGroup(
                 top = 8.dp,
             ),
         )
+    }
+}
+
+/** How much of the accent washes over a settings card. */
+private const val CARD_WASH = 0.12f
+
+/** A row icon's glyph, white on its badge. */
+internal val ICON_GLYPH = 18.dp
+
+/** The round coral-to-purple badge a settings row's icon sits on. */
+@Composable
+internal fun SettingsIconTile(content: @Composable () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(ICON_TILE)
+            .clip(CircleShape)
+            .background(Accent.brush),
+        contentAlignment = Alignment.Center,
+    ) {
+        content()
     }
 }
 
@@ -2730,19 +2771,23 @@ internal fun SettingsRow(
         if (iconContent != null) {
             iconContent()
         } else if (iconPainter != null) {
-            Icon(
-                painter = iconPainter,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.size(ICON_SIZE),
-            )
+            SettingsIconTile {
+                Icon(
+                    painter = iconPainter,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(ICON_GLYPH),
+                )
+            }
         } else if (icon != null) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.size(ICON_SIZE),
-            )
+            SettingsIconTile {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(ICON_GLYPH),
+                )
+            }
         }
         Spacer(Modifier.width(ICON_GAP))
         Column(Modifier.weight(1f)) {
@@ -2904,12 +2949,14 @@ internal fun SliderRow(
     )
     Column(Modifier.padding(start = ROW_INSET, end = ROW_INSET, top = 12.dp, bottom = 4.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.size(ICON_SIZE),
-            )
+            SettingsIconTile {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(ICON_GLYPH),
+                )
+            }
             Spacer(Modifier.width(ICON_GAP))
             Column(Modifier.weight(1f)) {
                 Text(
@@ -2948,7 +2995,7 @@ internal fun SliderRow(
                     drawTick = { _, _ -> },
                 )
             },
-            modifier = Modifier.padding(start = ICON_SIZE + ICON_GAP),
+            modifier = Modifier.padding(start = ICON_TILE + ICON_GAP),
         )
     }
 }
