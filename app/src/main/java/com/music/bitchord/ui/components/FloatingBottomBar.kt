@@ -1,5 +1,7 @@
 package com.music.bitchord.ui.components
 
+import androidx.compose.ui.graphics.luminance
+import com.music.bitchord.ui.theme.AccentStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.layout.layout
@@ -383,7 +385,9 @@ fun FloatingBottomBar(
                         glassSpec = glassSpec,
                         // White on the accent circle.
                         selectedTint = Color.White,
-                        unselectedTint = adaptiveTint?.copy(alpha = 0.65f),
+                        // Bright enough to read as tappable: near-white, or the
+                        // style's own icon colour where it has one.
+                        unselectedTint = adaptiveTint?.copy(alpha = 0.65f) ?: tabIdleTint(),
                         onClick = { if (collapsed) onExpand() else onTabSelected(index) },
                         onActiveTabTap = { if (!collapsed) onActiveTabTap() },
                         modifier = Modifier
@@ -470,3 +474,11 @@ private val TAB_GAP = 6.dp
 
 /** The tab icons inside their circles. */
 private val TAB_GLYPH = 24.dp
+
+/** The tabs that aren't selected: near-white, or the accent style's icon colour, softened a touch. */
+@Composable
+private fun tabIdleTint(): Color = when {
+    MaterialTheme.colorScheme.background.luminance() > 0.5f -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
+    Accent.style == AccentStyle.SUBTLE || Accent.style == AccentStyle.GLOW -> Color.White.copy(alpha = 0.88f)
+    else -> Accent.Icon.copy(alpha = 0.9f)
+}
