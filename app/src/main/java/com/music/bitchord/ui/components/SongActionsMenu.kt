@@ -222,7 +222,7 @@ fun SongActionsMenu(
                         icon = if (liked) SfIcons.HeartFill else SfIcons.Heart,
                         label = stringResource(R.string.like),
                         // The accent, as on the now playing screen's heart.
-                        tint = if (liked) Accent.Solid else null,
+                        tint = if (liked) Accent.Icon else null,
                         onClick = onToggleLike,
                     )
                 }

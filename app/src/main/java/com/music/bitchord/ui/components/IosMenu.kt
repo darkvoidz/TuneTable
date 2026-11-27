@@ -142,7 +142,7 @@ fun iosMenuColors(): IosMenuColors {
 }
 
 /** How much of the accent washes over a menu's slab. Also the account menu's. */
-internal const val MENU_WASH = 0.09f
+internal val MENU_WASH: Float get() = 0.09f * Accent.washScale
 
 /** The panel's silhouette: a large, continuously curved corner. */
 val IosMenuShape: Shape = RoundedCornerShape(30.dp).continuous()
@@ -307,7 +307,7 @@ fun RowScope.IosMenuQuickAction(
             imageVector = icon,
             contentDescription = null,
             // The accent, unless the caller has a colour of its own for it.
-            tint = tint ?: if (enabled) Accent.Solid else color,
+            tint = tint ?: if (enabled) Accent.Icon else color,
             modifier = Modifier.size(23.dp),
         )
         Spacer(Modifier.height(6.dp))
@@ -379,7 +379,7 @@ fun IosMenuRow(
                     contentDescription = null,
                     // The accent, unless the row has a colour of its own (a
                     // destructive red, say), as its label would.
-                    tint = (iconTint ?: labelColor ?: Accent.Solid).let { it.copy(alpha = it.alpha * alpha) },
+                    tint = (iconTint ?: labelColor ?: Accent.Icon).let { it.copy(alpha = it.alpha * alpha) },
                     modifier = Modifier.size(21.dp),
                 )
             }

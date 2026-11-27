@@ -4,6 +4,7 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Brush
 import com.music.bitchord.ui.theme.Accent
 import com.music.bitchord.ui.components.AccentColourDialog
+import com.music.bitchord.ui.theme.AccentStyle
 import androidx.compose.material.icons.rounded.Palette
 import com.music.bitchord.ui.icons.SfIcons
 import com.music.bitchord.wear.WatchInstaller
@@ -1143,6 +1144,25 @@ fun SettingsScreen(
                     },
                 )
                 if (showAccent) AccentColourDialog(onDismiss = { showAccent = false })
+            }
+            val styleTitle = stringResource(R.string.accent_style)
+            row(styleTitle, "style", "vibrant", "deep", "subtle", "tint") {
+                val accentStyle by AppSettings.accentStyle.collectAsStateWithLifecycle()
+                SettingsRow(
+                    icon = Icons.Rounded.AutoAwesome,
+                    title = styleTitle,
+                    subtitle = stringResource(R.string.accent_style_subtitle),
+                )
+                SegmentedControl(
+                    options = listOf(
+                        stringResource(R.string.accent_style_subtle),
+                        stringResource(R.string.accent_style_vibrant),
+                        stringResource(R.string.accent_style_deep),
+                    ),
+                    selectedIndex = AccentStyle.entries.indexOf(accentStyle),
+                    onSelect = { AppSettings.setAccentStyle(AccentStyle.entries[it]) },
+                    modifier = Modifier.padding(start = ROW_INSET, end = ROW_INSET, bottom = 14.dp),
+                )
             }
             val fontTitle = stringResource(R.string.font)
             row(fontTitle, "typeface", "sf pro", "legacy") {
@@ -2686,7 +2706,7 @@ internal fun SettingsGroup(
 internal fun SubtitleInk(): Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f)
 
 /** How much of the accent washes over a settings card. */
-private const val CARD_WASH = 0.05f
+private val CARD_WASH: Float get() = 0.05f * Accent.washScale
 
 /** A row icon's glyph, white on its badge. */
 internal val ICON_GLYPH = 21.dp

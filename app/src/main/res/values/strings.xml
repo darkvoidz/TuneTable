@@ -512,6 +512,11 @@
     <string name="done">Done</string>
     <string name="accent_colour">Accent colour</string>
     <string name="accent_colour_subtitle">Highlights, selected items and controls</string>
+    <string name="accent_style">Style</string>
+    <string name="accent_style_subtitle">How strongly the accent colours the app</string>
+    <string name="accent_style_subtle">Subtle</string>
+    <string name="accent_style_vibrant">Vibrant</string>
+    <string name="accent_style_deep">Deep</string>
     <string name="accent_app_icon">App icon</string>
     <string name="accent_system_colours">System colours</string>
     <string name="accent_presets">Presets</string>

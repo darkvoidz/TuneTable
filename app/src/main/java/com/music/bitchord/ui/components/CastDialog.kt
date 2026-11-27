@@ -132,7 +132,7 @@ fun CastDialog(
                 ) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(14.dp),
-                        color = Accent.Solid,
+                        color = Accent.Icon,
                         strokeWidth = 1.75.dp,
                     )
                     Spacer(Modifier.width(8.dp))
@@ -220,13 +220,13 @@ private fun CastDeviceRow(
         when {
             connecting -> CircularProgressIndicator(
                 modifier = Modifier.size(16.dp),
-                color = Accent.Solid,
+                color = Accent.Icon,
                 strokeWidth = 1.75.dp,
             )
             connected -> Icon(
                 imageVector = Icons.Rounded.Check,
                 contentDescription = null,
-                tint = Accent.Solid,
+                tint = Accent.Icon,
                 modifier = Modifier.size(20.dp),
             )
         }
@@ -244,7 +244,7 @@ private fun SearchingRow() {
     ) {
         CircularProgressIndicator(
             modifier = Modifier.size(28.dp),
-            color = Accent.Solid,
+            color = Accent.Icon,
             trackColor = Color.White.copy(alpha = 0.15f),
             strokeWidth = 3.dp,
         )

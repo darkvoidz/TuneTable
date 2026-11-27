@@ -177,7 +177,7 @@ fun AccountProfileSelector(
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         if (selected && !managing) Icon(Icons.Rounded.Check, stringResource(R.string.selected_account),
-            Modifier.size(20.dp), tint = Accent.Solid)
+            Modifier.size(20.dp), tint = Accent.Icon)
         if (managing) Text(stringResource(R.string.sign_out), style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.error)
     }

@@ -187,7 +187,7 @@ internal fun PopupPillButton(label: String, onClick: () -> Unit, primary: Boolea
         modifier = Modifier
             .fillMaxWidth()
             .clip(CircleShape)
-            .background(if (primary) Accent.Solid else Color.White.copy(alpha = 0.09f))
+            .background(if (primary) Accent.Fill else Color.White.copy(alpha = 0.09f))
             .clickable(onClick = onClick)
             .padding(vertical = 13.dp),
         contentAlignment = Alignment.Center,
@@ -195,10 +195,10 @@ internal fun PopupPillButton(label: String, onClick: () -> Unit, primary: Boolea
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp, fontWeight = FontWeight.W700),
-            color = if (primary) Accent.OnSolid else Color.White,
+            color = if (primary) Accent.OnFill else Color.White,
         )
     }
 }
 
 /** How much of the accent washes over a popup card. */
-private const val POPUP_WASH = 0.08f
+private val POPUP_WASH: Float get() = 0.08f * Accent.washScale

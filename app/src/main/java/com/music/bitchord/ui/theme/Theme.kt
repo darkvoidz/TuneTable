@@ -149,33 +149,65 @@ fun BitChordTheme(
      * primary — a check mark, a link, a progress bar, the cursor — takes it.
      */
     accent: Color? = null,
+    /** How strongly [accent] colours the page and its surfaces. */
+    style: AccentStyle = AccentStyle.SUBTLE,
     content: @Composable () -> Unit,
 ) {
     val base = if (darkTheme) DarkColors else LightColors
     MaterialTheme(
-        colorScheme = if (accent == null) {
-            base
-        } else {
-            base.copy(
-                primary = accent,
-                onPrimary = if (accent.luminance() > 0.55f) Color.Black else Color.White,
-                // The page and everything that sits on it take a breath of the
-                // accent: a very dark shade of it in the dark theme, a faint
-                // wash in the light one, each step up a little more coloured.
-                background = tinted(base.background, accent, if (darkTheme) 0.07f else 0.04f),
-                surface = tinted(base.surface, accent, if (darkTheme) 0.09f else 0.05f),
-                surfaceVariant = tinted(base.surfaceVariant, accent, if (darkTheme) 0.12f else 0.07f),
-                surfaceContainer = tinted(base.surfaceContainer, accent, if (darkTheme) 0.10f else 0.05f),
-                surfaceContainerHigh = tinted(base.surfaceContainerHigh, accent, if (darkTheme) 0.12f else 0.06f),
-                surfaceContainerHighest = tinted(base.surfaceContainerHighest, accent, if (darkTheme) 0.14f else 0.07f),
-                outline = tinted(base.outline, accent, 0.12f),
-            )
-        },
+        colorScheme = if (accent == null) base else accentScheme(base, accent, style, darkTheme),
         typography = when (font) {
             AppFont.DEFAULT -> BitChordTypography
             AppFont.LEGACY -> LegacyTypography
         },
         content = content,
+    )
+}
+
+/**
+ * [base] coloured by [accent] in [style]. Subtle gives the page a breath of
+ * the accent — a very dark shade of it in the dark theme, a faint wash in the
+ * light one, each step up a little more coloured. Vibrant soaks every surface
+ * in it. Deep builds the surfaces from the accent's own darkest shades.
+ */
+private fun accentScheme(
+    base: androidx.compose.material3.ColorScheme,
+    accent: Color,
+    style: AccentStyle,
+    dark: Boolean,
+): androidx.compose.material3.ColorScheme {
+    // Background, surface, surfaceVariant, the three containers, outline.
+    val amounts = when (style) {
+        AccentStyle.SUBTLE -> if (dark) {
+            floatArrayOf(0.07f, 0.09f, 0.12f, 0.10f, 0.12f, 0.14f, 0.12f)
+        } else {
+            floatArrayOf(0.04f, 0.05f, 0.07f, 0.05f, 0.06f, 0.07f, 0.12f)
+        }
+        AccentStyle.VIBRANT -> if (dark) {
+            floatArrayOf(0.20f, 0.24f, 0.30f, 0.26f, 0.30f, 0.34f, 0.30f)
+        } else {
+            floatArrayOf(0.10f, 0.12f, 0.16f, 0.12f, 0.14f, 0.16f, 0.24f)
+        }
+        AccentStyle.DEEP -> floatArrayOf()
+    }
+    fun pick(index: Int, baseColor: Color, deepDark: Float, deepLight: Float): Color = when (style) {
+        AccentStyle.DEEP -> if (dark) {
+            accent.withLightness(deepDark)
+        } else {
+            lerp(baseColor, accent.withLightness(0.42f), deepLight)
+        }
+        else -> tinted(baseColor, accent, amounts[index])
+    }
+    return base.copy(
+        primary = accent,
+        onPrimary = if (accent.luminance() > 0.55f) Color.Black else Color.White,
+        background = pick(0, base.background, 0.055f, 0.05f),
+        surface = pick(1, base.surface, 0.08f, 0.06f),
+        surfaceVariant = pick(2, base.surfaceVariant, 0.13f, 0.09f),
+        surfaceContainer = pick(3, base.surfaceContainer, 0.10f, 0.06f),
+        surfaceContainerHigh = pick(4, base.surfaceContainerHigh, 0.13f, 0.08f),
+        surfaceContainerHighest = pick(5, base.surfaceContainerHighest, 0.16f, 0.09f),
+        outline = pick(6, base.outline, 0.22f, 0.16f),
     )
 }
 

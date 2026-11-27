@@ -2,6 +2,7 @@ package com.music.bitchord.data.settings
 
 import com.music.bitchord.data.webdav.update
 import com.music.bitchord.ui.components.VideoThumbnails
+import com.music.bitchord.ui.theme.AccentStyle
 import android.content.Context
 import android.content.SharedPreferences
 import android.net.ConnectivityManager
@@ -551,6 +552,9 @@ object AppSettings {
 
     /** Which of the phone's system colours, while [accentMode] is [AccentMode.SYSTEM]. */
     val accentSystemIndex = MutableStateFlow(0)
+
+    /** How strongly the accent colours the app: Settings → Appearance → Style. */
+    val accentStyle = MutableStateFlow(AccentStyle.SUBTLE)
 
     /**
      * Frosted glass is removed from the app: haze blur (status bar, mini player,
@@ -1165,6 +1169,9 @@ object AppSettings {
             ?: AccentMode.ICON
         accentColor.value = prefs.getInt(KEY_ACCENT_COLOR, DEFAULT_ACCENT_COLOR)
         accentSystemIndex.value = prefs.getInt(KEY_ACCENT_SYSTEM_INDEX, 0)
+        accentStyle.value = prefs.getString(KEY_ACCENT_STYLE, null)
+            ?.let { saved -> AccentStyle.entries.firstOrNull { it.name == saved } }
+            ?: AccentStyle.SUBTLE
         lyricsBlur.value = prefs.getBoolean(KEY_LYRICS_BLUR, true)
         lyricsOffsetMs.value = prefs.getInt(KEY_LYRICS_OFFSET_MS, 0)
             .coerceIn(MIN_LYRICS_OFFSET_MS, MAX_LYRICS_OFFSET_MS)
@@ -1679,6 +1686,11 @@ object AppSettings {
     fun setAccentIcon() {
         accentMode.value = AccentMode.ICON
         prefs.edit().putString(KEY_ACCENT_MODE, AccentMode.ICON.name).apply()
+    }
+
+    fun setAccentStyle(style: AccentStyle) {
+        accentStyle.value = style
+        prefs.edit().putString(KEY_ACCENT_STYLE, style.name).apply()
     }
 
     /** One of the phone's own system colours, by its place in the list. */
@@ -2508,6 +2520,7 @@ object AppSettings {
     private const val KEY_ACCENT_MODE = "accent_mode"
     private const val KEY_ACCENT_COLOR = "accent_color"
     private const val KEY_ACCENT_SYSTEM_INDEX = "accent_system_index"
+    private const val KEY_ACCENT_STYLE = "accent_style"
     private const val DEFAULT_ACCENT_COLOR = 0xFFFF7A59.toInt()
     private const val KEY_DISABLE_BLEND_EFFECTS = "disable_blend_effects"
     private const val KEY_LYRICS_BLUR = "lyrics_blur"

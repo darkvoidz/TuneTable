@@ -342,7 +342,7 @@ private fun WatchRow(watch: WatchOutputUi, onClick: () -> Unit) {
             Icon(
                 imageVector = Icons.Rounded.Check,
                 contentDescription = null,
-                tint = Accent.Solid,
+                tint = Accent.Icon,
                 modifier = Modifier.size(20.dp),
             )
         }
@@ -415,7 +415,7 @@ private fun OutputRow(
             Icon(
                 imageVector = Icons.Rounded.Check,
                 contentDescription = null,
-                tint = Accent.Solid,
+                tint = Accent.Icon,
                 modifier = Modifier.size(20.dp),
             )
         }
@@ -483,7 +483,7 @@ private fun VolumeRow(routeKey: Any) {
             idleHeight = 6.dp,
             activeHeight = 10.dp,
             modifier = Modifier.weight(1f),
-            activeColor = Accent.Solid,
+            activeColor = Accent.Fill,
             inactiveColor = Color.White.copy(alpha = 0.18f),
         )
     }
@@ -514,7 +514,7 @@ private const val VOLUME_REREAD_GAP_MS = 250L
  * stronger with a thin accent outline for the output that is playing.
  */
 private fun Modifier.outputCard(active: Boolean): Modifier {
-    val wash = if (active) 0.24f else 0.12f
+    val wash = (if (active) 0.24f else 0.12f) * minOf(Accent.washScale, 1.6f)
     return this
         .background(Color.White.copy(alpha = 0.04f))
         .background(Brush.linearGradient(listOf(Accent.Start.copy(alpha = wash), Accent.End.copy(alpha = wash * 0.85f))))

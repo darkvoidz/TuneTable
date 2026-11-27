@@ -470,8 +470,12 @@ class MainActivity : AppCompatActivity() {
             }
             // The accent chosen in Settings, handed to everything drawn in it.
             val accent = rememberAccentColors()
-            SideEffect { Accent.colors = accent }
-            BitChordTheme(darkTheme = darkTheme, font = appFont, accent = accent.start) {
+            val accentStyle by AppSettings.accentStyle.collectAsStateWithLifecycle()
+            SideEffect {
+                Accent.colors = accent
+                Accent.style = accentStyle
+            }
+            BitChordTheme(darkTheme = darkTheme, font = appFont, accent = accent.start, style = accentStyle) {
                 // The glass surfaces sample this layer, and a layer records only
                 // what is drawn into it — which, for BitChord, is a page that
                 // paints no background of its own. Everywhere a page is not

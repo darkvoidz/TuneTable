@@ -100,7 +100,7 @@ internal fun HomeGreeting(replayYear: ReplayYearBadge?) {
                 stringResource(greeting),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
-                color = Accent.Solid,
+                color = Accent.Icon,
             )
             Text(
                 stringResource(Res.string.welcome_back),
@@ -128,7 +128,7 @@ internal fun HomeFilterChips(selected: HomeFilter, onSelect: (HomeFilter) -> Uni
             Box(
                 modifier = Modifier
                     .clip(CircleShape)
-                    .background(if (on) Accent.Solid else MaterialTheme.colorScheme.surfaceVariant)
+                    .then(if (on) Modifier.background(Accent.fillBrush) else Modifier.background(MaterialTheme.colorScheme.surfaceVariant))
                     .clickable { onSelect(filter) }
                     .padding(horizontal = 16.dp, vertical = 8.dp),
             ) {
@@ -136,7 +136,7 @@ internal fun HomeFilterChips(selected: HomeFilter, onSelect: (HomeFilter) -> Uni
                     stringResource(filter.label),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold,
-                    color = if (on) Accent.OnSolid else MaterialTheme.colorScheme.onSurface,
+                    color = if (on) Accent.OnFill else MaterialTheme.colorScheme.onSurface,
                 )
             }
         }
@@ -167,7 +167,7 @@ private fun QuickAction(icon: ImageVector, label: String, onClick: () -> Unit, m
             .padding(horizontal = 12.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(icon, contentDescription = null, tint = Accent.Solid, modifier = Modifier.size(20.dp))
+        Icon(icon, contentDescription = null, tint = Accent.Icon, modifier = Modifier.size(20.dp))
         Spacer(Modifier.width(8.dp))
         Text(
             label,
@@ -235,13 +235,13 @@ internal fun JumpBackInCard(target: JumpBackIn, onOpen: () -> Unit) {
             modifier = Modifier
                 .size(48.dp)
                 .clip(CircleShape)
-                .background(Accent.Solid),
+                .background(Accent.fillBrush),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 Icons.AutoMirrored.Rounded.ArrowForward,
                 contentDescription = null,
-                tint = Accent.OnSolid,
+                tint = Accent.OnFill,
                 modifier = Modifier.size(24.dp),
             )
         }

@@ -84,7 +84,7 @@ fun IosSwitch(
     val track by animateColorAsState(
         targetValue = when {
             // TuneTable's accent rather than iOS green.
-            checked -> Accent.Solid
+            checked -> Accent.Fill
             else -> Color(0xFF8E8E93).copy(alpha = if (dark) 0.36f else 0.22f)
         },
         label = "iosSwitchTrack",

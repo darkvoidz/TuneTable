@@ -76,8 +76,8 @@ fun PillSegmentedControl(
     val trackColor = TRACK_FILL.copy(alpha = if (light) LIGHT_TRACK_ALPHA else DARK_TRACK_ALPHA)
     // The selected segment is the accent, its label in whichever of black or
     // white reads on it.
-    val pillColor = Accent.Solid
-    val selectedLabelColor = Accent.OnSolid
+    val pillBrush = Accent.fillBrush
+    val selectedLabelColor = Accent.OnFill
     val labelColor = if (light) Color.Black else Color.White
     val reduceAnimation by PlayerSettings.reduceAnimation.collectAsStateWithLifecycle()
     val selected = selectedIndex.takeIf { it in options.indices }
@@ -162,7 +162,7 @@ fun PillSegmentedControl(
                                 }
                             }
                             .clip(PillShape)
-                            .background(pillColor),
+                            .background(pillBrush),
                     )
                 }
                 options.forEachIndexed { index, label ->

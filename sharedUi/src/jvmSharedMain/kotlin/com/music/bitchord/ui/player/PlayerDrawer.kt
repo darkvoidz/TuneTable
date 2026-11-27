@@ -217,7 +217,7 @@ fun PlayerDrawer(
                 // A faint wash of the accent over it, as the settings cards have.
                 .background(
                     Brush.verticalGradient(
-                        listOf(Accent.Start.copy(alpha = 0.10f), Accent.End.copy(alpha = 0.06f)),
+                        listOf(Accent.Start.copy(alpha = 0.10f * Accent.washScale), Accent.End.copy(alpha = 0.06f * Accent.washScale)),
                     ),
                 )
                 .clickable(
