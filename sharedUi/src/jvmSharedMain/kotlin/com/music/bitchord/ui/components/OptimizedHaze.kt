@@ -107,7 +107,7 @@ val NEON_CHARCOAL = Color(0xFF111113)
 val neonFrost: Boolean get() = Accent.style == AccentStyle.NEON
 
 /** How much of Neon's charcoal covers the frost. */
-const val NEON_FROST_ALPHA = 0.62f
+const val NEON_FROST_ALPHA = 0.88f
 
 /** Whether menus, drawers and popups are drawn as a solid slab rather than frost. */
 fun menusSolid(reduceDynamicBlur: Boolean): Boolean = reduceDynamicBlur && !neonFrost

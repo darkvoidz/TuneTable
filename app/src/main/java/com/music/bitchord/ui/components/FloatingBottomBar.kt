@@ -264,7 +264,10 @@ fun FloatingBottomBar(
             // than run across the screen.
             .clip(pillShape)
             .then(
-                if (reduceDynamicBlur) {
+                if (neonFrost) {
+                    // Neon's frosted charcoal, as its menus have.
+                    Modifier.optimizedHazeEffect(state = hazeState, style = menuFrost(NEON_CHARCOAL, NEON_FROST_ALPHA))
+                } else if (reduceDynamicBlur) {
                     Modifier.background(container)
                 } else if (useGlass) {
                     Modifier.liquidGlass(shape = pillShape)

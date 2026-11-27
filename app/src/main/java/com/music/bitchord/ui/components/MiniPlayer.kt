@@ -434,7 +434,10 @@ fun MiniPlayer(
             )
             .clip(shape)
             .then(
-                if (reduceDynamicBlur) {
+                if (neonFrost) {
+                    // Neon's frosted charcoal, as its menus and the tab pill have.
+                    Modifier.optimizedHazeEffect(state = hazeState, style = menuFrost(NEON_CHARCOAL, NEON_FROST_ALPHA))
+                } else if (reduceDynamicBlur) {
                     // The same shade as the tab pill under it.
                     Modifier.background(Accent.barBrush(MaterialTheme.colorScheme.surfaceVariant))
                 } else {

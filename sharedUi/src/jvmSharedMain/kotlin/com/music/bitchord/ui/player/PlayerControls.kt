@@ -824,7 +824,7 @@ private fun ModeGlyph(
         contentAlignment = Alignment.Center,
     ) {
         Icon(
-            imageVector = icon,
+            imageVector = icon.neon(),
             contentDescription = null,
             tint = tint,
             modifier = Modifier.size(24.dp),
@@ -1332,7 +1332,27 @@ private fun TransportGlyph(
                     .playDisc(),
             )
         }
-        if (skipMotion != null) {
+        val neonGlyph = if (Accent.outlined) {
+            when (icon) {
+                Res.drawable.ic_player_previous -> NeonGlyphs.Previous
+                Res.drawable.ic_player_next -> NeonGlyphs.Next
+                Res.drawable.ic_player_play -> NeonGlyphs.Play
+                Res.drawable.ic_player_pause -> NeonGlyphs.Pause
+                else -> null
+            }
+        } else {
+            null
+        }
+        if (neonGlyph != null) {
+            // Neon's hollow line glyph, drawn plainly: the skip and play/pause
+            // animations morph the solid shapes, which have no line version.
+            Icon(
+                imageVector = neonGlyph,
+                contentDescription = contentDescription,
+                tint = ink,
+                modifier = Modifier.size(if (disc != null) size * 0.9f else size),
+            )
+        } else if (skipMotion != null) {
             PlayerSkipGlyph(
                 motion = skipMotion,
                 contentDescription = contentDescription,
@@ -1644,7 +1664,9 @@ private fun PillSegment(
             .semantics { this.contentDescription = contentDescription },
         contentAlignment = Alignment.Center,
     ) {
+        val neon = Accent.outlined && !highlighted
         val tint = when {
+            neon -> Accent.Icon
             vibrant && chrome -> brightRowInk()
             !highlighted -> chromeWhite(0.75f)
             chrome -> Color.White.copy(alpha = CHROME_FULL_ALPHA)
@@ -1652,7 +1674,7 @@ private fun PillSegment(
         }
         Crossfade(
             targetState = loading,
-            modifier = Modifier.vibrantChrome(chrome && vibrant),
+            modifier = Modifier.vibrantChrome(chrome && vibrant && !neon),
             animationSpec = tween(durationMillis = 200),
             label = "pillSegmentLoading",
         ) { isLoading ->
@@ -1672,7 +1694,7 @@ private fun PillSegment(
                         label = "pillSegmentIcon",
                     ) { (currentIcon, currentSize) ->
                         Icon(
-                            imageVector = currentIcon,
+                            imageVector = currentIcon.neon(),
                             contentDescription = null,
                             tint = tint,
                             modifier = Modifier.size(currentSize),
@@ -1907,7 +1929,7 @@ private fun BottomGlyph(
         }
         if (icon != null) {
             Icon(
-                imageVector = icon,
+                imageVector = icon.neon(),
                 contentDescription = null,
                 tint = tint,
                 modifier = Modifier.size(iconSize).then(glyphChrome),
