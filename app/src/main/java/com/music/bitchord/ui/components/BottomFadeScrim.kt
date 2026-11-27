@@ -91,8 +91,14 @@ fun BottomFadeScrim(
     // The gesture bar sits below the tab pill and wants covering too, so it is
     // added on rather than being part of the fade's own run.
     val inset = floatingBarInsets.asPaddingValues().calculateBottomPadding()
+    val blurred = hazeState != null && isGlassSupported()
     val height by animateDpAsState(
-        targetValue = inset + if (withMiniPlayer) FADE_HEIGHT_WITH_MINI_PLAYER else FADE_HEIGHT,
+        targetValue = inset + when {
+            blurred && withMiniPlayer -> BLUR_HEIGHT_WITH_MINI_PLAYER
+            blurred -> BLUR_HEIGHT
+            withMiniPlayer -> FADE_HEIGHT_WITH_MINI_PLAYER
+            else -> FADE_HEIGHT
+        },
         // Matches the beat the mini player takes to appear, so the floor grows
         // with it instead of snapping ahead of it.
         animationSpec = tween(220),
@@ -118,7 +124,7 @@ fun BottomFadeScrim(
             .fillMaxWidth()
             .height(height)
             .then(
-                if (hazeState != null && isGlassSupported()) {
+                if (blurred && hazeState != null) {
                     // A progressive blur under the fade: what scrolls down
                     // behind the bars is frosted, hardest at the foot of the
                     // screen and easing to nothing at the top of the strip.
@@ -149,6 +155,17 @@ fun BottomFadeScrim(
             ),
     )
 }
+
+/**
+ * The blurred strip's height above the gesture bar: from the foot of the
+ * screen to halfway up the mini player — the tab pill's lift, the pill, the
+ * gap over it and half the mini player — so only the lower half of the mini
+ * player has the page frosted behind it.
+ */
+private val BLUR_HEIGHT_WITH_MINI_PLAYER = 104.dp
+
+/** Without a mini player: halfway up the tab pill. */
+private val BLUR_HEIGHT = 34.dp
 
 /** The blur at the very foot of the screen, where it is strongest. */
 private val BLUR_MAX = 24.dp
