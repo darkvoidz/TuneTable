@@ -97,10 +97,10 @@ object AppUpdateChecker {
      * One release carries the phone app and the TV app, each as a universal
      * APK plus per-ABI splits:
      *
-     *     TuneTable-v1.0.apk     TuneTable-v1.0_arm64-v8a.apk     ...
+     *     Aural-v1.0.apk     Aural-v1.0_arm64-v8a.apk     ...
      *
      * so this app's APKs are the ones named with its own
-     * [BuildConfig.UPDATE_APK_PREFIX] — "TuneTable-", which ends at the hyphen. The universal build (no `_ABI`
+     * [BuildConfig.UPDATE_APK_PREFIX] — "Aural-", which ends at the hyphen. The universal build (no `_ABI`
      * suffix) is taken first, as it installs anywhere; failing that, the split
      * for this device's ABI. A release with neither leaves
      * [UpdateInfo.apkUrl] null and the UI falls back to opening the releases

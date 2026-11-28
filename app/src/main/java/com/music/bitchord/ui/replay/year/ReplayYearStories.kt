@@ -451,7 +451,7 @@ private fun YearChrome(
             )
             Spacer(Modifier.width(7.dp))
             Text(
-                text = "TuneTable",
+                text = "Aural",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.W700,
                 color = Color.White.copy(alpha = 0.9f),

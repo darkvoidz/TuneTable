@@ -53,7 +53,7 @@ import com.music.bitchord.ui.tv.theme.TvType
 // Discord Rich Presence is hidden on TV for now; TvDiscordDialog is kept for when it returns.
 private enum class SettingsSheet { Theme, RefreshRate, Equalizer, Scrobbling, LyricsSources, Update, About }
 
-private const val DefaultBlurb = "Playback, sound and display preferences for TuneTable on this TV."
+private const val DefaultBlurb = "Playback, sound and display preferences for Aural on this TV."
 
 /**
  * Settings, as tvOS lays it out: the app on the left with a plain description of
@@ -276,7 +276,7 @@ fun TvSettingsScreen(
                 TvListRow(
                     title = "Appearance",
                     value = AppThemeOption.fromId(themeId).title,
-                    onFocused = { blurb = "The background behind TuneTable's pages." },
+                    onFocused = { blurb = "The background behind Aural's pages." },
                     onClick = { sheet = SettingsSheet.Theme },
                 )
             }

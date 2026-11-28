@@ -58,7 +58,7 @@ enum class AccentStyle {
 }
 
 /**
- * TuneTable's accent, as chosen in Settings → Appearance → Accent colour.
+ * Aural's accent, as chosen in Settings → Appearance → Accent colour.
  *
  * Held as Compose state, so everything drawn in it — a lit glyph, a switch,
  * the selected tab — follows a new choice at once. [Solid] is the colour for

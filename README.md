@@ -3,15 +3,15 @@
 <br/>
 <br/>
 
-<img src="docs/readme/icon.png" alt="TuneTable app icon" width="180" />
+<img src="docs/readme/icon.png" alt="Aural app icon" width="180" />
 
-# TuneTable
+# Aural
 
 ### Music, your way
 
 <br/>
 
-TuneTable is a modified version of [**BitChord**](https://github.com/kushagrasinghx/BitChord) by [kushagrasinghx](https://github.com/kushagrasinghx). [Support the original author ↓](#credits)
+Aural is a modified version of [**BitChord**](https://github.com/kushagrasinghx/BitChord) by [kushagrasinghx](https://github.com/kushagrasinghx). [Support the original author ↓](#credits)
 
 <br/>
 
@@ -21,11 +21,11 @@ TuneTable is a modified version of [**BitChord**](https://github.com/kushagrasin
 
 <table>
   <tr>
-    <td align="center"><img src="docs/readme/style-subtle.png" alt="TuneTable Home in the Subtle style" width="160" /><br/><b>Subtle</b></td>
-    <td align="center"><img src="docs/readme/style-deep.png" alt="TuneTable Home in the Deep style" width="160" /><br/><b>Deep</b></td>
-    <td align="center"><img src="docs/readme/style-glow.png" alt="TuneTable Home in the Glow style" width="160" /><br/><b>Glow</b></td>
-    <td align="center"><img src="docs/readme/style-duotone.png" alt="TuneTable Home in the Duotone style" width="160" /><br/><b>Duotone</b></td>
-    <td align="center"><img src="docs/readme/style-neon.png" alt="TuneTable Home in the Neon style" width="160" /><br/><b>Neon</b></td>
+    <td align="center"><img src="docs/readme/style-subtle.png" alt="Aural Home in the Subtle style" width="160" /><br/><b>Subtle</b></td>
+    <td align="center"><img src="docs/readme/style-deep.png" alt="Aural Home in the Deep style" width="160" /><br/><b>Deep</b></td>
+    <td align="center"><img src="docs/readme/style-glow.png" alt="Aural Home in the Glow style" width="160" /><br/><b>Glow</b></td>
+    <td align="center"><img src="docs/readme/style-duotone.png" alt="Aural Home in the Duotone style" width="160" /><br/><b>Duotone</b></td>
+    <td align="center"><img src="docs/readme/style-neon.png" alt="Aural Home in the Neon style" width="160" /><br/><b>Neon</b></td>
   </tr>
 </table>
 
@@ -35,12 +35,12 @@ TuneTable is a modified version of [**BitChord**](https://github.com/kushagrasin
 
 <table>
   <tr>
-    <td align="center"><img src="docs/readme/player-subtle.png" alt="TuneTable player in the Subtle style" width="130" /><br/><b>Subtle</b></td>
-    <td align="center"><img src="docs/readme/player-deep.png" alt="TuneTable player in the Deep style" width="130" /><br/><b>Deep</b></td>
-    <td align="center"><img src="docs/readme/player-glow.png" alt="TuneTable player in the Glow style" width="130" /><br/><b>Glow</b></td>
-    <td align="center"><img src="docs/readme/player-duotone.png" alt="TuneTable player in the Duotone style" width="130" /><br/><b>Duotone</b></td>
-    <td align="center"><img src="docs/readme/player-neon.png" alt="TuneTable player in the Neon style" width="130" /><br/><b>Neon</b></td>
-    <td align="center"><img src="docs/readme/player-simple.png" alt="TuneTable player in the Simple style" width="130" /><br/><b>Simple</b></td>
+    <td align="center"><img src="docs/readme/player-subtle.png" alt="Aural player in the Subtle style" width="130" /><br/><b>Subtle</b></td>
+    <td align="center"><img src="docs/readme/player-deep.png" alt="Aural player in the Deep style" width="130" /><br/><b>Deep</b></td>
+    <td align="center"><img src="docs/readme/player-glow.png" alt="Aural player in the Glow style" width="130" /><br/><b>Glow</b></td>
+    <td align="center"><img src="docs/readme/player-duotone.png" alt="Aural player in the Duotone style" width="130" /><br/><b>Duotone</b></td>
+    <td align="center"><img src="docs/readme/player-neon.png" alt="Aural player in the Neon style" width="130" /><br/><b>Neon</b></td>
+    <td align="center"><img src="docs/readme/player-simple.png" alt="Aural player in the Simple style" width="130" /><br/><b>Simple</b></td>
   </tr>
 </table>
 
@@ -49,13 +49,13 @@ TuneTable is a modified version of [**BitChord**](https://github.com/kushagrasin
 </div>
 
 > [!IMPORTANT]
-> TuneTable is not affiliated with, endorsed by, or connected to YouTube or Google in any way. Use it at your own discretion.
+> Aural is not affiliated with, endorsed by, or connected to YouTube or Google in any way. Use it at your own discretion.
 
 ---
 
 <div align="center">
 
-<h1><a id="whats-new"></a>What's new in TuneTable</h1>
+<h1><a id="whats-new"></a>What's new in Aural</h1>
 
 </div>
 
@@ -72,7 +72,7 @@ TuneTable is a modified version of [**BitChord**](https://github.com/kushagrasin
 - **Spotify playlists in your Playlists** — signed in to Spotify, its playlists sit alongside your YouTube Music ones.
 - **Progressive blur** — what scrolls under the status bar and behind the mini player and tab bar is softly blurred.
 - **Redesigned Audio output and Cast** — the output picker, the Cast device list and the song menus match the rest of the app.
-- **A new Home** — a greeting for the time of day, filters for songs, videos and mixes, your playlists one tap away, a "Jump back in" card for the album or playlist you were last playing, and recently played as a grid.
+- **A new Home** — Aural's mark at the top, a greeting for the time of day, filters for songs, videos and mixes, your playlists one tap away, a "Jump back in" card for the album or playlist you were last playing, and recently played as a grid.
 - **Folding bars** — scroll down and the tab bar folds into a single button at the bottom-left while the mini player slides in beside it; scroll up and both unfold.
 - **Redesigned Settings** — cards washed in your accent, round gradient icons and clearer section headings.
 - **A cleaner, solid look** — the frosted-glass effects are gone.
@@ -134,9 +134,9 @@ TuneTable is a modified version of [**BitChord**](https://github.com/kushagrasin
 
 <h1><a id="download"></a>Download</h1>
 
-Get the latest APK from this repository's [**Releases**](https://github.com/darkvoidz/TuneTable/releases/latest) page. `TuneTable-v1.0.apk` installs on any phone; the `_arm64-v8a` file is a smaller download for most modern phones.
+Get the latest APK from this repository's [**Releases**](https://github.com/darkvoidz/TuneTable/releases/latest) page. `Aural-v1.0.apk` installs on any phone; the `_arm64-v8a` file is a smaller download for most modern phones.
 
-Sideloading requires enabling "Install unknown apps" for whichever app you download it with. TuneTable installs as its own app, alongside BitChord if you have it.
+Sideloading requires enabling "Install unknown apps" for whichever app you download it with. Aural installs as its own app, alongside BitChord if you have it.
 
 </div>
 
@@ -146,7 +146,7 @@ Sideloading requires enabling "Install unknown apps" for whichever app you downl
 
 <h1><a id="credits"></a>Credits</h1>
 
-TuneTable is built on [**BitChord**](https://github.com/kushagrasinghx/BitChord), created by [kushagrasinghx](https://github.com/kushagrasinghx) and its [contributors](https://github.com/kushagrasinghx/BitChord/graphs/contributors). Nearly everything that makes the app work is their doing.
+Aural is built on [**BitChord**](https://github.com/kushagrasinghx/BitChord), created by [kushagrasinghx](https://github.com/kushagrasinghx) and its [contributors](https://github.com/kushagrasinghx/BitChord/graphs/contributors). Nearly everything that makes the app work is their doing.
 
 If you'd like to support the original BitChord author, you can do so here:
 
@@ -156,7 +156,7 @@ If you'd like to support the original BitChord author, you can do so here:
 <br/>
 <img src="upi_support.jpg" alt="UPI for the BitChord author" width="220" />
 
-<sub>These links go to the original BitChord author, not to TuneTable.</sub>
+<sub>These links go to the original BitChord author, not to Aural.</sub>
 
 </div>
 
@@ -166,12 +166,12 @@ If you'd like to support the original BitChord author, you can do so here:
 
 <h1><a id="disclaimer"></a>Disclaimer & Legal Notice</h1>
 
-TuneTable is an independent, community-driven third-party audio player and client. It is **not** associated with Google LLC, YouTube Music, Deezer, Telegram, or any of their parent companies.
+Aural is an independent, community-driven third-party audio player and client. It is **not** associated with Google LLC, YouTube Music, Deezer, Telegram, or any of their parent companies.
 
-* **No Media Hosting:** TuneTable does not host, upload, or store copyrighted music files. It operates strictly as an interface to scan local device storage or stream media directly from public, public-facing, or user-authenticated APIs.
+* **No Media Hosting:** Aural does not host, upload, or store copyrighted music files. It operates strictly as an interface to scan local device storage or stream media directly from public, public-facing, or user-authenticated APIs.
 * **Fair Use & API Usage:** This software is created solely for personal research, educational, and fair-use purposes. The user is entirely responsible for ensuring their usage aligns with their local copyright laws and YouTube Terms of Service.
-* **No Ad-Blocking Guarantee:** While TuneTable focuses on providing a clean listening environment, it does not guarantee permanent bypasses or modifications to commercial third-party platform conditions.
-* **Copyleft:** TuneTable, like BitChord, is free software under the GPLv3. The license does not let anyone forbid others from selling or redistributing copies, but any distribution must come with the Corresponding Source under the same license.
+* **No Ad-Blocking Guarantee:** While Aural focuses on providing a clean listening environment, it does not guarantee permanent bypasses or modifications to commercial third-party platform conditions.
+* **Copyleft:** Aural, like BitChord, is free software under the GPLv3. The license does not let anyone forbid others from selling or redistributing copies, but any distribution must come with the Corresponding Source under the same license.
 
 </div>
 

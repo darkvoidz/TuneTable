@@ -4,19 +4,13 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Two offset Ts, for TuneTable, set on a slant. -->
-    <group
-        android:translateX="1.13"
-        android:translateY="-0.79">
-        <group
-            android:rotation="-30"
-            android:pivotX="54"
-            android:pivotY="54">
-            <path
-                android:strokeWidth="10"
-                android:strokeLineCap="round"
-                android:strokeLineJoin="round"
-                android:pathData="M34,42L56,42M45,42L45,62M52,56L74,56M63,56L63,76">
+    <!-- Aural: one sound wave, its tallest peak an A. Moved down to centre the wave. -->
+    <group android:translateY="4">
+        <path
+            android:strokeWidth="6"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M28,60h6l4,-6l5,12l11,-32l11,32l5,-12l4,6h6">
                 <aapt:attr name="android:strokeColor">
                     <gradient
                         android:type="linear"
@@ -28,7 +22,6 @@
                         <item android:offset="1" android:color="#FFBDBDC4" />
                     </gradient>
                 </aapt:attr>
-            </path>
-        </group>
+        </path>
     </group>
 </vector>
