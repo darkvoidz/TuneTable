@@ -8,8 +8,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
+import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
+import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
 import com.music.bitchord.MainActivity
@@ -99,7 +101,10 @@ abstract class MediaWidget : AppWidgetProvider() {
         /** The cover's size in dp, from the widget's own measured size. */
         fun coverDp(widthDp: Int, heightDp: Int): Pair<Int, Int> = when (this) {
             MINI, PILL -> 40 to 40
-            SQUARE -> 56 to 56
+            // Grows with the widget: as wide as the row leaves beside play
+            // (40dp and an 8dp gap) and as tall as the track below allows.
+            // The layout sizes the cover from the bitmap itself.
+            SQUARE -> minOf(widthDp - 24 - 40 - 8, heightDp - 24 - 36 - 8).coerceAtLeast(56).let { it to it }
             // Fills the card's height inside its 12dp padding, square.
             WIDE -> (heightDp - 24).coerceAtLeast(40).let { it to it }
             // Whatever the 16dp padding, the track (about 40dp) and the
@@ -201,6 +206,12 @@ abstract class MediaWidget : AppWidgetProvider() {
             if (cover != null) {
                 views.setImageViewBitmap(R.id.widget_art, cover)
                 views.setInt(R.id.widget_art, "setBackgroundResource", 0)
+                // The 2×2's cover is sized by its bitmap; on Android 12+ say
+                // so outright too, in case the host scales bitmaps itself.
+                if (kind == Kind.SQUARE && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    views.setViewLayoutWidth(R.id.widget_art, cover.width.toFloat(), TypedValue.COMPLEX_UNIT_PX)
+                    views.setViewLayoutHeight(R.id.widget_art, cover.height.toFloat(), TypedValue.COMPLEX_UNIT_PX)
+                }
             }
 
             views.setTextViewText(
