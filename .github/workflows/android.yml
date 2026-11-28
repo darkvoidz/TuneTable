@@ -44,18 +44,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # The whole history, so a short commit (75d1330) works as well as a
+      # branch, a tag or a full commit. The notes are kept from the default
+      # branch first, since an older commit being released may predate them.
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.ref }}
+          fetch-depth: 0
 
-      # The notes live on the default branch, which an older commit being
-      # released may predate.
-      - name: Checkout the release notes
-        uses: actions/checkout@v4
-        with:
-          path: notes
-          sparse-checkout: docs/releases
+      - name: Keep the release notes, then switch to what is being released
+        env:
+          TAG: ${{ inputs.tag }}
+          REF: ${{ inputs.ref }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/notes"
+          if [ -f "docs/releases/$TAG.md" ]; then cp "docs/releases/$TAG.md" "$RUNNER_TEMP/notes/"; fi
+          git checkout --quiet "$REF" 2>/dev/null || git checkout --quiet "origin/$REF" || {
+            echo "::error::Could not find the branch or commit '$REF'."
+            exit 1
+          }
+          echo "Building $(git rev-parse HEAD)"
+        shell: bash
 
       - name: Check the tag against the app's version
         env:
@@ -130,7 +139,7 @@ jobs:
           TAG: ${{ inputs.tag }}
           LATEST: ${{ inputs.latest }}
         run: |
-          notes="notes/docs/releases/$TAG.md"
+          notes="$RUNNER_TEMP/notes/$TAG.md"
           if [ -f "$notes" ]; then notes_args=(--notes-file "$notes"); else notes_args=(--generate-notes); fi
           gh release create "$TAG" dist/*.apk \
             --repo "$GITHUB_REPOSITORY" \
