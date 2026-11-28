@@ -92,8 +92,8 @@ abstract class MediaWidget : AppWidgetProvider() {
         MINI(MediaWidgetMini::class.java, R.layout.widget_styled_mini, 110, 40, 34, capsule = true),
         PILL(MediaWidgetPill::class.java, R.layout.widget_styled_pill, 250, 40, 38, capsule = true),
         SQUARE(MediaWidgetSquare::class.java, R.layout.widget_styled_square, 110, 110, 40, capsule = false),
-        WIDE(MediaWidgetWide::class.java, R.layout.widget_styled_wide, 250, 110, 42, capsule = false),
-        LARGE(MediaWidgetLarge::class.java, R.layout.widget_styled_large, 250, 250, 52, capsule = false),
+        WIDE(MediaWidgetWide::class.java, R.layout.widget_styled_wide, 250, 110, 52, capsule = false),
+        LARGE(MediaWidgetLarge::class.java, R.layout.widget_styled_large, 250, 250, 72, capsule = false),
         ;
 
         /** The cover's size in dp, from the widget's own measured size. */
@@ -103,8 +103,8 @@ abstract class MediaWidget : AppWidgetProvider() {
             // Fills the card's height inside its 12dp padding, square.
             WIDE -> (heightDp - 24).coerceAtLeast(40).let { it to it }
             // Whatever the 16dp padding, the track (about 40dp) and the
-            // controls row (52dp), with their 12dp gaps, leave.
-            LARGE -> (widthDp - 32).coerceAtLeast(40) to (heightDp - 32 - 40 - 12 - 52 - 12).coerceAtLeast(40)
+            // controls row (72dp), with their 12dp gaps, leave.
+            LARGE -> (widthDp - 32).coerceAtLeast(40) to (heightDp - 32 - 40 - 12 - 72 - 12).coerceAtLeast(40)
         }
 
         fun coverRadiusDp(coverW: Int, coverH: Int): Float = when (this) {

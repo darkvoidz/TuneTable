@@ -6,6 +6,10 @@ import com.music.bitchord.ui.theme.Accent
 import com.music.bitchord.ui.theme.styledPagePalette
 import com.music.bitchord.ui.components.trackArtSize
 import android.os.Build
+import com.music.bitchord.ui.theme.accentGlow
+import com.music.bitchord.ui.theme.withLightness
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.geometry.Size
@@ -549,7 +553,13 @@ fun DetailScreen(
             // dissolve, so it takes the same [ArtworkPalette.background] the
             // bars at either end of the screen are already fading into.
             val pageColor = if (isArtist) palette.wash else palette.background
-            BoxWithConstraints(Modifier.fillMaxSize().background(pageColor)) {
+            BoxWithConstraints(
+                Modifier
+                    .fillMaxSize()
+                    .background(pageColor)
+                    // Glow's light across the top, as on every other page.
+                    .accentGlow(dark = pageColor.luminance() < 0.5f),
+            ) {
                 // Measured rather than read off the window. The player runs
                 // full-screen at every window size, so this page's own width in
                 // landscape is the *whole* window. Straight off that width, the ratio hands back
@@ -2510,7 +2520,14 @@ private fun List<Song>.playtime(): String? {
 @Composable
 private fun Modifier.pageButtonSurface(): Modifier = when (Accent.style) {
     AccentStyle.NEON -> border(Accent.OutlineWidth, Accent.Start, CircleShape)
-    AccentStyle.GLOW -> background(Color.White.copy(alpha = 0.10f), CircleShape)
+    AccentStyle.GLOW -> background(
+        if (MaterialTheme.colorScheme.background.luminance() < 0.5f) {
+            Color.White.copy(alpha = 0.10f)
+        } else {
+            Color.Black.copy(alpha = 0.06f)
+        },
+        CircleShape,
+    )
     else -> background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
 }
 
@@ -2564,10 +2581,26 @@ private fun Modifier.pageCardSegment(first: Boolean, last: Boolean): Modifier {
 }
 
 @Composable
-private fun pageCardColors(): Pair<Color, Color> = when (Accent.style) {
-    AccentStyle.NEON -> Color(0xFF111113) to Accent.Start.copy(alpha = 0.55f)
-    AccentStyle.GLOW -> Color.White.copy(alpha = 0.055f) to Color.White.copy(alpha = 0.08f)
-    else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f) to Color.White.copy(alpha = 0.06f)
+private fun pageCardColors(): Pair<Color, Color> {
+    val scheme = MaterialTheme.colorScheme
+    val dark = scheme.background.luminance() < 0.5f
+    return when (Accent.style) {
+        AccentStyle.NEON -> if (dark) {
+            Color(0xFF111113) to Accent.Start.copy(alpha = 0.55f)
+        } else {
+            Color.White to Accent.Start.withLightness(0.36f).copy(alpha = 0.6f)
+        }
+        AccentStyle.GLOW -> if (dark) {
+            Color.White.copy(alpha = 0.055f) to Color.White.copy(alpha = 0.08f)
+        } else {
+            Color.White.copy(alpha = 0.85f) to Color.Black.copy(alpha = 0.06f)
+        }
+        else -> if (dark) {
+            scheme.surfaceVariant.copy(alpha = 0.55f) to Color.White.copy(alpha = 0.06f)
+        } else {
+            lerp(Color.White, scheme.surfaceVariant, 0.35f) to Color.Black.copy(alpha = 0.06f)
+        }
+    }
 }
 
 private fun pageCardEdgeWidth(): Dp = if (Accent.style == AccentStyle.NEON) Accent.OutlineWidth else 1.dp
