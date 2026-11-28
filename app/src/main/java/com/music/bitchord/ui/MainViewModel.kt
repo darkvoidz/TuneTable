@@ -1,5 +1,6 @@
 package com.music.bitchord.ui
 
+import kotlinx.coroutines.flow.distinctUntilChanged
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -1592,6 +1593,15 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             // drop(1): the current value is just the count so far, not a play.
             PlaybackTracker.registeredPlays.drop(1).collect { homeStale = true }
+        }
+        viewModelScope.launch {
+            // Signing in to Spotify (or out) changes what the Playlists shelf
+            // holds, and the library is otherwise only fetched with YouTube
+            // Music's: fetch it again so the Spotify playlists appear, or go,
+            // without a restart. drop(1): the value at launch is not a change.
+            AppSettings.spotifySpdcToken.drop(1).distinctUntilChanged().collect {
+                if (_signedIn.value) loadLibrary()
+            }
         }
         viewModelScope.launch {
             BoundedContextRequests.snapshot.collect { snapshot ->
