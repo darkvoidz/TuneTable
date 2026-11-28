@@ -1154,18 +1154,13 @@ fun SettingsScreen(
                     title = styleTitle,
                     subtitle = stringResource(R.string.accent_style_subtitle),
                 )
-                SegmentedControl(
-                    options = listOf(
-                        stringResource(R.string.accent_style_subtle),
-                        stringResource(R.string.accent_style_deep),
-                        stringResource(R.string.accent_style_glow),
-                        stringResource(R.string.accent_style_duotone),
-                        stringResource(R.string.accent_style_neon),
-                    ),
-                    selectedIndex = AccentStyle.entries.indexOf(accentStyle),
-                    onSelect = { AppSettings.setAccentStyle(AccentStyle.entries[it]) },
+                PreviewPicker(
+                    options = AccentStyle.entries,
+                    selected = accentStyle,
+                    onSelect = AppSettings::setAccentStyle,
+                    label = { it.localizedLabel() },
                     modifier = Modifier.padding(start = ROW_INSET, end = ROW_INSET, bottom = 14.dp),
-                )
+                ) { AppStylePreview(it) }
             }
             val fontTitle = stringResource(R.string.font)
             row(fontTitle, "typeface", "sf pro", "legacy") {
@@ -1268,12 +1263,14 @@ fun SettingsScreen(
                     title = playerThemeTitle,
                     subtitle = playerTheme.description(),
                 )
-                SegmentedControl(
-                    options = PlayerTheme.entries.map { it.localizedLabel() },
-                    selectedIndex = PlayerTheme.entries.indexOf(playerTheme),
-                    onSelect = { AppSettings.setPlayerTheme(PlayerTheme.entries[it]) },
+                val followName = Accent.style.localizedLabel()
+                PreviewPicker(
+                    options = PlayerTheme.entries,
+                    selected = playerTheme,
+                    onSelect = AppSettings::setPlayerTheme,
+                    label = { it.localizedLabel() },
                     modifier = Modifier.padding(start = ROW_INSET, end = ROW_INSET, bottom = 14.dp),
-                )
+                ) { PlayerStylePreview(it, followName) }
             }
             val animatedCoverArtTitle = stringResource(R.string.animated_cover_art)
             // Carries the keywords of the rows that only appear once it is on,
@@ -2244,18 +2241,7 @@ private fun PlayerTheme.localizedLabel(): String = stringResource(
 
 @Composable
 private fun PlayerTheme.description(): String = when (this) {
-    PlayerTheme.FOLLOW -> stringResource(
-        R.string.player_style_follow_subtitle,
-        stringResource(
-            when (Accent.style) {
-                AccentStyle.SUBTLE -> R.string.accent_style_subtle
-                AccentStyle.DEEP -> R.string.accent_style_deep
-                AccentStyle.GLOW -> R.string.accent_style_glow
-                AccentStyle.DUOTONE -> R.string.accent_style_duotone
-                AccentStyle.NEON -> R.string.accent_style_neon
-            },
-        ),
-    )
+    PlayerTheme.FOLLOW -> stringResource(R.string.player_style_follow_subtitle, Accent.style.localizedLabel())
     PlayerTheme.SIMPLE -> stringResource(R.string.player_theme_simple_subtitle)
     else -> stringResource(R.string.player_style_own_subtitle)
 }
@@ -3332,3 +3318,14 @@ internal fun <T> ChoiceGroup(
         }
     }
 }
+
+@Composable
+private fun AccentStyle.localizedLabel(): String = stringResource(
+    when (this) {
+        AccentStyle.SUBTLE -> R.string.accent_style_subtle
+        AccentStyle.DEEP -> R.string.accent_style_deep
+        AccentStyle.GLOW -> R.string.accent_style_glow
+        AccentStyle.DUOTONE -> R.string.accent_style_duotone
+        AccentStyle.NEON -> R.string.accent_style_neon
+    },
+)
