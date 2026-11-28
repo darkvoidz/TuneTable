@@ -4055,8 +4055,12 @@ private fun BitChordApp(
                 // HOME_TITLE_LIFT, and at rest the fade washed it out. It is held
                 // off the same way, from the first pixel of scroll rather than
                 // partway through, since the wordmark is the top of its heading.
+                // Every release and artist page, not only those marked as an
+                // artist's: any of them can open on a photograph or cover that
+                // runs up under the bar, and a blur across it at rest reads as a
+                // smudge on the picture.
                 val artistListState = detail
-                    ?.takeIf { isDetailVisible && it.type == BrowseType.ARTIST }
+                    ?.takeIf { isDetailVisible }
                     ?.let { detailListStates.getOrPut(it.browseId) { LazyListState() } }
                 val homeHeadingVisible = route == null && detail == null && selectedTab == TAB_HOME
                 val headerListState = artistListState ?: homeListState.takeIf { homeHeadingVisible }
@@ -4454,8 +4458,14 @@ private fun BitChordApp(
                 // Whichever bar is drawing reports its height here, for the
                 // guard to read at layout — never in composition, see the guard.
                 val floatingBarsHeight = remember { mutableIntStateOf(0) }
+                // How much of that height the bars give up while folded: the
+                // mini player drops into the tab's row, leaving its own row
+                // empty, but the bars keep reporting their open height (so a
+                // page's padding doesn't jolt). The guard is cut by this, or it
+                // left a dead band across the page above the folded bar.
+                val tapGuardTrim = remember { mutableStateOf<() -> Int>({ 0 }) }
                 FloatingBarsTapGuard(
-                    barsHeight = { floatingBarsHeight.intValue },
+                    barsHeight = { floatingBarsHeight.intValue - tapGuardTrim.value() },
                     modifier = Modifier.align(Alignment.BottomCenter),
                 )
 
@@ -4566,6 +4576,15 @@ private fun BitChordApp(
                     // from it, and one that changed mid-scroll would jolt the page.
                     val miniOpenHeight = remember { intArrayOf(0) }
                     val barFold: () -> Float = { barFoldState.value }
+                    val hasMiniPlayer = player.song != null
+                    val miniGapPx = with(LocalDensity.current) { 8.dp.roundToPx() }
+                    SideEffect {
+                        tapGuardTrim.value = if (hasMiniPlayer) {
+                            { ((miniOpenHeight[0] + miniGapPx) * barFoldState.value.coerceIn(0f, 1f)).roundToInt() }
+                        } else {
+                            { 0 }
+                        }
+                    }
                     player.song?.let { song ->
                         MiniPlayer(
                             song = song,
