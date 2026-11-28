@@ -29,7 +29,22 @@ TuneTable is a modified version of [**BitChord**](https://github.com/kushagrasin
   </tr>
 </table>
 
-<sub>Preview renders of Home in each of the five styles, with the default accent and sample cover art.</sub>
+<sub>Home in each of the five styles.</sub>
+
+<br/>
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/readme/player-subtle.png" alt="TuneTable player in the Subtle style" width="130" /><br/><b>Subtle</b></td>
+    <td align="center"><img src="docs/readme/player-deep.png" alt="TuneTable player in the Deep style" width="130" /><br/><b>Deep</b></td>
+    <td align="center"><img src="docs/readme/player-glow.png" alt="TuneTable player in the Glow style" width="130" /><br/><b>Glow</b></td>
+    <td align="center"><img src="docs/readme/player-duotone.png" alt="TuneTable player in the Duotone style" width="130" /><br/><b>Duotone</b></td>
+    <td align="center"><img src="docs/readme/player-neon.png" alt="TuneTable player in the Neon style" width="130" /><br/><b>Neon</b></td>
+    <td align="center"><img src="docs/readme/player-simple.png" alt="TuneTable player in the Simple style" width="130" /><br/><b>Simple</b></td>
+  </tr>
+</table>
+
+<sub>The now playing screen in each player style. Preview renders with the default accent and sample cover art.</sub>
 
 </div>
 
@@ -51,7 +66,11 @@ TuneTable is a modified version of [**BitChord**](https://github.com/kushagrasin
   - **Deep** — surfaces built from the accent's darkest shades, with pale accent icons.
   - **Glow** — a dark page lit by a soft glow of the accent, with gradient highlights.
   - **Duotone** — surfaces in the accent's second colour, highlights in its first.
-  - **Neon** — near-black pages with thin accent outlines on the bars, menus, buttons and the song that's playing.
+  - **Neon** — near-black pages, frosted charcoal menus and bars, and thin accent outlines on the bars, menus, buttons and the song that's playing, with line-drawn player controls.
+- **Player styles** — the now playing screen can follow the app's style or take one of its own (Subtle, Deep, Glow, Duotone, Neon), or Simple's blurred cover — mix and match in Settings → Appearance → Player style. Both pickers show a small preview of every option.
+- **Album, playlist and artist pages that follow your style** — the page, Play button and the buttons beside it take the style's colours instead of the cover's.
+- **Spotify playlists in your Playlists** — signed in to Spotify, its playlists sit alongside your YouTube Music ones.
+- **Progressive blur** — what scrolls under the status bar and behind the mini player and tab bar is softly blurred.
 - **Redesigned Audio output and Cast** — the output picker, the Cast device list and the song menus match the rest of the app.
 - **A new Home** — a greeting for the time of day, filters for songs, videos and mixes, your playlists one tap away, a "Jump back in" card for the album or playlist you were last playing, and recently played as a grid.
 - **Folding bars** — scroll down and the tab bar folds into a single button at the bottom-left while the mini player slides in beside it; scroll up and both unfold.
@@ -115,7 +134,9 @@ TuneTable is a modified version of [**BitChord**](https://github.com/kushagrasin
 
 <h1><a id="download"></a>Download</h1>
 
-TuneTable doesn't have a public release yet. When it does, the APK will be on this repository's [Releases](https://github.com/darkvoidz/TuneTable/releases) page. Sideloading requires enabling "Install unknown apps" for whichever app you download it with.
+Get the latest APK from this repository's [**Releases**](https://github.com/darkvoidz/TuneTable/releases/latest) page. `TuneTable-v1.0.apk` installs on any phone; the `_arm64-v8a` file is a smaller download for most modern phones.
+
+Sideloading requires enabling "Install unknown apps" for whichever app you download it with. TuneTable installs as its own app, alongside BitChord if you have it.
 
 </div>
 
