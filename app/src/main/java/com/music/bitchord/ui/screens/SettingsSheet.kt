@@ -1922,7 +1922,18 @@ fun SettingsScreen(
                 withLink(LinkAnnotation.Url("https://github.com/darkvoidz/TuneTable", linkStyles)) {
                     append("GitHub")
                 }
-                append("\n~YouTube Music & Listen Together Backend")
+                // The original app and its author, credited as the GPL asks of a
+                // modified version, and the AI help this one was made with.
+                append("\nBased on ")
+                withLink(LinkAnnotation.Url("https://github.com/kushagrasinghx/BitChord", linkStyles)) {
+                    append("BitChord")
+                }
+                append(" by ")
+                withLink(LinkAnnotation.Url("https://github.com/kushagrasinghx", linkStyles)) {
+                    append("kushagrasinghx")
+                }
+                append(" · GPLv3")
+                append("\nModified with the help of AI (Claude by Anthropic)")
             },
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,

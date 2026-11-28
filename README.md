@@ -11,7 +11,8 @@
 
 <br/>
 
-TuneTable is a modified version of [**BitChord**](https://github.com/kushagrasinghx/BitChord) by [kushagrasinghx](https://github.com/kushagrasinghx). [Support the original author ↓](#credits)
+TuneTable is a modified version of [**BitChord**](https://github.com/kushagrasinghx/BitChord), created by [**kushagrasinghx**](https://github.com/kushagrasinghx).<br/>
+All the credit for the app itself goes to BitChord's author and contributors. [Support the original author ↓](#credits)
 
 <br/>
 
@@ -48,8 +49,11 @@ TuneTable is a modified version of [**BitChord**](https://github.com/kushagrasin
 
 </div>
 
+> [!NOTE]
+> **Made with AI.** TuneTable's changes to BitChord — its new design and the code behind it — were made with the help of AI (Claude by Anthropic), directed and reviewed by [darkvoidz](https://github.com/darkvoidz). See [NOTICE.md](NOTICE.md) for what was changed.
+
 > [!IMPORTANT]
-> TuneTable is not affiliated with, endorsed by, or connected to YouTube or Google in any way. Use it at your own discretion.
+> TuneTable is not affiliated with, endorsed by, or connected to YouTube or Google in any way, nor with the original BitChord project. Use it at your own discretion.
 
 ---
 
@@ -177,7 +181,7 @@ Sideloading requires enabling "Install unknown apps" for whichever app you downl
 
 <h1><a id="credits"></a>Credits</h1>
 
-TuneTable is built on [**BitChord**](https://github.com/kushagrasinghx/BitChord), created by [kushagrasinghx](https://github.com/kushagrasinghx) and its [contributors](https://github.com/kushagrasinghx/BitChord/graphs/contributors). Nearly everything that makes the app work is their doing.
+TuneTable is a fork of [**BitChord**](https://github.com/kushagrasinghx/BitChord), created by [kushagrasinghx](https://github.com/kushagrasinghx) and its [contributors](https://github.com/kushagrasinghx/BitChord/graphs/contributors). Nearly everything that makes the app work — playback, sources, lyrics, downloads, accounts and more — is their doing. TuneTable changes its design and presentation, with the help of AI; see [NOTICE.md](NOTICE.md).
 
 If you'd like to support the original BitChord author, you can do so here:
 
@@ -212,6 +216,6 @@ TuneTable is an independent, community-driven third-party audio player and clien
 
 <h1><a id="license"></a>License</h1>
 
-This project is licensed under the **GNU General Public License v3.0 (GPLv3)**, as is BitChord, which it is based on. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the **GNU General Public License v3.0 (GPLv3)**, as is BitChord, which it is based on. See the [LICENSE](LICENSE) file for details, and [NOTICE.md](NOTICE.md) for what was changed and how.
 
 </div>
