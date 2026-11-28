@@ -59,25 +59,55 @@ TuneTable is a modified version of [**BitChord**](https://github.com/kushagrasin
 
 </div>
 
-- **Spotify-style now playing screen** — big cover art, bold title with a heart to like, shuffle and repeat beside a round play button, and the cover's colour fading down to black behind it.
-- **Your own accent colour** — the app icon's coral-to-purple gradient, your phone's system colours, a set of presets, or any colour you pick. Highlights, switches, selected items and the app's background all follow it.
+#### Look and feel
+- **Your own accent colour** — the icon's coral-to-purple gradient, your phone's system colours, a set of presets, or any colour you pick. Highlights, switches, selected items and the app's background all follow it.
 - **Five styles** — choose how the accent dresses the app, in Settings → Appearance → Style:
   - **Subtle** — a hint of the accent in the backgrounds.
   - **Deep** — surfaces built from the accent's darkest shades, with pale accent icons.
   - **Glow** — a dark page lit by a soft glow of the accent, with gradient highlights.
   - **Duotone** — surfaces in the accent's second colour, highlights in its first.
-  - **Neon** — near-black pages, frosted charcoal menus and bars, and thin accent outlines on the bars, menus, buttons and the song that's playing, with line-drawn player controls.
-- **Player styles** — the now playing screen can follow the app's style or take one of its own (Subtle, Deep, Glow, Duotone, Neon), or Simple's blurred cover — mix and match in Settings → Appearance → Player style. Both pickers show a small preview of every option.
+  - **Neon** — near-black pages, frosted charcoal menus and bars, thin accent outlines on the bars, menus, buttons and the song that's playing, and line-drawn player controls.
+- **Previews in Settings** — Style, Player style and App icon each show a small preview of every option, in your own accent.
+- **Progressive blur** — what scrolls under the status bar and behind the mini player and tab bar is softly blurred.
+- **A new icon** — TuneTable's two Ts on a dark vinyl record, with four more versions to pick from, and a themed version that takes your wallpaper's colours on Android 13 and later.
+
+#### Now playing
+- **Spotify-style now playing screen** — big cover art, bold title with a heart to like, shuffle and repeat beside a round play button.
+- **Player styles** — the player can follow the app's style, take one of its own (Subtle, Deep, Glow, Duotone, Neon), or use Simple's blurred cover. Mix and match in Settings → Appearance → Player style.
+- **Redesigned Audio output and Cast** — the output picker, the Cast device list and the song menus match the rest of the app.
+
+#### Home and library
+- **A new Home** — TuneTable's mark at the top, a greeting for the time of day, filters for songs, videos and mixes, your playlists one tap away, a "Jump back in" card for what you were last playing, and recently played as a grid.
+- **Folding bars** — scroll down and the tab bar folds into a single button at the bottom-left while the mini player slides in beside it; scroll up and both unfold.
 - **Album, playlist and artist pages that follow your style** — the page, Play button and the buttons beside it take the style's colours instead of the cover's.
 - **Spotify playlists in your Playlists** — signed in to Spotify, its playlists sit alongside your YouTube Music ones.
-- **Progressive blur** — what scrolls under the status bar and behind the mini player and tab bar is softly blurred.
-- **Redesigned Audio output and Cast** — the output picker, the Cast device list and the song menus match the rest of the app.
-- **A new Home** — a greeting for the time of day, filters for songs, videos and mixes, your playlists one tap away, a "Jump back in" card for the album or playlist you were last playing, and recently played as a grid.
-- **Folding bars** — scroll down and the tab bar folds into a single button at the bottom-left while the mini player slides in beside it; scroll up and both unfold.
+
+#### And more
 - **Redesigned Settings** — cards washed in your accent, round gradient icons and clearer section headings.
-- **A cleaner, solid look** — the frosted-glass effects are gone.
-- **A new icon** — TuneTable's two Ts on a dark vinyl record, with four more versions (Record, Grooves, Solid, Label) to pick from in Settings → Appearance → App icon.
+- **Its own app** — TuneTable installs alongside BitChord and updates itself from this repository's releases.
 - **Smaller touches** — a heart for Like everywhere, sliding page transitions and a tidier account menu.
+
+<div align="center">
+
+<br/>
+
+<img src="docs/readme/settings-appearance.png" alt="TuneTable's Appearance settings, with previews for Style, Player style and App icon" width="260" />
+
+<br/><br/>
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/readme/appicon-dark-vinyl.png" alt="Dark vinyl app icon" width="72" /><br/><sub>Dark vinyl</sub></td>
+    <td align="center"><img src="docs/readme/appicon-record.png" alt="Record app icon" width="72" /><br/><sub>Record</sub></td>
+    <td align="center"><img src="docs/readme/appicon-grooves.png" alt="Grooves app icon" width="72" /><br/><sub>Grooves</sub></td>
+    <td align="center"><img src="docs/readme/appicon-solid.png" alt="Solid app icon" width="72" /><br/><sub>Solid</sub></td>
+    <td align="center"><img src="docs/readme/appicon-label.png" alt="Label app icon" width="72" /><br/><sub>Label</sub></td>
+  </tr>
+</table>
+
+<sub>The Appearance settings and the five app icons. Preview renders.</sub>
+
+</div>
 
 ---
 
@@ -113,7 +143,7 @@ TuneTable is a modified version of [**BitChord**](https://github.com/kushagrasin
 - **Animated album canvas** — motion artwork on the now-playing screen.
 - **Word-synced lyrics** — word/syllable-level highlighting from multiple sources.
 - **Lyrics providers** — credit to [lrc.red](https://lrc.red), [BiniLyrics](https://github.com/binimum), [BetterLyrics](https://github.com/better-lyrics/better-lyrics), [PaxSenix](https://lyrics.paxsenix.org), [LyricsPlus](https://github.com/ibratabian17/YouLyPlus), [SimpMusic](https://github.com/maxrave-dev/SimpMusic), [Unison](https://unison.boidu.dev), [Megalobiz](https://www.megalobiz.com), [KuGou](https://www.kugou.com), [LRCLIB](https://lrclib.net), [Musixmatch](https://www.musixmatch.com) and [Genius](https://genius.com).
-- **Accent colours and styles** — choose the colour the whole app is tinted with, and one of five styles for how it is used.
+- **Accent colours and styles** — choose the colour the whole app is tinted with, one of five styles for how it is used, and a style for the player.
 
 #### Controls & Tweaks
 - **Per-network audio quality** — separate quality ceilings for Wi-Fi and mobile data.
