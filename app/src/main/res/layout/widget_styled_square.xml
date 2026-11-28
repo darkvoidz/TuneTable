@@ -32,7 +32,7 @@
             android:contentDescription="@string/widget_artwork"
             android:scaleType="fitXY" />
 
-            <View
+            <FrameLayout
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_weight="1" />
@@ -59,7 +59,7 @@
         </FrameLayout>
         </LinearLayout>
 
-        <View
+        <FrameLayout
             android:layout_width="1dp"
             android:layout_height="0dp"
             android:layout_weight="1" />

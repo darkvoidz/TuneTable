@@ -66,7 +66,7 @@
                 android:textSize="13sp" />
             </LinearLayout>
 
-            <View
+            <FrameLayout
                 android:layout_width="1dp"
                 android:layout_height="0dp"
                 android:layout_weight="1" />
@@ -84,7 +84,7 @@
             android:padding="8dp"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_widget_heart" />
-                <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
+                <FrameLayout android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
         <ImageView
             android:id="@+id/widget_previous"
             android:layout_width="36dp"
