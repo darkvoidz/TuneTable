@@ -1,5 +1,6 @@
 package com.music.bitchord.ui.player
 
+import com.music.bitchord.data.listentogether.listenTogetherAvailable
 import com.music.bitchord.wear.WearBridge
 import android.content.Context
 import android.database.ContentObserver
@@ -102,7 +103,10 @@ class AndroidPlayerHost(context: Context) : PlayerHost {
         override val disableBlendEffects get() = AppSettings.disableBlendEffects
         override val showNerdStats get() = AppSettings.showNerdStats
         override val showBestPart get() = AppSettings.showBestPart
-        override val showListenTogetherButton get() = AppSettings.showListenTogetherButton
+        // Never shown in a build without a party server — see listenTogetherAvailable.
+        override val showListenTogetherButton: kotlinx.coroutines.flow.StateFlow<Boolean> get() =
+            if (listenTogetherAvailable) AppSettings.showListenTogetherButton
+            else kotlinx.coroutines.flow.MutableStateFlow(false)
         override val smartAnalysis get() = AppSettings.smartAnalysis
         override val automixDetail get() = AppSettings.automixDetail
         override val smartFadeEnabled get() = AppSettings.smartFadeEnabled

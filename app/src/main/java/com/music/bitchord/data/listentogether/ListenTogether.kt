@@ -161,6 +161,13 @@ val ServerConnectionState.health: ListenTogether.Health
  * can do is refuse anyone without the token it minted, which is why the token
  * is stored and never shown.
  */
+/**
+ * Whether this build offers Listen Together at all: only when it was built with
+ * a party server (`LISTEN_TOGETHER_SERVER`). Without one every way into it is
+ * hidden. Top-level, so asking doesn't start [ListenTogether] itself.
+ */
+val listenTogetherAvailable: Boolean get() = BuildConfig.LISTEN_TOGETHER_SERVER.isNotBlank()
+
 object ListenTogether {
 
     enum class Connection { OFFLINE, CONNECTING, LIVE }

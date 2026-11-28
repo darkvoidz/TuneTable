@@ -1,5 +1,6 @@
 package com.music.bitchord.ui.screens
 
+import com.music.bitchord.data.listentogether.listenTogetherAvailable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.foundation.border
 import androidx.compose.ui.graphics.Brush
@@ -498,7 +499,7 @@ fun SettingsScreen(
                 // five signed-in people, and being signed in is the whole of what
                 // the row needs before it will do anything.
                 val listenTogetherTitle = stringResource(R.string.listen_together)
-                row(listenTogetherTitle, "jam", "party", "sync", "friends") {
+                if (listenTogetherAvailable) row(listenTogetherTitle, "jam", "party", "sync", "friends") {
                     SettingsRow(
                         icon = SfIcons.Groups,
                         title = listenTogetherTitle,
@@ -1781,7 +1782,7 @@ fun SettingsScreen(
                 )
             }
             val listenTogetherButtonTitle = stringResource(R.string.show_listen_together_button)
-            row(listenTogetherButtonTitle, "party", "jam", "output", "headphones", "player") {
+            if (listenTogetherAvailable) row(listenTogetherButtonTitle, "party", "jam", "output", "headphones", "player") {
                 SettingsRow(
                     icon = SfIcons.Groups,
                     title = listenTogetherButtonTitle,

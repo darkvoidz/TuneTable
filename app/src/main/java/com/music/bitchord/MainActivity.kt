@@ -1,5 +1,6 @@
 package com.music.bitchord
 
+import com.music.bitchord.data.listentogether.listenTogetherAvailable
 import com.music.bitchord.data.settings.PlayerTheme
 import com.music.bitchord.ui.theme.AccentStyle
 import com.music.bitchord.ui.theme.PlayerAccent
@@ -1000,6 +1001,8 @@ private fun BitChordApp(
     // then let that page join once an account is available. Keeping the code
     // here lets a sign-in round trip return to the invite it started from.
     LaunchedEffect(incomingJamInvite) {
+        // A build without a party server has no Listen Together to open.
+        if (!listenTogetherAvailable) return@LaunchedEffect
         val invite = incomingJamInvite ?: return@LaunchedEffect
         activeJamInviteCode = invite.code
         activeJamInviteServer = invite.serverUrl
