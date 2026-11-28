@@ -316,7 +316,7 @@ fun FloatingBottomBar(
                         scaleY = 1f - lag * STRETCH * SQUASH
                     }
                     .clip(pillShape)
-                    // The selected tab sits in a circle of Aural's accent.
+                    // The selected tab sits in a circle of TuneTable's accent.
                     .background(Accent.brush),
             )
         }

@@ -1839,10 +1839,8 @@ fun SettingsScreen(
                     onClick = { AppSettings.setShowNerdStats(!nerdStats) },
                 )
             }
-            // The alternate launcher icons still carry BitChord's old artwork, so
-            // the picker stays hidden until there are Aural versions to offer.
             val appIconTitle = stringResource(R.string.app_icon)
-            if (SHOW_APP_ICON_PICKER) row(appIconTitle, "icon", "launcher", "logo") {
+            row(appIconTitle, "icon", "launcher", "logo") {
                 var selectedIcon by remember { mutableStateOf(AppIcon.current(context)) }
                 SettingsRow(icon = SfIcons.Apps, title = appIconTitle)
                 Row(
@@ -1929,7 +1927,7 @@ fun SettingsScreen(
         if (section == null && searchQuery.isBlank()) {
         Text(
             text = buildAnnotatedString {
-                append("Aural $version  ")
+                append("TuneTable $version  ")
                 val linkStyles = TextLinkStyles(
                     style = SpanStyle(
                         color = MaterialTheme.colorScheme.primary,
@@ -3331,6 +3329,3 @@ private fun AccentStyle.localizedLabel(): String = stringResource(
         AccentStyle.NEON -> R.string.accent_style_neon
     },
 )
-
-/** Off until the alternate launcher icons are redrawn in Aural's art. */
-private const val SHOW_APP_ICON_PICKER = false

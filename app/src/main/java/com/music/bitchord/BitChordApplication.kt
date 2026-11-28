@@ -232,7 +232,7 @@ class BitChordApplication : Application(), SingletonImageLoader.Factory, Configu
                     chain.request().newBuilder()
                         .header(
                             "User-Agent",
-                            "Aural/${BuildConfig.VERSION_NAME} (Android; +https://github.com/darkvoidz/TuneTable)",
+                            "TuneTable/${BuildConfig.VERSION_NAME} (Android; +https://github.com/darkvoidz/TuneTable)",
                         )
                         .build(),
                 )

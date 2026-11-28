@@ -182,7 +182,7 @@ fun FrostedTopBar(
      * Root tabs have no back button there for it to collide with.
      */
     accessory: (@Composable () -> Unit)? = null,
-    /** Aural's mark at the leading end, opposite the actions — Home only. */
+    /** TuneTable's mark at the leading end, opposite the actions — Home only. */
     leadingMark: Boolean = false,
     actions: @Composable () -> Unit = {},
 ) {
@@ -317,7 +317,7 @@ fun FrostedTopBar(
                     }
                 }
             }
-            // Home's top-left: Aural's two Ts, on their own, across from
+            // Home's top-left: TuneTable's two Ts, on their own, across from
             // the profile photo.
             if (leadingMark && onBack == null) {
                 Image(

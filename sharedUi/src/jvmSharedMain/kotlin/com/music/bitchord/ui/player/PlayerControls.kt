@@ -768,7 +768,7 @@ internal fun TransportRow(
     }
 }
 
-/** The lit colour of shuffle, repeat and the liked heart: Aural's accent. */
+/** The lit colour of shuffle, repeat and the liked heart: TuneTable's accent. */
 internal val PlayerActiveGreen: Color get() =
     if (PlayerAccent.style == AccentStyle.GLOW) PlayerAccent.Solid else PlayerAccent.Icon
 

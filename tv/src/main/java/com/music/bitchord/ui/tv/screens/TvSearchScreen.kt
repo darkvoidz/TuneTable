@@ -270,7 +270,7 @@ private fun LazyListScope.idleContent(
     if (history.isEmpty()) {
         item(key = "idleEmpty") {
             TvEmptyState(
-                title = "Search Aural",
+                title = "Search TuneTable",
                 message = "Find songs, albums, artists and playlists.",
                 modifier = Modifier.height(240.dp),
             )

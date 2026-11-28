@@ -83,7 +83,7 @@ fun IosSwitch(
     )
     val track by animateColorAsState(
         targetValue = when {
-            // Aural's accent rather than iOS green.
+            // TuneTable's accent rather than iOS green.
             checked -> Accent.Fill
             else -> Color(0xFF8E8E93).copy(alpha = if (dark) 0.36f else 0.22f)
         },
