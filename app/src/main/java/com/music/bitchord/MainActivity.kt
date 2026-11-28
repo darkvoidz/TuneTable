@@ -629,7 +629,6 @@ private fun BitChordApp(
     // solid (see [Modifier.liquidGlass]) and the whole-page layer recording
     // below goes with them, which is the part that costs a draw pass.
     val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-    val progressiveBlur by AppSettings.progressiveBlur.collectAsStateWithLifecycle()
     val glassSamplesBackdrop = glassActive && !reduceDynamicBlur
     // What folds [GlassNavBar] between its expanded and inline shapes. Held here
     // rather than inside the bar because the page's scroll is what drives it,

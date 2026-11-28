@@ -10,7 +10,7 @@ import android.content.pm.PackageManager
  * Every one is TuneTable's two slanted Ts on a record: Default is the dark
  * vinyl; the rest dress the record differently.
  */
-enum class AppIcon(val alias: String, val iconRes: Int, val labelRes: Int, val previewRes: Int? = null) {
+enum class AppIcon(val alias: String, val iconRes: Int, val labelRes: Int) {
     Default("LauncherDefault", R.mipmap.ic_launcher, R.string.app_icon_default),
     Record("LauncherRecord", R.mipmap.ic_icon_record, R.string.app_icon_record),
     Grooves("LauncherGrooves", R.mipmap.ic_icon_grooves, R.string.app_icon_grooves),
