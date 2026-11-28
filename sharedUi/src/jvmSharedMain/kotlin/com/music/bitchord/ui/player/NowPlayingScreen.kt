@@ -26,7 +26,8 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.snap
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.Job
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.VectorConverter
@@ -1504,18 +1505,25 @@ fun NowPlayingScreen(
     // player just to hand the spring a new target, when the only readers are
     // draw-phase layers.
     val swipeSettle = remember { Animatable(0f) }
-    val swipeTargets = remember { Channel<Float>(Channel.CONFLATED) }
-    LaunchedEffect(swipeTargets) {
-        for (target in swipeTargets) {
-            val newest = swipeTargets.tryReceive().getOrNull() ?: target
-            launch {
-                if (newest != swipeSettle.targetValue) {
-                    swipeSettle.animateTo(newest, spring(stiffness = Spring.StiffnessMediumLow))
-                }
-            }
+    // One owner for the sleeve's offset at a time. The finger moves it 1:1;
+    // letting go hands it to [swipeSettleJob], which a new touch cancels.
+    // Everything goes through [infoScope] in the order it happened, so a late
+    // drag update can never land after the release and park the sleeve
+    // half off the screen.
+    val swipeSettleJob = remember { arrayOfNulls<Job>(1) }
+    val setSwipeOffset: (Float) -> Unit = { offset ->
+        swipeSettleJob[0]?.cancel()
+        swipeSettleJob[0] = infoScope.launch { swipeSettle.snapTo(offset) }
+    }
+    val springSwipeHome: () -> Unit = {
+        swipeSettleJob[0]?.cancel()
+        swipeSettleJob[0] = infoScope.launch {
+            swipeSettle.animateTo(0f, spring(dampingRatio = 0.85f, stiffness = Spring.StiffnessMediumLow))
         }
     }
-    val setSwipeOffset: (Float) -> Unit = { swipeTargets.trySend(it) }
+    // The song on screen, read from the settle below to know when the new
+    // one has actually arrived.
+    val shownSongKey = rememberUpdatedState(song.videoId to song.queueEntryId)
 
     // The sleeve holds its size whether playing or paused.
     val artScale by animateFloatAsState(
@@ -1899,7 +1907,7 @@ fun NowPlayingScreen(
             },
             onDragCancel = {
                 if (!acceptsDrag) return@detectHorizontalDragGestures
-                setSwipeOffset(0f)
+                springSwipeHome()
                 infoTransition.cancelDrag()
             },
             onDragEnd = {
@@ -1915,15 +1923,23 @@ fun NowPlayingScreen(
                     released >= swipeThreshold && !previousRestarts() -> 1
                     else -> 0
                 }
+                // The title and the transport go at once; the sleeve follows.
+                releaseInfoDrag(released)
                 if (leave == 0) {
-                    releaseInfoDrag(released)
-                    setSwipeOffset(0f)
+                    springSwipeHome()
                 } else {
                     val width = size.width.toFloat()
-                    infoScope.launch {
-                        swipeSettle.animateTo(leave * width, tween(durationMillis = 150, easing = FastOutLinearInEasing))
-                        releaseInfoDrag(released)
-                        swipeSettle.snapTo(-leave * width * 0.6f)
+                    val from = shownSongKey.value
+                    swipeSettleJob[0]?.cancel()
+                    swipeSettleJob[0] = infoScope.launch {
+                        swipeSettle.animateTo(leave * width, tween(durationMillis = 160, easing = FastOutLinearInEasing))
+                        // Off screen until the new song is the one showing, so
+                        // the old cover never slides back in as if it were new.
+                        // A skip that never lands brings the old one home.
+                        val arrived = withTimeoutOrNull(SWIPE_ARRIVAL_TIMEOUT_MS) {
+                            snapshotFlow { shownSongKey.value }.first { it != from }
+                        } != null
+                        swipeSettle.snapTo(if (arrived) -leave * width * 0.6f else leave * width)
                         swipeSettle.animateTo(0f, spring(dampingRatio = 0.85f, stiffness = Spring.StiffnessMediumLow))
                     }
                 }
@@ -4878,3 +4894,6 @@ private suspend fun AwaitPointerEventScope.dragQueueIn(
     onHold(false)
     onSettle(open)
 }
+
+/** How long a committed swipe keeps the sleeve off screen waiting for the new song. */
+private const val SWIPE_ARRIVAL_TIMEOUT_MS = 5_000L

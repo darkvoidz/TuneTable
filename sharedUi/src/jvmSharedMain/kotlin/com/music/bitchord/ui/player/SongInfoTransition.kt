@@ -22,7 +22,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private const val SONG_INFO_SLIDE_MS = 280
-private const val SONG_INFO_CONFIRM_MS = 1_000L
+private const val SONG_INFO_CONFIRM_MS = 5_000L
 
 /** Queue occurrences, not just recordings: the same recording can appear twice. */
 private fun Song.infoKey(): Pair<String, String?> = videoId to queueEntryId
