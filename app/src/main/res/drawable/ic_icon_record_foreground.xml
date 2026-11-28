@@ -1,0 +1,30 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Record: the two slanted Ts inside a thin record. -->
+    <path android:strokeWidth="4" android:strokeAlpha="0.55" android:pathData="M28,54a26,26 0 1,0 52,0a26,26 0 1,0 -52,0">
+                <aapt:attr name="android:strokeColor">
+                    <gradient android:type="linear" android:startX="0" android:startY="30" android:endX="0" android:endY="80">
+                        <item android:offset="0" android:color="#FFFFFFFF" />
+                        <item android:offset="1" android:color="#FFBDBDC4" />
+                    </gradient>
+                </aapt:attr>
+    </path>
+    <!-- The two slanted Ts. -->
+    <group android:pivotX="54" android:pivotY="54" android:rotation="-30"
+        android:scaleX="0.62" android:scaleY="0.62"
+        android:translateX="0.701" android:translateY="-0.490">
+        <path android:strokeWidth="10" android:strokeLineCap="round" android:strokeLineJoin="round"
+            android:pathData="M34,42L56,42M45,42L45,62M52,56L74,56M63,56L63,76">
+                <aapt:attr name="android:strokeColor">
+                    <gradient android:type="linear" android:startX="0" android:startY="30" android:endX="0" android:endY="80">
+                        <item android:offset="0" android:color="#FFFFFFFF" />
+                        <item android:offset="1" android:color="#FFBDBDC4" />
+                    </gradient>
+                </aapt:attr>
+        </path>
+    </group>
+</vector>

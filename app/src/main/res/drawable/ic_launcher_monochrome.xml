@@ -1,0 +1,14 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Themed (monochrome) icon: a record ring and the two Ts, as a silhouette. -->
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="4" android:pathData="M28,54a26,26 0 1,0 52,0a26,26 0 1,0 -52,0" />
+    <group android:pivotX="54" android:pivotY="54" android:rotation="-30"
+        android:scaleX="0.6" android:scaleY="0.6" android:translateX="0.678" android:translateY="-0.474">
+        <path android:strokeColor="#FFFFFFFF" android:strokeWidth="10" android:strokeLineCap="round"
+            android:strokeLineJoin="round" android:pathData="M34,42L56,42M45,42L45,62M52,56L74,56M63,56L63,76" />
+    </group>
+</vector>

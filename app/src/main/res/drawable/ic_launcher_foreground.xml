@@ -4,31 +4,22 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Two offset Ts, for TuneTable, set on a slant. -->
-    <group
-        android:translateX="1.13"
-        android:translateY="-0.79">
-        <group
-            android:rotation="-30"
-            android:pivotX="54"
-            android:pivotY="54">
-            <path
-                android:strokeWidth="10"
-                android:strokeLineCap="round"
-                android:strokeLineJoin="round"
-                android:pathData="M34,42L56,42M45,42L45,62M52,56L74,56M63,56L63,76">
+    <!-- Dark vinyl, the default: a near-black record with the two slanted Ts as its label. -->
+    <path android:fillColor="#FF141016" android:pathData="M27,54a27,27 0 1,0 54,0a27,27 0 1,0 -54,0" />
+    <path android:strokeColor="#1FFFFFFF" android:strokeWidth="1.2" android:pathData="M32,54a22,22 0 1,0 44,0a22,22 0 1,0 -44,0" />
+    <path android:strokeColor="#1FFFFFFF" android:strokeWidth="1.2" android:pathData="M37,54a17,17 0 1,0 34,0a17,17 0 1,0 -34,0" />
+    <!-- The two slanted Ts. -->
+    <group android:pivotX="54" android:pivotY="54" android:rotation="-30"
+        android:scaleX="0.55" android:scaleY="0.55"
+        android:translateX="0.621" android:translateY="-0.435">
+        <path android:strokeWidth="10" android:strokeLineCap="round" android:strokeLineJoin="round"
+            android:pathData="M34,42L56,42M45,42L45,62M52,56L74,56M63,56L63,76">
                 <aapt:attr name="android:strokeColor">
-                    <gradient
-                        android:type="linear"
-                        android:startX="0"
-                        android:startY="30"
-                        android:endX="0"
-                        android:endY="80">
+                    <gradient android:type="linear" android:startX="0" android:startY="30" android:endX="0" android:endY="80">
                         <item android:offset="0" android:color="#FFFFFFFF" />
                         <item android:offset="1" android:color="#FFBDBDC4" />
                     </gradient>
                 </aapt:attr>
-            </path>
-        </group>
+        </path>
     </group>
 </vector>

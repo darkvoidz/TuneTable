@@ -76,7 +76,8 @@ TuneTable is a modified version of [**BitChord**](https://github.com/kushagrasin
 - **Folding bars** — scroll down and the tab bar folds into a single button at the bottom-left while the mini player slides in beside it; scroll up and both unfold.
 - **Redesigned Settings** — cards washed in your accent, round gradient icons and clearer section headings.
 - **A cleaner, solid look** — the frosted-glass effects are gone.
-- **Smaller touches** — a heart for Like everywhere, sliding page transitions, a tidier account menu, and a new icon.
+- **A new icon** — TuneTable's two Ts on a dark vinyl record, with four more versions (Record, Grooves, Solid, Label) to pick from in Settings → Appearance → App icon.
+- **Smaller touches** — a heart for Like everywhere, sliding page transitions and a tidier account menu.
 
 ---
 
