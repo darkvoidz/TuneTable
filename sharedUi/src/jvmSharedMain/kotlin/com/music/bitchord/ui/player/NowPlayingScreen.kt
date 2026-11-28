@@ -1,5 +1,6 @@
 package com.music.bitchord.ui.player
 
+import androidx.compose.animation.core.FastOutLinearInEasing
 import com.music.bitchord.ui.theme.PlayerAccent
 import com.music.bitchord.ui.theme.withLightness
 import com.music.bitchord.ui.theme.AccentStyle
@@ -1903,14 +1904,35 @@ fun NowPlayingScreen(
             },
             onDragEnd = {
                 if (!acceptsDrag) return@detectHorizontalDragGestures
-                releaseInfoDrag(total)
-                setSwipeOffset(0f)
+                val released = total
+                // Which way the sleeve leaves, if the swipe is going to change
+                // the song: off the side it was pushed, the next one coming in
+                // from the other. A swipe that falls short, a locked player, or
+                // a previous that would only restart the song springs back.
+                val leave = when {
+                    controlsLocked -> 0
+                    released <= -swipeThreshold && hasNext -> -1
+                    released >= swipeThreshold && !previousRestarts() -> 1
+                    else -> 0
+                }
+                if (leave == 0) {
+                    releaseInfoDrag(released)
+                    setSwipeOffset(0f)
+                } else {
+                    val width = size.width.toFloat()
+                    infoScope.launch {
+                        swipeSettle.animateTo(leave * width, tween(durationMillis = 150, easing = FastOutLinearInEasing))
+                        releaseInfoDrag(released)
+                        swipeSettle.snapTo(-leave * width * 0.6f)
+                        swipeSettle.animateTo(0f, spring(dampingRatio = 0.85f, stiffness = Spring.StiffnessMediumLow))
+                    }
+                }
             },
             onHorizontalDrag = { _, delta ->
                 if (!acceptsDrag) return@detectHorizontalDragGestures
                 total += delta
-                // Damped: it's a hint, not a drag-to-position.
-                setSwipeOffset(total * 0.35f)
+                // The sleeve follows the finger, as the title does.
+                setSwipeOffset(total)
                 infoTransition.dragBy(total)
             },
         )
