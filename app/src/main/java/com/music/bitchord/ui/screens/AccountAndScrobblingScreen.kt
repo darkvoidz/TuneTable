@@ -1,5 +1,6 @@
 package com.music.bitchord.ui.screens
 
+import com.music.bitchord.BuildConfig
 import com.music.bitchord.ui.icons.SfIcons
 import com.music.bitchord.auth.clearSpotifyWebSession
 import androidx.compose.foundation.layout.Column
@@ -200,79 +201,84 @@ fun AccountAndScrobblingScreen(
                         onClick = { AppSettings.setListenBrainzPrimaryArtistOnly(!listenBrainzPrimaryArtistOnly) },
                     )
                 }
-                RowDivider()
-                SettingsRow(
-                    icon = SfIcons.History,
-                    title = "Last.fm",
-                    subtitle = if (lastfmSessionKey.isNotBlank()) {
-                        stringResource(R.string.signed_in_as, lastfmUsername)
-                    } else {
-                        stringResource(R.string.tap_to_sign_in)
-                    },
-                    trailing = {
-                        IosSwitch(
-                            checked = lastfmEnabled,
-                            onCheckedChange = { checked ->
-                                if (checked && lastfmSessionKey.isBlank()) {
-                                    onOpenLastfmLogin()
-                                } else {
-                                    AppSettings.setLastfmEnabled(checked)
-                                }
-                            },
-                        )
-                    },
-                    onClick = {
-                        if (lastfmSessionKey.isNotBlank()) {
-                            AppSettings.setLastfmSessionKey("")
-                            AppSettings.setLastfmUsername("")
-                            AppSettings.setLastfmEnabled(false)
-                            AppSettings.setLastfmScrobbleEnabled(false)
-                            AppSettings.setLastfmNowPlaying(false)
+                // Last.fm needs an API key built into the app (the LASTFM_API_KEY
+                // and LASTFM_SECRET secrets). Without one it cannot sign in, so it
+                // stays hidden until a build that has one.
+                if (BuildConfig.LASTFM_API_KEY.isNotBlank()) {
+                    RowDivider()
+                    SettingsRow(
+                        icon = SfIcons.History,
+                        title = "Last.fm",
+                        subtitle = if (lastfmSessionKey.isNotBlank()) {
+                            stringResource(R.string.signed_in_as, lastfmUsername)
                         } else {
-                            onOpenLastfmLogin()
-                        }
-                    },
-                )
-                if (lastfmEnabled && lastfmSessionKey.isNotBlank()) {
-                    RowDivider()
-                    SettingsRow(
-                        icon = SfIcons.GraphicEq,
-                        title = stringResource(R.string.scrobble_tracks),
-                        subtitle = stringResource(R.string.scrobble_tracks_subtitle),
+                            stringResource(R.string.tap_to_sign_in)
+                        },
                         trailing = {
                             IosSwitch(
-                                checked = lastfmScrobbleEnabled,
-                                onCheckedChange = AppSettings::setLastfmScrobbleEnabled,
+                                checked = lastfmEnabled,
+                                onCheckedChange = { checked ->
+                                    if (checked && lastfmSessionKey.isBlank()) {
+                                        onOpenLastfmLogin()
+                                    } else {
+                                        AppSettings.setLastfmEnabled(checked)
+                                    }
+                                },
                             )
                         },
-                        onClick = { AppSettings.setLastfmScrobbleEnabled(!lastfmScrobbleEnabled) },
-                    )
-                    RowDivider()
-                    SettingsRow(
-                        icon = SfIcons.GraphicEq,
-                        title = stringResource(R.string.scrobble_primary_artist_only),
-                        subtitle = stringResource(R.string.scrobble_primary_artist_only_subtitle),
-                        trailing = {
-                            IosSwitch(
-                                checked = lastfmPrimaryArtistOnly,
-                                onCheckedChange = AppSettings::setLastfmPrimaryArtistOnly,
-                            )
+                        onClick = {
+                            if (lastfmSessionKey.isNotBlank()) {
+                                AppSettings.setLastfmSessionKey("")
+                                AppSettings.setLastfmUsername("")
+                                AppSettings.setLastfmEnabled(false)
+                                AppSettings.setLastfmScrobbleEnabled(false)
+                                AppSettings.setLastfmNowPlaying(false)
+                            } else {
+                                onOpenLastfmLogin()
+                            }
                         },
-                        onClick = { AppSettings.setLastfmPrimaryArtistOnly(!lastfmPrimaryArtistOnly) },
                     )
-                    RowDivider()
-                    SettingsRow(
-                        icon = SfIcons.GraphicEq,
-                        title = stringResource(R.string.now_playing),
-                        subtitle = stringResource(R.string.lastfm_now_playing_subtitle),
-                        trailing = {
-                            IosSwitch(
-                                checked = lastfmNowPlayingEnabled,
-                                onCheckedChange = AppSettings::setLastfmNowPlaying,
-                            )
-                        },
-                        onClick = { AppSettings.setLastfmNowPlaying(!lastfmNowPlayingEnabled) },
-                    )
+                    if (lastfmEnabled && lastfmSessionKey.isNotBlank()) {
+                        RowDivider()
+                        SettingsRow(
+                            icon = SfIcons.GraphicEq,
+                            title = stringResource(R.string.scrobble_tracks),
+                            subtitle = stringResource(R.string.scrobble_tracks_subtitle),
+                            trailing = {
+                                IosSwitch(
+                                    checked = lastfmScrobbleEnabled,
+                                    onCheckedChange = AppSettings::setLastfmScrobbleEnabled,
+                                )
+                            },
+                            onClick = { AppSettings.setLastfmScrobbleEnabled(!lastfmScrobbleEnabled) },
+                        )
+                        RowDivider()
+                        SettingsRow(
+                            icon = SfIcons.GraphicEq,
+                            title = stringResource(R.string.scrobble_primary_artist_only),
+                            subtitle = stringResource(R.string.scrobble_primary_artist_only_subtitle),
+                            trailing = {
+                                IosSwitch(
+                                    checked = lastfmPrimaryArtistOnly,
+                                    onCheckedChange = AppSettings::setLastfmPrimaryArtistOnly,
+                                )
+                            },
+                            onClick = { AppSettings.setLastfmPrimaryArtistOnly(!lastfmPrimaryArtistOnly) },
+                        )
+                        RowDivider()
+                        SettingsRow(
+                            icon = SfIcons.GraphicEq,
+                            title = stringResource(R.string.now_playing),
+                            subtitle = stringResource(R.string.lastfm_now_playing_subtitle),
+                            trailing = {
+                                IosSwitch(
+                                    checked = lastfmNowPlayingEnabled,
+                                    onCheckedChange = AppSettings::setLastfmNowPlaying,
+                                )
+                            },
+                            onClick = { AppSettings.setLastfmNowPlaying(!lastfmNowPlayingEnabled) },
+                        )
+                    }
                 }
             }
 
