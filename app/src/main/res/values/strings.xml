@@ -395,7 +395,10 @@
     <string name="glass_performance">Better Performance for Glass</string>
     <string name="liquid_glass_unavailable">Requires Android 12 or newer</string>
     <string name="full_screen_cover_art">Full-screen cover art</string>
-    <string name="player_theme">Player theme</string>
+    <string name="player_theme">Player style</string>
+    <string name="player_style_follow">Follow theme</string>
+    <string name="player_style_follow_subtitle">Follows your app style — %1$s</string>
+    <string name="player_style_own_subtitle">A style for the player alone, whatever the app uses</string>
     <string name="player_theme_default">Default</string>
     <string name="player_theme_legacy">Legacy</string>
     <string name="player_theme_simple">Simple</string>

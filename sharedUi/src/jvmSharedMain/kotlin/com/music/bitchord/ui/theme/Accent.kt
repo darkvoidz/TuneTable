@@ -99,7 +99,10 @@ object Accent {
     }
 
     /** A plain icon drawn in the accent on a surface. */
-    val Icon: Color get() = when (style) {
+    val Icon: Color get() = iconFor(style)
+
+    /** [Icon] as [style] would draw it. */
+    fun iconFor(style: AccentStyle): Color = when (style) {
         AccentStyle.SUBTLE -> Start
         AccentStyle.DEEP -> Start.withLightness(0.80f)
         AccentStyle.GLOW -> Color.White
@@ -165,6 +168,25 @@ object Accent {
 
     /** The same run as an angle sweep, for a ring. */
     val sweep: Brush get() = Brush.sweepGradient(listOf(Start, End, Start))
+}
+
+/**
+ * The accent as the player draws it — Settings → Appearance → Player style.
+ * The player can take a style of its own; otherwise it follows [Accent.style].
+ */
+object PlayerAccent {
+    /** The style picked for the player alone; null to follow the app's. */
+    var override: AccentStyle? by mutableStateOf(null)
+
+    val style: AccentStyle get() = override ?: Accent.style
+    val outlined: Boolean get() = style == AccentStyle.NEON
+    val Icon: Color get() = Accent.iconFor(style)
+    val Start: Color get() = Accent.Start
+    val End: Color get() = Accent.End
+    val Solid: Color get() = Accent.Solid
+    val OnSolid: Color get() = Accent.OnSolid
+    val OutlineWidth: Dp get() = Accent.OutlineWidth
+    val brush: Brush get() = Accent.brush
 }
 
 /** Deep's fills: the accent's hue at this lightness. */

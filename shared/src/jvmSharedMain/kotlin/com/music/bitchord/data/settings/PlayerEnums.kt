@@ -27,13 +27,29 @@ enum class AudioQuality(
     ;
 }
 
-/** What the phone's main player stands on, below the artwork. */
+/**
+ * The player's style — Settings → Appearance → Player style: the app's own
+ * accent style ([FOLLOW]), one of the five chosen for the player alone, or the
+ * cover blurred across the screen ([SIMPLE]).
+ */
 enum class PlayerTheme {
-    /** The artwork's own colours hung off its bottom edge, as a mesh. */
-    DEFAULT,
+    /** Whichever accent style the app is in. */
+    FOLLOW,
 
-    /** v1.5's four quantised blobs, drifting behind the whole screen. */
-    LEGACY,
+    /** The cover's colour fading to black; a white Play disc. */
+    SUBTLE,
+
+    /** The cover's colour run into the accent's darkest shade; deep accent Play, pale accent icons. */
+    DEEP,
+
+    /** Dark, with the accent glowing behind the cover; gradient Play, white icons. */
+    GLOW,
+
+    /** The cover's colour washed with the accent's second colour; Play in its first. */
+    DUOTONE,
+
+    /** Near-black; a ring for Play and line icons. */
+    NEON,
 
     /** The cover blurred across the whole screen, as the lyrics and queue are. */
     SIMPLE,

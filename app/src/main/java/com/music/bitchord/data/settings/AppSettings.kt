@@ -678,19 +678,8 @@ object AppSettings {
     /** Shows the track's total duration at the end of the player scrubber. */
     val showTotalDuration = MutableStateFlow(true)
 
-    /**
-     * What the main player stands on below the artwork.
-     *
-     * [PlayerTheme.DEFAULT] because that is the look people asked to have back,
-     * and because the alternatives each give something up: see
-     * [ArtworkMesh][com.music.bitchord.ui.player.ArtworkMesh] for what
-     * [PlayerTheme.LEGACY]'s quantiser does to a cover that is nine-tenths black
-     * with a red stripe (a red screen), and
-     * [ArtworkMeshBackdrop][com.music.bitchord.ui.player.ArtworkMeshBackdrop] for
-     * its cost (blobs that drift are a full-screen blur redrawn while they move,
-     * where a mesh is drawn once per track and then composited).
-     */
-    val playerTheme = MutableStateFlow(PlayerTheme.DEFAULT)
+    /** The player's style — see [PlayerTheme]. Follows the app's accent style unless one is picked. */
+    val playerTheme = MutableStateFlow(PlayerTheme.FOLLOW)
 
     /** Restores the expanded player to the surface the listener left open. */
     val lastPlayerScreen = MutableStateFlow(LastPlayerScreen.MAIN)
@@ -1190,12 +1179,10 @@ object AppSettings {
         fullBleedArtwork.value = prefs.getBoolean(KEY_FULL_BLEED_ARTWORK, true)
         fullBleedDetailArtwork.value = prefs.getBoolean(KEY_FULL_BLEED_DETAIL_ARTWORK, false)
         showTotalDuration.value = prefs.getBoolean(KEY_SHOW_TOTAL_DURATION, true)
-        // The old legacy mesh switch answers until a theme has been picked.
+        // The retired Mesh and Legacy themes (and no choice at all) follow the app.
         playerTheme.value = runCatching {
             PlayerTheme.valueOf(prefs.getString(KEY_PLAYER_THEME, null).orEmpty())
-        }.getOrElse {
-            if (prefs.getBoolean(KEY_LEGACY_MESH_GRADIENT, false)) PlayerTheme.LEGACY else PlayerTheme.DEFAULT
-        }
+        }.getOrDefault(PlayerTheme.FOLLOW)
         lastPlayerScreen.value = runCatching {
             LastPlayerScreen.valueOf(
                 prefs.getString(KEY_LAST_PLAYER_SCREEN, null) ?: LastPlayerScreen.MAIN.name,
@@ -2537,7 +2524,6 @@ object AppSettings {
     private const val KEY_FULL_BLEED_DETAIL_ARTWORK = "full_bleed_detail_artwork"
     private const val KEY_SHOW_TOTAL_DURATION = "show_total_duration"
     private const val KEY_PLAYER_THEME = "player_theme"
-    private const val KEY_LEGACY_MESH_GRADIENT = "legacy_mesh_gradient"
     private const val KEY_LAST_PLAYER_SCREEN = "last_player_screen"
     private const val KEY_SYNCED_LYRICS = "synced_lyrics"
     private const val KEY_LYRICS_SOURCES = "lyrics_sources"

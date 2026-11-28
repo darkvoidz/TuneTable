@@ -1,5 +1,6 @@
 package com.music.bitchord.ui.player
 
+import com.music.bitchord.ui.theme.PlayerAccent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CastConnected
 import androidx.compose.material.icons.outlined.DirectionsCar
@@ -62,7 +63,7 @@ internal object NeonGlyphs {
 
 /** This glyph as Neon draws it — its hollow line version — or itself in any other style. */
 internal fun ImageVector.neon(): ImageVector {
-    if (!Accent.outlined) return this
+    if (!PlayerAccent.outlined) return this
     return when (this) {
         BitChordIcons.Shuffle -> NeonGlyphs.Shuffle
         BitChordIcons.Repeat -> NeonGlyphs.Repeat

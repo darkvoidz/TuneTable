@@ -1262,7 +1262,7 @@ fun SettingsScreen(
                 )
             }
             val playerThemeTitle = stringResource(R.string.player_theme)
-            row(playerThemeTitle, "background", "player", "mesh", "gradient", "legacy", "simple", "blur") {
+            row(playerThemeTitle, "background", "player", "style", "simple", "blur", "glow", "neon", "deep", "duotone") {
                 SettingsRow(
                     icon = SfIcons.Gradient,
                     title = playerThemeTitle,
@@ -2232,20 +2232,33 @@ private fun ThemeMode.localizedLabel(): String = stringResource(
 @Composable
 private fun PlayerTheme.localizedLabel(): String = stringResource(
     when (this) {
-        PlayerTheme.DEFAULT -> R.string.player_theme_default
-        PlayerTheme.LEGACY -> R.string.player_theme_legacy
+        PlayerTheme.FOLLOW -> R.string.player_style_follow
+        PlayerTheme.SUBTLE -> R.string.accent_style_subtle
+        PlayerTheme.DEEP -> R.string.accent_style_deep
+        PlayerTheme.GLOW -> R.string.accent_style_glow
+        PlayerTheme.DUOTONE -> R.string.accent_style_duotone
+        PlayerTheme.NEON -> R.string.accent_style_neon
         PlayerTheme.SIMPLE -> R.string.player_theme_simple
     },
 )
 
 @Composable
-private fun PlayerTheme.description(): String = stringResource(
-    when (this) {
-        PlayerTheme.DEFAULT -> R.string.player_theme_default_subtitle
-        PlayerTheme.LEGACY -> R.string.player_theme_legacy_subtitle
-        PlayerTheme.SIMPLE -> R.string.player_theme_simple_subtitle
-    },
-)
+private fun PlayerTheme.description(): String = when (this) {
+    PlayerTheme.FOLLOW -> stringResource(
+        R.string.player_style_follow_subtitle,
+        stringResource(
+            when (Accent.style) {
+                AccentStyle.SUBTLE -> R.string.accent_style_subtle
+                AccentStyle.DEEP -> R.string.accent_style_deep
+                AccentStyle.GLOW -> R.string.accent_style_glow
+                AccentStyle.DUOTONE -> R.string.accent_style_duotone
+                AccentStyle.NEON -> R.string.accent_style_neon
+            },
+        ),
+    )
+    PlayerTheme.SIMPLE -> stringResource(R.string.player_theme_simple_subtitle)
+    else -> stringResource(R.string.player_style_own_subtitle)
+}
 
 @Composable
 private fun AppFont.localizedLabel(): String = stringResource(

@@ -1,5 +1,8 @@
 package com.music.bitchord
 
+import com.music.bitchord.data.settings.PlayerTheme
+import com.music.bitchord.ui.theme.AccentStyle
+import com.music.bitchord.ui.theme.PlayerAccent
 import com.music.bitchord.ui.theme.styledPagePalette
 import com.music.bitchord.ui.components.menusSolid
 import androidx.compose.animation.core.spring
@@ -475,9 +478,20 @@ class MainActivity : AppCompatActivity() {
             // The accent chosen in Settings, handed to everything drawn in it.
             val accent = rememberAccentColors()
             val accentStyle by AppSettings.accentStyle.collectAsStateWithLifecycle()
+            val playerStyle by AppSettings.playerTheme.collectAsStateWithLifecycle()
             SideEffect {
                 Accent.colors = accent
                 Accent.style = accentStyle
+                // The player's own style, or null to follow the app's. Simple
+                // keeps Subtle's controls over its blurred cover.
+                PlayerAccent.override = when (playerStyle) {
+                    PlayerTheme.FOLLOW -> null
+                    PlayerTheme.SUBTLE, PlayerTheme.SIMPLE -> AccentStyle.SUBTLE
+                    PlayerTheme.DEEP -> AccentStyle.DEEP
+                    PlayerTheme.GLOW -> AccentStyle.GLOW
+                    PlayerTheme.DUOTONE -> AccentStyle.DUOTONE
+                    PlayerTheme.NEON -> AccentStyle.NEON
+                }
             }
             BitChordTheme(darkTheme = darkTheme, font = appFont, accent = accent.start, accentEnd = accent.end, style = accentStyle) {
                 // The glass surfaces sample this layer, and a layer records only

@@ -1,5 +1,7 @@
 package com.music.bitchord.ui.player
 
+import com.music.bitchord.ui.theme.PlayerAccent
+import com.music.bitchord.ui.theme.withLightness
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.geometry.Size
@@ -717,7 +719,7 @@ internal fun TransportRow(
                     contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator(
-                        color = if (Accent.outlined) Accent.Icon else Color.Black,
+                        color = PlayerDiscInk,
                         strokeWidth = 3.dp,
                         modifier = Modifier.size(if (compact) 22.dp else 28.dp),
                     )
@@ -768,19 +770,43 @@ internal fun TransportRow(
 
 /** The lit colour of shuffle, repeat and the liked heart: TuneTable's accent. */
 internal val PlayerActiveGreen: Color get() =
-    if (Accent.style == AccentStyle.GLOW) Accent.Solid else Accent.Icon
+    if (PlayerAccent.style == AccentStyle.GLOW) PlayerAccent.Solid else PlayerAccent.Icon
 
 /** A player toggle while it is off: soft white, or a dimmed accent under Neon. */
 internal val PlayerIdleInk: Color get() =
-    if (Accent.outlined) Accent.Icon.copy(alpha = 0.6f) else Color.White.copy(alpha = 0.85f)
+    when {
+        PlayerAccent.outlined -> PlayerAccent.Icon.copy(alpha = 0.6f)
+        PlayerAccent.style == AccentStyle.DEEP -> PlayerAccent.Icon.copy(alpha = 0.65f)
+        else -> Color.White.copy(alpha = 0.85f)
+    }
 
-/** The play button's disc: solid white, or an accent ring under Neon. */
-private fun Modifier.playDisc(): Modifier =
-    if (Accent.outlined) border(Accent.OutlineWidth, Accent.Start, CircleShape) else background(Color.White)
+/**
+ * The play button's disc, as the player's style draws it: white (Subtle), the
+ * accent's deep shade (Deep), its gradient (Glow), its first colour (Duotone),
+ * or a thin accent ring (Neon).
+ */
+private fun Modifier.playDisc(): Modifier = when (PlayerAccent.style) {
+    AccentStyle.NEON -> border(PlayerAccent.OutlineWidth, PlayerAccent.Start, CircleShape)
+    AccentStyle.DEEP -> background(PlayerAccent.Start.withLightness(0.42f))
+    AccentStyle.GLOW -> background(PlayerAccent.brush)
+    AccentStyle.DUOTONE -> background(PlayerAccent.Start)
+    AccentStyle.SUBTLE -> background(Color.White)
+}
+
+/** The glyph on [playDisc]. */
+internal val PlayerDiscInk: Color get() = when (PlayerAccent.style) {
+    AccentStyle.NEON -> PlayerAccent.Icon
+    AccentStyle.DEEP, AccentStyle.GLOW -> Color.White
+    AccentStyle.DUOTONE -> PlayerAccent.OnSolid
+    AccentStyle.SUBTLE -> Color.Black
+}
+
+/** Deep draws the player's glyphs in its pale accent, as Neon does in its own. */
+private val PlayerAccentInk: Boolean get() = PlayerAccent.outlined || PlayerAccent.style == AccentStyle.DEEP
 
 /** A round player control's rim: the glass edge, or an accent ring under Neon. */
 private fun Modifier.playerRim(shape: Shape): Modifier =
-    if (Accent.outlined) border(Accent.OutlineWidth, Accent.Start, shape) else glassRim(shape)
+    if (PlayerAccent.outlined) border(PlayerAccent.OutlineWidth, PlayerAccent.Start, shape) else glassRim(shape)
 
 /** The play/pause disc, and the glyph drawn on it. */
 private val PLAY_DISC_SIZE = 66.dp
@@ -1278,8 +1304,8 @@ private fun TransportGlyph(
         label = "transportAlpha",
     )
     val ink = when {
-        disc != null -> if (Accent.outlined) Accent.Icon else Color.Black
-        Accent.outlined -> Accent.Icon.copy(alpha = alpha)
+        disc != null -> PlayerDiscInk
+        PlayerAccentInk -> PlayerAccent.Icon.copy(alpha = alpha)
         else -> Color.White.copy(alpha = alpha)
     }
     // A press shrinks the disc a little, in place of the glyph's press circle.
@@ -1332,7 +1358,7 @@ private fun TransportGlyph(
                     .playDisc(),
             )
         }
-        val neonGlyph = if (Accent.outlined) {
+        val neonGlyph = if (PlayerAccent.outlined) {
             when (icon) {
                 Res.drawable.ic_player_previous -> NeonGlyphs.Previous
                 Res.drawable.ic_player_next -> NeonGlyphs.Next
@@ -1479,8 +1505,8 @@ private fun Pill(
             .height(BOTTOM_ACTION_SIZE)
             .clip(CircleShape)
             .then(
-                if (Accent.outlined) {
-                    Modifier.border(Accent.OutlineWidth, Accent.Start, CircleShape)
+                if (PlayerAccent.outlined) {
+                    Modifier.border(PlayerAccent.OutlineWidth, PlayerAccent.Start, CircleShape)
                 } else {
                     Modifier.background(Color.White.copy(alpha = 0.12f))
                 },
@@ -1664,9 +1690,9 @@ private fun PillSegment(
             .semantics { this.contentDescription = contentDescription },
         contentAlignment = Alignment.Center,
     ) {
-        val neon = Accent.outlined && !highlighted
+        val neon = PlayerAccentInk && !highlighted
         val tint = when {
-            neon -> Accent.Icon
+            neon -> PlayerAccent.Icon
             vibrant && chrome -> brightRowInk()
             !highlighted -> chromeWhite(0.75f)
             chrome -> Color.White.copy(alpha = CHROME_FULL_ALPHA)
@@ -1915,9 +1941,9 @@ private fun BottomGlyph(
         // layer above, which is blended as a whole.
         val chrome = LocalPlayerChrome.current && !highlighted
         // Neon draws the row plainly in its accent, out of the blend.
-        val neon = Accent.outlined && !highlighted
+        val neon = PlayerAccentInk && !highlighted
         val tint = when {
-            neon -> Accent.Icon
+            neon -> PlayerAccent.Icon
             vibrant && chrome -> brightRowInk()
             highlighted -> Color.White
             else -> chromeWhite(0.75f)

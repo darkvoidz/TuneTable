@@ -1,5 +1,8 @@
 package com.music.bitchord.ui.player
 
+import com.music.bitchord.ui.theme.PlayerAccent
+import com.music.bitchord.ui.theme.withLightness
+import com.music.bitchord.ui.theme.AccentStyle
 import com.music.bitchord.ui.components.menusSolid
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.unit.constrainHeight
@@ -389,17 +392,56 @@ private fun PlayerMeshBackdrop(
 @Composable
 private fun ArtworkGradientBackdrop(imageUrl: String?, modifier: Modifier = Modifier) {
     val palette = rememberArtworkPalette(imageUrl, dark = true, artPx = ART_PX)
-    val top = palette.wash
+    val cover = palette.wash
+    // The player's style: the cover's colour fading to black (Subtle), into the
+    // accent's darkest shade (Deep), washed with its second colour (Duotone);
+    // or the cover left out for a dark player lit by the accent (Glow) or
+    // near-black (Neon).
+    val style = PlayerAccent.style
+    val (top, floor) = when (style) {
+        AccentStyle.SUBTLE -> cover to GradientFloor
+        AccentStyle.DEEP -> lerp(cover, PlayerAccent.Start.withLightness(0.20f), 0.5f) to
+            PlayerAccent.Start.withLightness(0.05f)
+        AccentStyle.DUOTONE -> lerp(cover, PlayerAccent.End, 0.45f) to
+            lerp(Color(0xFF08080C), PlayerAccent.End, 0.12f)
+        AccentStyle.GLOW -> GlowFloor to GlowFloor
+        AccentStyle.NEON -> NeonFloor to NeonFloor
+    }
     Box(
-        modifier.background(
-            Brush.verticalGradient(
-                0f to top,
-                0.45f to lerp(top, GradientFloor, 0.45f),
-                1f to GradientFloor,
+        modifier
+            .background(
+                Brush.verticalGradient(
+                    0f to top,
+                    0.45f to lerp(top, floor, 0.45f),
+                    1f to floor,
+                ),
+            )
+            .then(
+                if (style == AccentStyle.GLOW) {
+                    // The accent glowing out from behind the cover.
+                    Modifier.drawBehind {
+                        drawRect(
+                            Brush.radialGradient(
+                                0f to PlayerAccent.Start.copy(alpha = 0.45f),
+                                0.55f to PlayerAccent.End.copy(alpha = 0.18f),
+                                1f to Color.Transparent,
+                                center = androidx.compose.ui.geometry.Offset(size.width / 2f, size.height * 0.3f),
+                                radius = maxOf(size.width * 0.95f, size.height * 0.45f),
+                            ),
+                        )
+                    }
+                } else {
+                    Modifier
+                },
             ),
-        ),
     )
 }
+
+/** Glow's player, under its light. */
+private val GlowFloor = Color(0xFF07080A)
+
+/** Neon's player. */
+private val NeonFloor = Color(0xFF060606)
 
 /** Where [ArtworkGradientBackdrop] ends up at the bottom of the screen. */
 private val GradientFloor = Color(0xFF121212)
@@ -2297,7 +2339,7 @@ fun NowPlayingScreen(
         // And off everywhere with "Disable blend effects".
         chrome = !disableBlendEffects && !videoFullscreen,
         softened = !spotifyCanvasPresentation &&
-            (playerTheme == PlayerTheme.DEFAULT || playerTheme == PlayerTheme.LEGACY),
+            playerTheme != PlayerTheme.SIMPLE,
         frost = frost,
         live = spotifyCanvasPresentation,
         // Not the host's ⋯ menu: that takes its own still, of everything.
@@ -2767,12 +2809,12 @@ fun NowPlayingScreen(
                 // Default: the artwork's own mesh under the main player, with the
                 // blurred cover fading in over it for the lyrics and queue, which
                 // have no sleeve for a mesh to carry on from.
-                val legacyMeshBackdrop = !tabletArtworkBackdrop && !spotifyCanvasPresentation &&
-                    playerTheme == PlayerTheme.LEGACY
+                // Retired with the Mesh and Legacy themes.
+                val legacyMeshBackdrop = false
                 // The default theme: the artwork's colour washed down the screen
                 // into near-black, under the main player. The lyrics and queue
                 // keep the blurred cover over it.
-                val gradientBackdrop = !tabletArtworkBackdrop && playerTheme == PlayerTheme.DEFAULT
+                val gradientBackdrop = !tabletArtworkBackdrop && playerTheme != PlayerTheme.SIMPLE
                 val artworkMeshBackdrop = false
                 val fullArtworkBackdropAlpha by animateFloatAsState(
                     targetValue = if (
