@@ -1,56 +1,145 @@
-name: Android Release APK
+name: Release
+
+# Builds TuneTable's signed phone APKs and publishes them as a GitHub release.
+#
+# Run it from the Actions tab: Release → Run workflow. Give it the tag
+# (v1.0.1), and the commit or branch to build (main, or an older commit for an
+# older version). It checks that the tag matches the version in
+# build.gradle.kts, builds and signs both APKs with the release key held in the
+# repository's secrets, names them as the in-app updater expects
+# (TuneTable-v1.0.1.apk and TuneTable-v1.0.1_arm64-v8a.apk), and creates the
+# release with docs/releases/<tag>.md as its notes.
+#
+# Secrets it needs (Settings → Secrets and variables → Actions):
+#   KEYSTORE_BASE64    the release keystore (tunetable-release.jks), base64-encoded
+#   KEYSTORE_PASSWORD  its store password
+#   KEY_ALIAS          tunetable
+#   KEY_PASSWORD       its key password
+# Optional, as in BitChord: LASTFM_API_KEY, LASTFM_SECRET, LISTEN_TOGETHER_SERVER.
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag, e.g. v1.0.1 (must match the version in build.gradle.kts)"
+        required: true
+      ref:
+        description: "Branch or commit to build"
+        required: true
+        default: main
+      latest:
+        description: "Mark as the latest release"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ inputs.tag }}
+  cancel-in-progress: false
 
 jobs:
-  build-prod-release:
+  release:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: gradle
+      # The notes live on the default branch, which an older commit being
+      # released may predate.
+      - name: Checkout the release notes
+        uses: actions/checkout@v4
+        with:
+          path: notes
+          sparse-checkout: docs/releases
 
-    - name: Setup Secrets (Keystore & local.properties)
-      run: |
-        echo "LASTFM_API_KEY=${{ secrets.LASTFM_API_KEY }}" > local.properties
-        echo "LASTFM_SECRET=${{ secrets.LASTFM_SECRET }}" >> local.properties
-        echo "LISTEN_TOGETHER_SERVER=${{ secrets.LISTEN_TOGETHER_SERVER }}" >> local.properties
+      - name: Check the tag against the app's version
+        env:
+          TAG: ${{ inputs.tag }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version=$(sed -n 's/^extra\["bitchordVersionName"\] = "\(.*\)"$/\1/p' build.gradle.kts)
+          echo "App version: $version"
+          if [ "v$version" != "$TAG" ]; then
+            echo "::error::Tag $TAG does not match the app's version v$version at ${{ inputs.ref }}."
+            exit 1
+          fi
+          if gh release view "$TAG" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "::error::Release $TAG already exists."
+            exit 1
+          fi
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+          echo "SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+        shell: bash
 
-        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > bitchord-release.jks
-        {
-          echo "storeFile=bitchord-release.jks"
-          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}"
-          echo "keyAlias=${{ secrets.KEY_ALIAS }}"
-          echo "keyPassword=${{ secrets.KEY_PASSWORD }}"
-        } > keystore.properties
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+      - uses: gradle/actions/setup-gradle@v4
 
-    - name: Build Signed Prod Release APK
-      run: ./gradlew assembleProdRelease
+      - name: Write signing key and local.properties
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
+          LASTFM_SECRET: ${{ secrets.LASTFM_SECRET }}
+          LISTEN_TOGETHER_SERVER: ${{ secrets.LISTEN_TOGETHER_SERVER }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ] || [ -z "$KEYSTORE_PASSWORD" ] || [ -z "$KEY_ALIAS" ] || [ -z "$KEY_PASSWORD" ]; then
+            echo "::error::The signing secrets are missing. Add KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS and KEY_PASSWORD."
+            exit 1
+          fi
+          {
+            echo "LASTFM_API_KEY=$LASTFM_API_KEY"
+            echo "LASTFM_SECRET=$LASTFM_SECRET"
+            echo "LISTEN_TOGETHER_SERVER=$LISTEN_TOGETHER_SERVER"
+          } > local.properties
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          {
+            echo "storeFile=$RUNNER_TEMP/release.jks"
+            echo "storePassword=$KEYSTORE_PASSWORD"
+            echo "keyAlias=$KEY_ALIAS"
+            echo "keyPassword=$KEY_PASSWORD"
+          } > keystore.properties
+        shell: bash
 
-    - name: Upload APK Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: bitchord-prod-release-signed
-        path: app/build/outputs/apk/prod/release/*.apk
+      - name: Build the signed APKs
+        run: ./gradlew --no-daemon :app:assembleProdRelease
 
-    # Built by the same assembleProdRelease, with the same key. The watch app
-    # only pairs with a phone app signed by the same key, so a prod watch APK
-    # for these phone builds can only come from here, never a local build.
-    - name: Upload Wear OS APK Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: bitchord-wear-prod-release-signed
-        path: wearos/build/outputs/apk/prod/release/*.apk
+      - name: Name the APKs for the updater
+        run: |
+          out=app/build/outputs/apk/prod/release
+          mkdir dist
+          cp "$out/app-prod-universal-release.apk" "dist/TuneTable-v$VERSION.apk"
+          cp "$out/app-prod-arm64-v8a-release.apk" "dist/TuneTable-v${VERSION}_arm64-v8a.apk"
+          ls -la dist
+        shell: bash
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ inputs.tag }}
+          LATEST: ${{ inputs.latest }}
+        run: |
+          notes="notes/docs/releases/$TAG.md"
+          if [ -f "$notes" ]; then notes_args=(--notes-file "$notes"); else notes_args=(--generate-notes); fi
+          gh release create "$TAG" dist/*.apk \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$SHA" \
+            --title "TuneTable ${TAG#v}" \
+            --latest="$LATEST" \
+            "${notes_args[@]}"
+        shell: bash
+
+      - name: Remove the signing key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release.jks" keystore.properties
