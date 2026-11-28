@@ -479,19 +479,26 @@ class MainActivity : AppCompatActivity() {
             val accent = rememberAccentColors()
             val accentStyle by AppSettings.accentStyle.collectAsStateWithLifecycle()
             val playerStyle by AppSettings.playerTheme.collectAsStateWithLifecycle()
+            // Read here, in composition, so a new pick recomposes this and the
+            // effect below hands it on. Read only inside the effect, a change
+            // never reached the player until the app was restarted.
+            //
+            // The player's own style, or null to follow the app's. Simple keeps
+            // Subtle's controls over its blurred cover, drawn plain white.
+            val playerOverride = when (playerStyle) {
+                PlayerTheme.FOLLOW -> null
+                PlayerTheme.SUBTLE, PlayerTheme.SIMPLE -> AccentStyle.SUBTLE
+                PlayerTheme.DEEP -> AccentStyle.DEEP
+                PlayerTheme.GLOW -> AccentStyle.GLOW
+                PlayerTheme.DUOTONE -> AccentStyle.DUOTONE
+                PlayerTheme.NEON -> AccentStyle.NEON
+            }
+            val playerPlain = playerStyle == PlayerTheme.SIMPLE
             SideEffect {
                 Accent.colors = accent
                 Accent.style = accentStyle
-                // The player's own style, or null to follow the app's. Simple
-                // keeps Subtle's controls over its blurred cover.
-                PlayerAccent.override = when (playerStyle) {
-                    PlayerTheme.FOLLOW -> null
-                    PlayerTheme.SUBTLE, PlayerTheme.SIMPLE -> AccentStyle.SUBTLE
-                    PlayerTheme.DEEP -> AccentStyle.DEEP
-                    PlayerTheme.GLOW -> AccentStyle.GLOW
-                    PlayerTheme.DUOTONE -> AccentStyle.DUOTONE
-                    PlayerTheme.NEON -> AccentStyle.NEON
-                }
+                PlayerAccent.override = playerOverride
+                PlayerAccent.plain = playerPlain
             }
             BitChordTheme(darkTheme = darkTheme, font = appFont, accent = accent.start, accentEnd = accent.end, style = accentStyle) {
                 // The glass surfaces sample this layer, and a layer records only

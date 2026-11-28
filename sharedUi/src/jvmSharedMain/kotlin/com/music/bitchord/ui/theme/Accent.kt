@@ -178,9 +178,12 @@ object PlayerAccent {
     /** The style picked for the player alone; null to follow the app's. */
     var override: AccentStyle? by mutableStateOf(null)
 
+    /** Simple: every glyph plain white over the blurred cover, the accent nowhere. */
+    var plain: Boolean by mutableStateOf(false)
+
     val style: AccentStyle get() = override ?: Accent.style
     val outlined: Boolean get() = style == AccentStyle.NEON
-    val Icon: Color get() = Accent.iconFor(style)
+    val Icon: Color get() = if (plain) Color.White else Accent.iconFor(style)
     val Start: Color get() = Accent.Start
     val End: Color get() = Accent.End
     val Solid: Color get() = Accent.Solid
