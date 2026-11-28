@@ -143,7 +143,6 @@
     <string name="widget_preview_artist">कलाकार</string>
     <string name="widget_pill_label">अभी चल रहा है 4×1</string>
     <string name="widget_pill_description">ट्रैक के साथ लाइक, शफ़ल और प्लेबैक नियंत्रण, एक ही पंक्ति में।</string>
-    <string name="widget_preview_pill">गाने का शीर्षक - कलाकार</string>
     <string name="download_quality">डाउनलोड क्वालिटी</string>
     <string name="download_wifi_only">केवल Wi-Fi पर डाउनलोड करें</string>
     <string name="spatial_audio">स्पेशियल ऑडियो</string>
@@ -1558,6 +1557,12 @@
     <string name="drive_over_cellular_subtitle">बंद होने पर, ऑटो सिंक Wi-Fi का इंतज़ार करते हैं</string>
 
     <!-- Not yet translated: shown in English until a translation is added. -->
+    <string name="widget_mini_label">Now playing 2×1</string>
+    <string name="widget_mini_description">The cover, the title and play, small.</string>
+    <string name="widget_large_label">Now playing 4×4</string>
+    <string name="widget_large_description">A big cover with the track, Shuffle, Like and playback controls.</string>
+    <string name="widget_like">Like</string>
+    <string name="widget_shuffle">Shuffle</string>
     <string name="automix_art_transition">Art transition</string>
     <string name="automix_art_transition_subtitle">Smoothly blends cover art between tracks during AutoMix.</string>
     <string name="automix_mini_art_transition">Mini-player art transition</string>

@@ -2,6 +2,7 @@ package com.music.bitchord
 
 import com.music.bitchord.data.listentogether.listenTogetherAvailable
 import com.music.bitchord.data.settings.PlayerTheme
+import com.music.bitchord.widget.MediaWidget
 import com.music.bitchord.ui.theme.AccentStyle
 import com.music.bitchord.ui.theme.PlayerAccent
 import com.music.bitchord.ui.theme.styledPagePalette
@@ -479,6 +480,8 @@ class MainActivity : AppCompatActivity() {
             // The accent chosen in Settings, handed to everything drawn in it.
             val accent = rememberAccentColors()
             val accentStyle by AppSettings.accentStyle.collectAsStateWithLifecycle()
+            // The home-screen widgets are drawn in the same Style and colour.
+            LaunchedEffect(accent, accentStyle) { MediaWidget.refresh(applicationContext) }
             val playerStyle by AppSettings.playerTheme.collectAsStateWithLifecycle()
             // Read here, in composition, so a new pick recomposes this and the
             // effect below hands it on. Read only inside the effect, a change

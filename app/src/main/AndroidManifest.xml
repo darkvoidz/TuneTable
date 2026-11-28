@@ -427,15 +427,35 @@
         </provider>
 
         <!--
-          Home-screen widgets. Two providers so the picker lists a 2×2 and a 4×2,
-          both of which are the same widget resized — see MediaWidget.
-
-          Not exported, which is correct for a widget provider despite the
-          launcher being the one that talks to it: the system delivers
-          APPWIDGET_UPDATE to providers regardless, and the button PendingIntents
-          are sent with this app's own identity. Exporting them would only make
-          the update broadcast reachable by anything on the device.
+          Home-screen widgets, in five sizes, drawn in the app's Style — see
+          MediaWidget. Not exported: the system delivers APPWIDGET_UPDATE to
+          providers regardless, and the buttons' PendingIntents carry this
+          app's own identity.
         -->
+        <receiver
+            android:name=".widget.MediaWidgetMini"
+            android:exported="false"
+            android:label="@string/widget_mini_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_media_mini" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.MediaWidgetPill"
+            android:exported="false"
+            android:label="@string/widget_pill_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_media_pill" />
+        </receiver>
+
         <receiver
             android:name=".widget.MediaWidgetSquare"
             android:exported="false"
@@ -460,17 +480,16 @@
                 android:resource="@xml/widget_media_wide" />
         </receiver>
 
-        <!-- The 4×1 capsule. Its own provider and layout; see MediaWidgetPill. -->
         <receiver
-            android:name=".widget.MediaWidgetPill"
+            android:name=".widget.MediaWidgetLarge"
             android:exported="false"
-            android:label="@string/widget_pill_label">
+            android:label="@string/widget_large_label">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/widget_media_pill" />
+                android:resource="@xml/widget_media_large" />
         </receiver>
 
         <!-- Quick Settings tile: play or pause the last queue. See PlaybackTile. -->

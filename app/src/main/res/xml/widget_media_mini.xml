@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The 2×1 widget. Drawn in the app's Style and accent colour; see MediaWidget. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/widget_mini_description"
+    android:initialLayout="@layout/widget_styled_mini"
+    android:minHeight="40dp"
+    android:minWidth="110dp"
+    android:minResizeWidth="110dp"
+    android:maxResizeWidth="180dp"
+    android:previewLayout="@layout/widget_styled_mini"
+    android:resizeMode="horizontal"
+    android:targetCellHeight="1"
+    android:targetCellWidth="2"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen|keyguard" />

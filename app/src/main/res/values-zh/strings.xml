@@ -138,7 +138,6 @@
     <string name="widget_preview_artist">艺人</string>
     <string name="widget_pill_label">正在播放 4×1</string>
     <string name="widget_pill_description">单行显示曲目，以及喜欢、随机播放和播放控件。</string>
-    <string name="widget_preview_pill">歌曲标题 - 艺人</string>
     <string name="download_quality">下载质量</string>
     <string name="download_wifi_only">仅通过 Wi-Fi 下载</string>
     <string name="spatial_audio">空间音频</string>
@@ -1534,6 +1533,12 @@
     <string name="drive_over_cellular_subtitle">关闭时，自动同步会等待 Wi-Fi</string>
 
     <!-- Not yet translated: shown in English until a translation is added. -->
+    <string name="widget_mini_label">Now playing 2×1</string>
+    <string name="widget_mini_description">The cover, the title and play, small.</string>
+    <string name="widget_large_label">Now playing 4×4</string>
+    <string name="widget_large_description">A big cover with the track, Shuffle, Like and playback controls.</string>
+    <string name="widget_like">Like</string>
+    <string name="widget_shuffle">Shuffle</string>
     <string name="automix_art_transition">Art transition</string>
     <string name="automix_art_transition_subtitle">Smoothly blends cover art between tracks during AutoMix.</string>
     <string name="automix_mini_art_transition">Mini-player art transition</string>

@@ -188,7 +188,6 @@
     <string name="widget_preview_artist">아티스트</string>
     <string name="widget_pill_label">지금 재생 4×1</string>
     <string name="widget_pill_description">곡 정보, 좋아요, 셔플, 재생 컨트롤 버튼을 행 하나에 배열합니다.</string>
-    <string name="widget_preview_pill">곡 제목 - 아티스트</string>
     <string name="download_quality">다운로드 품질</string>
     <string name="download_wifi_only">Wi-Fi에서만 다운로드</string>
     <string name="convert_to_audio">오디오로 변환</string>
@@ -1395,6 +1394,12 @@
     <string name="drive_over_cellular_subtitle">끄면 자동 동기화가 Wi-Fi를 기다립니다</string>
 
     <!-- Not yet translated: shown in English until a translation is added. -->
+    <string name="widget_mini_label">Now playing 2×1</string>
+    <string name="widget_mini_description">The cover, the title and play, small.</string>
+    <string name="widget_large_label">Now playing 4×4</string>
+    <string name="widget_large_description">A big cover with the track, Shuffle, Like and playback controls.</string>
+    <string name="widget_like">Like</string>
+    <string name="widget_shuffle">Shuffle</string>
     <string name="automix_art_transition">Art transition</string>
     <string name="automix_art_transition_subtitle">Smoothly blends cover art between tracks during AutoMix.</string>
     <string name="automix_mini_art_transition">Mini-player art transition</string>

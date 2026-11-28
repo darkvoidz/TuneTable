@@ -153,7 +153,6 @@
     <string name="widget_preview_artist">Исполнитель</string>
     <string name="widget_pill_label">Сейчас играет 4×1</string>
     <string name="widget_pill_description">Трек с лайком, перемешиванием и управлением воспроизведением в одну строку.</string>
-    <string name="widget_preview_pill">Название песни - Исполнитель</string>
     <string name="download_quality">Качество загрузки</string>
     <string name="download_wifi_only">Загружать только по Wi-Fi</string>
     <string name="spatial_audio">Пространственный звук</string>
@@ -1592,6 +1591,12 @@
     <string name="drive_over_cellular_subtitle">Если выключено, автосинхронизация ждёт Wi-Fi</string>
 
     <!-- Not yet translated: shown in English until a translation is added. -->
+    <string name="widget_mini_label">Now playing 2×1</string>
+    <string name="widget_mini_description">The cover, the title and play, small.</string>
+    <string name="widget_large_label">Now playing 4×4</string>
+    <string name="widget_large_description">A big cover with the track, Shuffle, Like and playback controls.</string>
+    <string name="widget_like">Like</string>
+    <string name="widget_shuffle">Shuffle</string>
     <string name="automix_art_transition">Art transition</string>
     <string name="automix_art_transition_subtitle">Smoothly blends cover art between tracks during AutoMix.</string>
     <string name="automix_mini_art_transition">Mini-player art transition</string>

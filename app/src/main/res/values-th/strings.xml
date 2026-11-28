@@ -146,7 +146,6 @@
     <string name="widget_preview_artist">ศิลปิน</string>
     <string name="widget_pill_label">กำลังเล่น 4×1</string>
     <string name="widget_pill_description">เพลงพร้อมปุ่มถูกใจ สุ่มเล่น และปุ่มควบคุมการเล่นในแถวเดียว</string>
-    <string name="widget_preview_pill">ชื่อเพลง - ศิลปิน</string>
     <string name="download_quality">คุณภาพการดาวน์โหลด</string>
     <string name="download_wifi_only">ดาวน์โหลดผ่าน Wi-Fi เท่านั้น</string>
     <string name="convert_to_audio">แปลงเป็นเสียง</string>
@@ -1540,6 +1539,12 @@
     <string name="drive_over_cellular_subtitle">เมื่อปิด การซิงค์อัตโนมัติจะรอ Wi-Fi</string>
 
     <!-- Not yet translated: shown in English until a translation is added. -->
+    <string name="widget_mini_label">Now playing 2×1</string>
+    <string name="widget_mini_description">The cover, the title and play, small.</string>
+    <string name="widget_large_label">Now playing 4×4</string>
+    <string name="widget_large_description">A big cover with the track, Shuffle, Like and playback controls.</string>
+    <string name="widget_like">Like</string>
+    <string name="widget_shuffle">Shuffle</string>
     <string name="automix_art_transition">Art transition</string>
     <string name="automix_art_transition_subtitle">Smoothly blends cover art between tracks during AutoMix.</string>
     <string name="automix_mini_art_transition">Mini-player art transition</string>
