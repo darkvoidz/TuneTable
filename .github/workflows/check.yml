@@ -26,9 +26,11 @@ jobs:
 
       - name: Write local.properties
         run: |
-          echo "LASTFM_API_KEY=${{ secrets.LASTFM_API_KEY }}" > local.properties
-          echo "LASTFM_SECRET=${{ secrets.LASTFM_SECRET }}" >> local.properties
-          echo "LISTEN_TOGETHER_SERVER=${{ secrets.LISTEN_TOGETHER_SERVER }}" >> local.properties
+          : > local.properties
+          [ -n "${{ secrets.LASTFM_API_KEY }}" ] && echo "LASTFM_API_KEY=${{ secrets.LASTFM_API_KEY }}" >> local.properties
+          [ -n "${{ secrets.LASTFM_SECRET }}" ] && echo "LASTFM_SECRET=${{ secrets.LASTFM_SECRET }}" >> local.properties
+          [ -n "${{ secrets.LISTEN_TOGETHER_SERVER }}" ] && echo "LISTEN_TOGETHER_SERVER=${{ secrets.LISTEN_TOGETHER_SERVER }}" >> local.properties
+          true
 
       # The local debug key, so this APK installs over a local dev build and
       # back. Fork PRs get no secrets; AGP then makes a throwaway key itself.

@@ -107,11 +107,13 @@ jobs:
             echo "::error::The signing secrets are missing. Add KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS and KEY_PASSWORD."
             exit 1
           fi
-          {
-            echo "LASTFM_API_KEY=$LASTFM_API_KEY"
-            echo "LASTFM_SECRET=$LASTFM_SECRET"
-            echo "LISTEN_TOGETHER_SERVER=$LISTEN_TOGETHER_SERVER"
-          } > local.properties
+          # Only the keys that are set: an empty line would override the
+          # build's own default (Listen Together's server address).
+          : > local.properties
+          [ -n "$LASTFM_API_KEY" ] && echo "LASTFM_API_KEY=$LASTFM_API_KEY" >> local.properties
+          [ -n "$LASTFM_SECRET" ] && echo "LASTFM_SECRET=$LASTFM_SECRET" >> local.properties
+          [ -n "$LISTEN_TOGETHER_SERVER" ] && echo "LISTEN_TOGETHER_SERVER=$LISTEN_TOGETHER_SERVER" >> local.properties
+          true
           echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
           {
             echo "storeFile=$RUNNER_TEMP/release.jks"
