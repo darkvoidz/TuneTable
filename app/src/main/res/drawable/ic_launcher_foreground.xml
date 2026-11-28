@@ -6,8 +6,8 @@
     android:viewportHeight="108">
     <!-- Two offset Ts, for TuneTable, set on a slant. -->
     <group
-        android:translateX="2.26"
-        android:translateY="-1.58">
+        android:translateX="1.13"
+        android:translateY="-0.79">
         <group
             android:rotation="-30"
             android:pivotX="54"

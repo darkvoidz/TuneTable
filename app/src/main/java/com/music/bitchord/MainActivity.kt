@@ -4090,6 +4090,7 @@ private fun BitChordApp(
                 }
 
                 FrostedTopBar(
+                    leadingMark = homeHeadingVisible,
                     title = when (route) {
                         AppRoute.Spotify -> stringResource(R.string.spotify)
                         AppRoute.Downloads -> stringResource(R.string.downloads)

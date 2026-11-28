@@ -1,5 +1,7 @@
 package com.music.bitchord.ui.components
 
+import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.Image
 import com.music.bitchord.ui.theme.Accent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -180,6 +182,8 @@ fun FrostedTopBar(
      * Root tabs have no back button there for it to collide with.
      */
     accessory: (@Composable () -> Unit)? = null,
+    /** TuneTable's mark at the leading end, opposite the actions — Home only. */
+    leadingMark: Boolean = false,
     actions: @Composable () -> Unit = {},
 ) {
     val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
@@ -313,8 +317,18 @@ fun FrostedTopBar(
                     }
                 }
             }
-            // No wordmark at the leading end: the root tabs carry it above
-            // their large heading instead (LargePageTitle in :sharedUi).
+            // Home's top-left: TuneTable's two Ts, on their own, across from
+            // the profile photo.
+            if (leadingMark && onBack == null) {
+                Image(
+                    painter = painterResource(R.drawable.ic_logo),
+                    contentDescription = stringResource(R.string.app_name),
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(start = if (useFloatingChrome) BAR_GUTTER else 16.dp)
+                        .size(width = 38.dp, height = 25.dp),
+                )
+            }
             // The accessory takes everything from the leading gutter up to the
             // actions, which keep their own width at the trailing end.
             val edge = if (useFloatingChrome) BAR_GUTTER else 4.dp
