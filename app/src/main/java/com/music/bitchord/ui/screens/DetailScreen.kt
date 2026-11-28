@@ -6,6 +6,12 @@ import com.music.bitchord.ui.theme.Accent
 import com.music.bitchord.ui.theme.styledPagePalette
 import com.music.bitchord.ui.components.trackArtSize
 import android.os.Build
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.draw.drawBehind
 import com.music.bitchord.R
 
 import androidx.compose.animation.AnimatedContent
@@ -176,7 +182,6 @@ import com.music.bitchord.ui.components.SHELF_CARD_WIDTH
 import com.music.bitchord.ui.components.SongRow
 import com.music.bitchord.ui.components.SearchPlayingBars
 import com.music.bitchord.ui.components.libraryGrid
-import com.music.bitchord.ui.components.lightweightLiquidGlass
 import com.music.bitchord.ui.components.thumbnailBorder
 import com.music.bitchord.ui.components.detailSkeleton
 import com.music.bitchord.ui.components.topBarContentPadding
@@ -259,13 +264,7 @@ private val HEADER_DROP = 44.dp
 /** How far the artist name/logo and everything under it sit above the usual [HEADER_DROP]. */
 private val ARTIST_HEADER_LIFT = 64.dp
 
-/** The artist action row: a large Play flanked by two smaller glass circles. */
-private val ARTIST_PLAY_BUTTON = 70.dp
-
-/** A larger share of a smaller circle than the release headers' 0.44. */
-private const val ARTIST_PLAY_ICON_SCALE = 0.56f
 private val ARTIST_SIDE_BUTTON = 52.dp
-private val ARTIST_ACTION_GAP = 24.dp
 
 /** The title logo's widest share of the page, and tallest share of the photo. */
 private const val ARTIST_LOGO_WIDTH = 0.82f
@@ -628,6 +627,18 @@ fun DetailScreen(
 
             val description = page.description
 
+            val hasStats = isArtist &&
+                (page.subscriberCountText != null || page.monthlyListenerCount != null)
+            if (hasStats) {
+                item(key = "stats") {
+                    ArtistStatsRow(
+                        subscriberCountText = page.subscriberCountText,
+                        monthlyListenerCount = page.monthlyListenerCount,
+                        palette = palette,
+                    )
+                }
+            }
+
             if (songs.isNotEmpty() && isArtist) {
                 item(key = "actions") {
                     ActionRow(
@@ -636,7 +647,6 @@ fun DetailScreen(
                         subscription = page.subscription?.takeIf { onToggleSubscription != null },
                         onToggleSubscription = onToggleSubscription,
                         bottomSpace = 22.dp,
-                        playColor = null,
                     )
                 }
             }
@@ -666,12 +676,10 @@ fun DetailScreen(
             // than sitting between the action row and the songs.
             // The artist's counts close it, under the text, so a page whose blurb is
             // empty still gets the section for them.
-            val hasStats = isArtist &&
-                (page.subscriberCountText != null || page.monthlyListenerCount != null)
             // The header holds Apple's logo here, so the ink goes at the foot of the page instead.
             val aboutSignature = if (isArtist && appleArt?.logoUrl != null) signature else null
             val showAbout = (!description.isNullOrBlank() &&
-                (page.type == BrowseType.ALBUM || isArtist)) || hasStats || aboutSignature != null
+                (page.type == BrowseType.ALBUM || isArtist)) || aboutSignature != null
             fun LazyListScope.aboutItem() {
                 if (!showAbout) return
                 item(key = "about") {
@@ -684,17 +692,7 @@ fun DetailScreen(
                         text = description?.takeIf { it.isNotBlank() },
                         palette = palette,
                         horizontalPadding = if (isArtist) ARTIST_CONTENT_GUTTER else ABOUT_GUTTER,
-                        stats = if (hasStats) {
-                            {
-                                ArtistStatsRow(
-                                    subscriberCountText = page.subscriberCountText,
-                                    monthlyListenerCount = page.monthlyListenerCount,
-                                    palette = palette,
-                                )
-                            }
-                        } else {
-                            null
-                        },
+                        stats = null,
                         footer = aboutSignature?.let { sig ->
                             {
                                 AboutSignature(
@@ -750,7 +748,12 @@ fun DetailScreen(
                                 flingBehavior = rememberSnapFlingBehavior(lazyListState = topSongsState),
                             ) {
                                 items(top.chunked(SONGS_PER_COLUMN)) { column ->
-                                    Column(Modifier.width(columnWidth)) {
+                                    Column(
+                                        Modifier
+                                            .width(columnWidth)
+                                            .pageCard(PAGE_CARD_SHAPE)
+                                            .padding(vertical = 4.dp),
+                                    ) {
                                         column.forEach { song ->
                                             CompactSongRow(
                                                 song = song,
@@ -784,6 +787,12 @@ fun DetailScreen(
                     ) { position, entry ->
                         val song = entry.value
                         val isCurrent = isCurrentRow(song)
+                        Column(
+                            Modifier
+                                .padding(horizontal = PAGE_CARD_INSET)
+                                .pageCardSegment(first = position == 0, last = position == matches.lastIndex)
+                                .padding(top = if (position == 0) 6.dp else 0.dp, bottom = if (position == matches.lastIndex) 6.dp else 0.dp),
+                        ) {
                         SongRow(
                             song = if (numbered) {
                                 song
@@ -814,6 +823,7 @@ fun DetailScreen(
                                 thickness = 0.5.dp,
                                 color = palette.divider,
                             )
+                        }
                         }
                     }
                 }
@@ -949,6 +959,27 @@ private fun ReleaseHeader(
     // to the page's width it would only tint the top of the screen.
     val bleed = fullBleed && page.thumbnailUrl != null && !artFailed
 
+    Box(Modifier.fillMaxWidth()) {
+    // Behind a framed sleeve, a soft blurred copy of it fading into the page,
+    // so the top of the page carries the cover's colour without the page
+    // itself turning that colour. Blur needs Android 12.
+    if (!bleed && page.thumbnailUrl != null && !artFailed && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        val pageColor = palette.background
+        AsyncImage(
+            model = page.thumbnailUrl.artworkAt(HEADER_ART_PX),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .matchParentSize()
+                .graphicsLayer { alpha = 0.45f }
+                .blur(48.dp, BlurredEdgeTreatment.Rectangle),
+        )
+        Box(
+            Modifier
+                .matchParentSize()
+                .background(Brush.verticalGradient(0.25f to Color.Transparent, 0.85f to pageColor, 1f to pageColor)),
+        )
+    }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -1058,8 +1089,7 @@ private fun ReleaseHeader(
         Spacer(Modifier.height(20.dp))
         Text(
             text = page.title,
-            style = MaterialTheme.typography.headlineMedium,
-            color = palette.onBackground,
+            style = MaterialTheme.typography.headlineMedium.copy(brush = pageHeadlineBrush(palette)),
             textAlign = TextAlign.Center,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
@@ -1070,10 +1100,10 @@ private fun ReleaseHeader(
             Text(
                 text = credit,
                 style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 19.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 17.sp,
                 ),
-                color = palette.onBackgroundVariant,
+                color = palette.accent,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -1149,18 +1179,19 @@ private fun ReleaseHeader(
                     }
                     return@Row
                 }
-                CircleIconButton(
-                    icon = BitChordIcons.Shuffle,
-                    contentDescription = stringResource(R.string.shuffle),
-                    onClick = onShuffle,
-                    haptic = Haptic.Resume,
-                    size = RELEASE_SIDE_BUTTON,
-                )
                 ActionPill(
                     icon = BitChordIcons.Play,
                     label = stringResource(R.string.play),
                     onClick = onPlay,
                     filled = true,
+                    size = RELEASE_SIDE_BUTTON,
+                    modifier = Modifier.weight(1f),
+                )
+                ActionPill(
+                    icon = BitChordIcons.Shuffle,
+                    label = stringResource(R.string.shuffle),
+                    onClick = onShuffle,
+                    filled = false,
                     size = RELEASE_SIDE_BUTTON,
                     modifier = Modifier.weight(1f),
                 )
@@ -1192,6 +1223,7 @@ private fun ReleaseHeader(
             }
         }
     }
+}
 }
 
 /**
@@ -1460,8 +1492,7 @@ private fun ArtistHeader(
         }
         if (!logoShown) Text(
             text = page.title,
-            style = MaterialTheme.typography.displayLarge,
-            color = palette.onBackground,
+            style = MaterialTheme.typography.displayLarge.copy(brush = pageHeadlineBrush(palette)),
             textAlign = TextAlign.Center,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
@@ -1621,14 +1652,12 @@ private fun ActionRow(
     /** The artist header's subscribe state, or null where it isn't offered. */
     subscription: SubscriptionState? = null,
     onToggleSubscription: (() -> Unit)? = null,
-    /** Apple's fill for the Play circle; null leaves it white. */
-    playColor: Color? = null,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = HEADER_GUTTER),
-        horizontalArrangement = Arrangement.spacedBy(ARTIST_ACTION_GAP, Alignment.CenterHorizontally),
+        horizontalArrangement = Arrangement.spacedBy(RELEASE_ACTION_GAP),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         CircleIconButton(
@@ -1639,11 +1668,14 @@ private fun ActionRow(
             size = ARTIST_SIDE_BUTTON,
         )
 
-        PlayCircle(
+        // A wide labelled Play in the accent, as on a release page.
+        ActionPill(
+            icon = BitChordIcons.Play,
+            label = stringResource(R.string.play),
             onClick = onPlay,
-            size = ARTIST_PLAY_BUTTON,
-            iconScale = ARTIST_PLAY_ICON_SCALE,
-            containerColor = playColor ?: Accent.Fill,
+            filled = true,
+            size = ARTIST_SIDE_BUTTON,
+            modifier = Modifier.weight(1f),
         )
 
         if (subscription != null) {
@@ -1725,84 +1757,6 @@ private fun ActionPill(
 }
 
 /**
- * The artist page's Play: a filled circle with the triangle punched out of it,
- * so the page shows through, as Apple's does.
- */
-@Composable
-private fun PlayCircle(
-    onClick: () -> Unit,
-    size: Dp,
-    iconScale: Float,
-    containerColor: Color,
-) {
-    val haptics = rememberHaptics()
-    val description = stringResource(R.string.play)
-    Box(
-        modifier = Modifier
-            .size(size)
-            .clip(CircleShape)
-            .clickable {
-                haptics.play(Haptic.Resume)
-                onClick()
-            }
-            // Offscreen so the clear below cuts the circle drawn under it,
-            // not whatever the page has behind.
-            .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
-            .drawWithContent {
-                val ring = Accent.Outline
-                if (ring != null) {
-                    // Neon: a thin ring with the triangle drawn in line inside it.
-                    val stroke = Accent.OutlineWidth.toPx()
-                    drawCircle(ring, radius = this.size.minDimension / 2f - stroke / 2f,
-                        style = androidx.compose.ui.graphics.drawscope.Stroke(stroke))
-                    val box = this.size.minDimension * iconScale
-                    val unit = box / 24f
-                    val origin = Offset((this.size.width - box) / 2f, (this.size.height - box) / 2f)
-                    val triangle = androidx.compose.ui.graphics.Path().apply {
-                        moveTo(origin.x + 7.5f * unit, origin.y + 5.5f * unit)
-                        lineTo(origin.x + 18.5f * unit, origin.y + 12f * unit)
-                        lineTo(origin.x + 7.5f * unit, origin.y + 18.5f * unit)
-                        close()
-                    }
-                    drawPath(
-                        triangle,
-                        Accent.Icon,
-                        style = androidx.compose.ui.graphics.drawscope.Stroke(
-                            width = 1.6f * unit,
-                            cap = androidx.compose.ui.graphics.StrokeCap.Round,
-                            join = androidx.compose.ui.graphics.StrokeJoin.Round,
-                        ),
-                    )
-                    return@drawWithContent
-                }
-                drawCircle(containerColor)
-                val box = this.size.minDimension * iconScale
-                val unit = box / 24f
-                val origin = Offset((this.size.width - box) / 2f, (this.size.height - box) / 2f)
-                val triangle = androidx.compose.ui.graphics.Path().apply {
-                    moveTo(origin.x + 6.8f * unit, origin.y + 4.8f * unit)
-                    lineTo(origin.x + 19.2f * unit, origin.y + 12f * unit)
-                    lineTo(origin.x + 6.8f * unit, origin.y + 19.2f * unit)
-                    close()
-                }
-                drawPath(triangle, Color.Black, blendMode = BlendMode.Clear)
-                // The same round-joined pen the icon is drawn with.
-                drawPath(
-                    triangle,
-                    Color.Black,
-                    style = androidx.compose.ui.graphics.drawscope.Stroke(
-                        width = 2f * unit,
-                        cap = androidx.compose.ui.graphics.StrokeCap.Round,
-                        join = androidx.compose.ui.graphics.StrokeJoin.Round,
-                    ),
-                    blendMode = BlendMode.Clear,
-                )
-            }
-            .semantics { contentDescription = description },
-    )
-}
-
-/**
  * Small circular icon-only button — Shuffle and its partner either side of
  * Play, on both the release and the artist page. A light veil with a hairline
  * edge, Apple's look for these, rather than the dark glass.
@@ -1850,14 +1804,13 @@ private fun ArtistStatsRow(
     monthlyListenerCount: String?,
     palette: ArtworkPalette,
 ) {
-    // Stacked and left-aligned with the text under it, since this now sits in
-    // the About section rather than across the header.
-    Column(
+    // Side by side under the artist's name, above Play.
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = ARTIST_CONTENT_GUTTER, end = ARTIST_CONTENT_GUTTER, bottom = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
-        horizontalAlignment = Alignment.Start,
+            .padding(start = ARTIST_CONTENT_GUTTER, end = ARTIST_CONTENT_GUTTER, bottom = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         // YouTube's own count text already reads "1.2M subscribers" in full,
         // so only the number is kept and the label re-said in the app's own
@@ -1885,16 +1838,14 @@ private fun StatChip(icon: ImageVector, text: String, palette: ArtworkPalette) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .lightweightLiquidGlass(
-                shape = CircleShape,
-                fallbackColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
-            )
+            .clip(CircleShape)
+            .pageButtonSurface()
             .padding(horizontal = 12.dp, vertical = 6.dp),
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = palette.onBackgroundVariant,
+            tint = pageButtonInk(),
             modifier = Modifier.size(15.dp),
         )
         Spacer(Modifier.width(6.dp))
@@ -2065,8 +2016,7 @@ private fun SectionHeading(
     ) {
         Text(
             text = title,
-            style = MaterialTheme.typography.headlineMedium,
-            color = palette.onBackground,
+            style = MaterialTheme.typography.headlineMedium.copy(brush = pageHeadlineBrush(palette)),
             modifier = Modifier.weight(1f, fill = false),
         )
         if (onShowAll != null) {
@@ -2568,3 +2518,60 @@ private fun Modifier.pageButtonSurface(): Modifier = when (Accent.style) {
 @Composable
 private fun pageButtonInk(): Color =
     if (Accent.style == AccentStyle.SUBTLE) MaterialTheme.colorScheme.onSurface else Accent.Icon
+
+/** Headlines on these pages: Glow's gradient, plain text in every other style. */
+@Composable
+private fun pageHeadlineBrush(palette: ArtworkPalette): Brush =
+    if (Accent.style == AccentStyle.GLOW) Accent.brush else SolidColor(palette.onBackground)
+
+/** The card a page's song list sits in, as the accent style draws one. */
+@Composable
+private fun Modifier.pageCard(shape: Shape): Modifier {
+    val (fill, edge) = pageCardColors()
+    return clip(shape).background(fill, shape).border(pageCardEdgeWidth(), edge, shape)
+}
+
+/**
+ * One row's slice of a [pageCard] that runs down a lazy list: the first row
+ * takes its top corners, the last its bottom ones, and the edge is drawn
+ * through the middle rows so the card reads as one piece.
+ */
+@Composable
+private fun Modifier.pageCardSegment(first: Boolean, last: Boolean): Modifier {
+    val (fill, edge) = pageCardColors()
+    val edgeWidth = pageCardEdgeWidth()
+    return drawBehind {
+        val radius = PAGE_CARD_RADIUS.toPx()
+        val stroke = edgeWidth.toPx()
+        val top = if (first) stroke / 2f else -radius * 2f
+        val bottom = if (last) size.height - stroke / 2f else size.height + radius * 2f
+        clipRect {
+            drawRoundRect(
+                color = fill,
+                topLeft = Offset(0f, top),
+                size = Size(size.width, bottom - top),
+                cornerRadius = CornerRadius(radius),
+            )
+            drawRoundRect(
+                color = edge,
+                topLeft = Offset(stroke / 2f, top),
+                size = Size(size.width - stroke, bottom - top),
+                cornerRadius = CornerRadius(radius),
+                style = Stroke(stroke),
+            )
+        }
+    }
+}
+
+@Composable
+private fun pageCardColors(): Pair<Color, Color> = when (Accent.style) {
+    AccentStyle.NEON -> Color(0xFF111113) to Accent.Start.copy(alpha = 0.55f)
+    AccentStyle.GLOW -> Color.White.copy(alpha = 0.055f) to Color.White.copy(alpha = 0.08f)
+    else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f) to Color.White.copy(alpha = 0.06f)
+}
+
+private fun pageCardEdgeWidth(): Dp = if (Accent.style == AccentStyle.NEON) Accent.OutlineWidth else 1.dp
+
+private val PAGE_CARD_RADIUS = 20.dp
+private val PAGE_CARD_SHAPE = RoundedCornerShape(PAGE_CARD_RADIUS)
+private val PAGE_CARD_INSET = 14.dp
