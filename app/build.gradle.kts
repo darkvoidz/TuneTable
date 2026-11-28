@@ -82,7 +82,8 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.music.bitchord"
+        // TuneTable's own package, so it installs beside the original BitChord.
+        applicationId = "com.darkvoidz.tunetable"
         // 26 keeps reach wide; real-time blur (RenderEffect) kicks in on API 31+,
         // Haze falls back to a translucent scrim below that.
         minSdk = 26
@@ -108,7 +109,7 @@ android {
         // Which release assets are this app's: the phone and TV APKs ship in
         // the same GitHub release, told apart by file name. See
         // AppUpdateChecker.apkAssetUrl.
-        buildConfigField("String", "UPDATE_APK_PREFIX", "\"BitChord-\"")
+        buildConfigField("String", "UPDATE_APK_PREFIX", "\"TuneTable-\"")
     }
 
     splits {
@@ -140,7 +141,7 @@ android {
     productFlavors {
         create("dev") {
             dimension = "env"
-            applicationId = "com.dev.bitchord"
+            applicationId = "com.darkvoidz.tunetable.dev"
             resValue("string", "app_name", "TuneTable Dev")
         }
         create("prod") {

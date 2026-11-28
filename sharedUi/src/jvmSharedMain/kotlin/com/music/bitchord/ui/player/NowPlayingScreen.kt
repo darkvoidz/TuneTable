@@ -446,37 +446,6 @@ private val NeonFloor = Color(0xFF060606)
 /** Where [ArtworkGradientBackdrop] ends up at the bottom of the screen. */
 private val GradientFloor = Color(0xFF121212)
 
-/** The legacy theme's backdrop, in a scope of its own for the same reason. */
-@Composable
-private fun LegacyMeshBackdrop(
-    imageUrl: String?,
-    canvasFrame: () -> ImageBitmap?,
-    canvasKey: Any?,
-    trackKey: String,
-    modifier: Modifier,
-    ambient: AutoMixAmbient,
-    entry: QueueEntryIdentity?,
-) {
-    val url = imageUrl ?: ambient.incoming?.resolvedUrl
-    val settled = ambient.incoming?.palette
-    val requestedSnap = ambient.snapKey(settled != null)
-    val snapKey = rememberAmbientSnapKey(requestedSnap)
-    val seed = settled ?: cachedArtworkPalette(url).takeIf { ambient.cancelled || ambient.direct != null }
-    val frame = canvasFrame()
-    val palette = key(snapKey) { rememberArtworkColors(url, frame, seed, canvasKey) }
-    val mix = ambient.mixFor(settled != null)
-    MeshGradientBackground(
-        palette = palette,
-        trackKey = trackKey,
-        modifier = modifier,
-        mix = mix,
-        snapKey = snapKey,
-        settled = requestedSnap != null,
-        currentIsOutgoing = entry == mix?.outgoing,
-        directStill = ambient.direct != null && frame == null,
-    )
-}
-
 /** How long a full-screen Spotify Canvas holds still after the player has opened. */
 private const val SPOTIFY_CANVAS_RESUME_DELAY_MS = 1_000L
 
@@ -2809,8 +2778,6 @@ fun NowPlayingScreen(
                 // Default: the artwork's own mesh under the main player, with the
                 // blurred cover fading in over it for the lyrics and queue, which
                 // have no sleeve for a mesh to carry on from.
-                // Retired with the Mesh and Legacy themes.
-                val legacyMeshBackdrop = false
                 // The default theme: the artwork's colour washed down the screen
                 // into near-black, under the main player. The lyrics and queue
                 // keep the blurred cover over it.
@@ -2818,7 +2785,6 @@ fun NowPlayingScreen(
                 val artworkMeshBackdrop = false
                 val fullArtworkBackdropAlpha by animateFloatAsState(
                     targetValue = if (
-                        !legacyMeshBackdrop &&
                         (tabletArtworkBackdrop || blurAvailable) &&
                         (!spotifyCanvasPresentation || lyricsOpen || queueOpen) &&
                         (!(artworkMeshBackdrop || gradientBackdrop) || lyricsOpen || queueOpen)
@@ -2838,23 +2804,6 @@ fun NowPlayingScreen(
                         .recordBackdrop(backdropLayer)
                         .hazeSource(playerHaze, zIndex = -1f),
                 ) {
-                    if (legacyMeshBackdrop) {
-                        // v1.5's backdrop, restored verbatim: no seam, because the blobs
-                        // are not anchored to anything on screen — they fill the player and
-                        // the artwork simply sits on top of them. Keyed on the track, so
-                        // they drift when the player opens and on every skip, then rest.
-                        LegacyMeshBackdrop(
-                            ambient = ambient,
-                            entry = coverEntry,
-                            imageUrl = remoteArt,
-                            canvasFrame = { canvasFrame.takeIf { canvasOwnsAmbient } },
-                            canvasKey = ambientCanvasKey,
-                            trackKey = song.videoId,
-                            modifier = Modifier
-                                .then(if (!frostOff) Modifier.hazeSource(queueHaze, zIndex = -1f) else Modifier)
-                                .graphicsLayer { alpha = 1f - fullArtworkBackdropAlpha },
-                        )
-                    }
                     if (artworkMeshBackdrop) {
                         // Hung from where the picture stops, so the screen carries on in
                         // the colours the artwork ended in: the banner's bottom edge, or

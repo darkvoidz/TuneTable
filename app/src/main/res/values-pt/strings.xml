@@ -886,13 +886,9 @@
     <string name="playlist_updates_channel">Atualizações de playlists</string>
 
     <string name="player_theme">Tema do reprodutor</string>
-    <string name="player_theme_default">Padrão</string>
-    <string name="player_theme_legacy">Clássico</string>
     <string name="player_theme_simple">Simples</string>
-    <string name="player_theme_default_subtitle">As cores da capa continuam abaixo dela</string>
     <string name="player_theme_simple_subtitle">A capa desfocada atrás de todo o reprodutor</string>
 
-    <string name="player_theme_legacy_subtitle">Traz de volta os tons suaves em movimento da v1.5</string>
 
     <string name="liquid_glass">Vidro Líquido</string>
 
